@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de l’Université privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-02-datafix-v4">
+<meta name="eiafc-web-build" content="2026-09-02-public-web-v5">
 <meta name="author" content="Université privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -1876,226 +1876,7 @@ async function createCopyableEiafcApp(){
  const encrypted=await encryptInstallProfile(profile,code);const pack=btoa(JSON.stringify(encrypted)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"");
  const endpoint=`${EIAFC_CLOUD_BOOTSTRAP.url}/functions/v1/eiafc-app-profile?profile=${encodeURIComponent(pack)}`;
  const loader=`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EIAFC — Installation</title><style>body{font-family:Segoe UI,Arial;background:#f3f6f9;color:#12304a;display:grid;place-items:center;min-height:100vh;margin:0}.box{max-width:560px;background:#fff;border:1px solid #d9e1e8;border-radius:16px;padding:28px;text-align:center}b{color:#12304a}</style></head><body><div class="box"><h2>EIAFC</h2><p id="m">Chargement de la dernière version sécurisée…</p><p><b>Connexion Internet requise à la première ouverture.</b></p></div><script>(async()=>{try{const r=await fetch(${JSON.stringify(endpoint)},{cache:"no-store"}),j=await r.json();if(!r.ok||!j.ok||!j.b64)throw new Error(j.error||("Cloud "+r.status));const raw=Uint8Array.from(atob(j.b64),c=>c.charCodeAt(0));const html=await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream("gzip"))).text();document.open();document.write(html);document.close()}catch(e){document.getElementById("m").textContent="Impossible d’ouvrir EIAFC : "+(e?.message||e)}})();<\/script>
-<script id="eiafc-web-secure-patch">
-(function(){
-  'use strict';
-  const WEB_API='https://opypgilifxnrwqmpsnzp.supabase.co/functions/v1/eiafc-secure-api';
-  const WEB_APIKEY='sb_publishable_gAPfLd6okuu42hvOwQp35Q_L87JA22Q';
-  const WEB_WORKSPACE='EIAFC_V7';
-  const WEB_TOKEN_KEY='eiafc_web_secure_session_v4';
-  const WEB_USER_KEY='eiafc_web_secure_user_v4';
-  let webBase=null, webRevision=0, webTimer=null, webPushChain=Promise.resolve();
 
-  async function webApi(action,payload={},session=''){
-    const headers={'Content-Type':'application/json','apikey':WEB_APIKEY};
-    if(session)headers['x-eiafc-session']=session;
-    const controller=new AbortController();
-    const timer=setTimeout(()=>controller.abort(),15000);
-    let r;
-    try{
-      r=await fetch(WEB_API,{method:'POST',headers,body:JSON.stringify({action,...payload}),cache:'no-store',signal:controller.signal});
-    }catch(e){
-      if(e?.name==='AbortError')throw new Error('Le serveur EIAFC met trop de temps à répondre. Vérifiez Internet puis réessayez.');
-      throw e;
-    }finally{
-      clearTimeout(timer);
-    }
-    let j={};
-    try{j=await r.json()}catch(_e){}
-    if(!r.ok||j?.ok===false)throw new Error(j?.error||`Service EIAFC indisponible (${r.status})`);
-    return j;
-  }
-  function webToken(){return sessionStorage.getItem(WEB_TOKEN_KEY)||''}
-  function webStoredUser(){try{return JSON.parse(sessionStorage.getItem(WEB_USER_KEY)||'null')}catch(_e){return null}}
-  function clearWebSession(clearCache=true){
-    sessionStorage.removeItem(WEB_TOKEN_KEY);sessionStorage.removeItem(WEB_USER_KEY);sessionStorage.removeItem(SESSION_KEY);
-    if(webTimer)clearInterval(webTimer);webTimer=null;webBase=null;webRevision=0;cloudConnected=false;lanConnected=false;
-    if(clearCache){try{db=defaultDB();persist()}catch(_e){}}
-  }
-  function hideLegacyPortal(){
-    document.querySelectorAll('#loginOverlay .cloud-box').forEach(x=>x.style.display='none');
-    [emptyInstallBox,firstAdminBox,existingInstallBox,founderAccessBox,activationKeyBox,autoInstallBox].forEach(x=>x?.classList.add('hidden'));
-    authChoiceBox?.querySelectorAll('button').forEach(b=>{
-      const oc=b.getAttribute('onclick')||'';
-      if(oc.includes('showActivationKey')||oc.includes('showFounderAccess'))b.style.display='none';
-    });
-    const p=authChoiceBox?.querySelector('p.small');
-    if(p)p.textContent="Chaque compte est associé à un rôle et à une école. Après connexion, EIAFC ouvre automatiquement le tableau de bord correspondant au poste.";
-    if(loginIntro)loginIntro.textContent='EIAFC — Accès Cloud sécurisé par rôle';
-  }
-  function webShowAuthChoice(){
-    hideLegacyPortal();
-    loginOverlay?.classList.remove('hidden');
-    authChoiceBox?.classList.remove('hidden');loginBox?.classList.add('hidden');signupBox?.classList.add('hidden');
-    if(bootStatus){bootStatus.textContent='Connexion Cloud sécurisée — aucun paramètre réseau à saisir.';bootStatus.classList.remove('hidden')}
-    loginPassword.value='';if(signupOwnerPassword)signupOwnerPassword.value='';
-  }
-  function webShowSignupForm(){
-    hideLegacyPortal();
-    authChoiceBox?.classList.add('hidden');loginBox?.classList.add('hidden');signupBox?.classList.remove('hidden');
-    if(signupSchool)signupSchool.innerHTML='<option value="">École choisie après autorisation du Fondateur</option>';
-    if(signupOwnerUsername&&!signupOwnerUsername.value)signupOwnerUsername.value='fondateur';
-    setTimeout(()=>signupFullname?.focus(),0);
-  }
-  window.showAuthChoice=showAuthChoice=webShowAuthChoice;
-  window.showSignupForm=showSignupForm=webShowSignupForm;
-
-  function activeRole(){return isOwner()?'Fondateur':String(currentUser?.role||'')}
-  function allowedWriteCollections(){
-    if(isOwner())return new Set(Object.keys(CLOUD_COLLECTION_KEYS));
-    const map={
-      'Comptable':['payments','other','expenses','closings','transfers','manualEntries','budgets','assets','periodLocks','inventory','inventoryMoves','payroll','audit'],
-      'RH':['staff','staffAttendance','staffLoans','payroll','audit'],
-      'Caissier':['payments','closings','audit'],
-      'Secrétariat':['students','attendance','audit'],
-      'Secrétariat & Caisse':['students','attendance','payments','closings','audit']
-    };
-    return new Set(map[activeRole()]||[]);
-  }
-  function securePatch(base,current){
-    const p=buildCloudPatch(base,current);
-    if(isOwner())return p;
-    delete p.settings;delete p.counters;delete p.users;delete p.expensePayments;
-    const allowed=allowedWriteCollections();
-    Object.keys(CLOUD_COLLECTION_KEYS).forEach(k=>{if(!allowed.has(k))delete p[k]});
-    return p;
-  }
-  async function securePush(){
-    if(!currentUser||!webToken()||!webBase||navigator.onLine===false)return false;
-    const snapshot=deepClone(db),patch=securePatch(webBase,snapshot);
-    if(!patchHasChanges(patch)){cloudConnected=true;setUnifiedStatus('Cloud Web synchronisé','ok');updateOfflineQueueUI();return true}
-    try{
-      const j=await webApi('apply_patch',{patch,source:`${currentUserLabel()} — Web ${getDeviceId()}`},webToken());
-      webRevision=Number(j.revision||webRevision);
-      const remote=normalizeDB(deepClone(j.state||snapshot));
-      const after=securePatch(snapshot,db);
-      webBase=deepClone(remote);db=patchHasChanges(after)?applyCloudPatchJS(remote,after):remote;persist();localSessionBase=deepClone(db);
-      cloudConnected=true;setUnifiedStatus(patchHasChanges(after)?'Synchronisation partielle':'Cloud Web synchronisé','ok');setLastSync(`Dernier envoi Web : ${new Date().toLocaleString('fr-FR')} — révision ${webRevision}`);refreshAll();
-      if(patchHasChanges(after))queueSecurePush();
-      return true;
-    }catch(e){
-      console.error('EIAFC Web push',e);cloudConnected=false;setUnifiedStatus('Synchronisation Web en attente','bad');showToast(`<b>Synchronisation en attente</b><br>${esc(e?.message||e)}`);return false;
-    }
-  }
-  function queueSecurePush(){webPushChain=webPushChain.then(()=>securePush()).catch(e=>console.error('EIAFC Web queue',e))}
-  async function securePull(interactive=false){
-    if(!currentUser||!webToken()||navigator.onLine===false)return false;
-    try{
-      const r=await webApi('get_revision',{},webToken());
-      if(Number(r.revision||0)<=webRevision){cloudConnected=true;if(interactive)showToast('<b>EIAFC Web</b><br>Les données sont déjà à jour.');return true}
-      const j=await webApi('get_state',{},webToken()),old=deepClone(db);
-      webRevision=Number(j.revision||0);webBase=normalizeDB(deepClone(j.state||{}));db=normalizeDB(deepClone(j.state||{}));persist();localSessionBase=deepClone(db);cloudConnected=true;refreshAll();notifyBossChanges(old,db);
-      if(interactive)showToast('<b>Données reçues</b><br>EIAFC Web est à jour.');return true;
-    }catch(e){
-      console.error('EIAFC Web pull',e);
-      if(/session|expir|compte/i.test(String(e?.message||e).toLowerCase())){clearWebSession(true);currentUser=null;webShowAuthChoice();alert('Votre session EIAFC a expiré. Reconnectez-vous.')}else if(interactive)alert(e?.message||e);
-      return false;
-    }
-  }
-  function startWebPolling(){if(webTimer)clearInterval(webTimer);webTimer=setInterval(()=>securePull(false),15000)}
-
-  window.login=login=async function(){
-    const username=loginUsername.value.trim().toLowerCase(),password=loginPassword.value;
-    if(!username||!password)return alert("Renseignez votre nom d'utilisateur et votre mot de passe.");
-    const btn=loginBox?.querySelector('.btn-primary'),old=btn?.textContent;
-    if(btn){btn.disabled=true;btn.textContent='Connexion…'}
-    try{
-      const j=await webApi('login',{workspace:WEB_WORKSPACE,username,password,deviceId:getDeviceId(),deviceName:`Web ${getDeviceId()}`,appVersion:APP_VERSION,userAgent:navigator.userAgent||''});
-      if(!j?.session||!j?.user)throw new Error('Connexion acceptée mais session EIAFC incomplète.');
-      if(btn)btn.textContent='Chargement des données…';
-      const full=await webApi('get_state',{},j.session);
-      if(!full?.state)throw new Error('La base centrale EIAFC n’a pas été reçue. Aucune base vide ne sera ouverte.');
-      const remote=normalizeDB(deepClone(full.state));
-      sessionStorage.setItem(WEB_TOKEN_KEY,j.session);sessionStorage.setItem(WEB_USER_KEY,JSON.stringify(j.user));sessionStorage.setItem(SESSION_KEY,j.user.username);
-      webRevision=Number(full.revision||j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();
-      currentUser={...j.user,active:true,deleted:false};loginPassword.value='';lanConnected=false;cloudConnected=true;localSessionBase=deepClone(db);
-      setUnifiedStatus('Cloud Web sécurisé','ok');refreshAll();enterApp();startWebPolling();
-    }catch(e){alert(e?.message||String(e))}
-    finally{if(btn){btn.disabled=false;btn.textContent=old||'Se connecter'}}
-  };
-
-  window.createAccountFromPortal=createAccountFromPortal=async function(){
-    const fullname=signupFullname.value.trim(),username=signupUsername.value.trim().toLowerCase(),email=normalizeEmail(signupEmail.value),pwd=signupPassword.value,role=signupRole.value,founderName=signupOwnerUsername.value.trim().toLowerCase(),founderPwd=signupOwnerPassword.value;
-    const allowed=['Comptable','RH','Caissier','Secrétariat','Secrétariat & Caisse'];
-    if(!fullname||!username||!validEmail(email)||pwd.length<6)return alert('Nom complet, utilisateur, e-mail personnel valide et mot de passe d’au moins 6 caractères sont obligatoires.');
-    if(!allowed.includes(role))return alert('Rôle non autorisé.');
-    if(!founderName||!founderPwd)return alert('Le Fondateur doit saisir son utilisateur et son mot de passe pour autoriser la création.');
-    const btn=signupBox?.querySelector('.btn-gold'),old=btn?.textContent;if(btn){btn.disabled=true;btn.textContent='Autorisation…'}
-    try{
-      const authLogin=await webApi('login',{workspace:WEB_WORKSPACE,username:founderName,password:founderPwd,deviceId:getDeviceId()+'-CREATE',deviceName:'Création compte Web',appVersion:APP_VERSION,userAgent:navigator.userAgent||''});
-      if(!authLogin?.session||!authLogin?.user)throw new Error('Autorisation Fondateur incomplète.');
-      const authState=await webApi('get_state',{},authLogin.session);
-      const auth={...authLogin,...authState,state:authState?.state||authLogin?.state};
-      if(auth.user?.role!=='Fondateur'||String(auth.user?.username)!==String(auth.state?.settings?.ownerUsername))throw new Error('Autorisation Fondateur requise.');
-      const schools=(auth.state?.settings?.schools||[]).filter(s=>s&&s.deleted!==true);
-      if(!schools.length)throw new Error("Aucune école active n'est configurée.");
-      let sid=schools[0].id;
-      if(schools.length>1){
-        const list=schools.map((s,i)=>`${i+1}. ${s.code||'EIAFC'} — ${s.name||'École'}${s.city?' — '+s.city:''}`).join('\n');
-        const pick=Number(prompt(`Choisissez l'école du nouveau compte :\n\n${list}`,'1'));
-        if(!Number.isInteger(pick)||pick<1||pick>schools.length)throw new Error("Création annulée : école non sélectionnée.");
-        sid=schools[pick-1].id;
-      }
-      if(auth.state.users?.some(u=>String(u.username||'').toLowerCase()===username))throw new Error("Ce nom d’utilisateur existe déjà.");
-      if(auth.state.users?.some(u=>u.deleted!==true&&normalizeEmail(u.email)===email))throw new Error("Cet e-mail personnel est déjà associé à un autre utilisateur actif.");
-      const nu={username,fullname,email,role,passwordHash:await makePasswordHash(pwd),active:true,allSchools:false,schoolIds:[sid],created:new Date().toISOString(),createdBy:auth.user.fullname||auth.user.username};
-      const audit={eventId:`WEB-${Date.now()}-${Math.random().toString(36).slice(2,9)}`,time:new Date().toISOString(),schoolId:sid,academicYear:auth.state?.settings?.year||'',user:auth.user.fullname||auth.user.username,role:'Fondateur',device:`Web ${getDeviceId()}`,action:'Création utilisateur portail web',details:`${username} — ${role}`,prevHash:'',auditVersion:2};
-      await webApi('apply_patch',{patch:{users:[nu],audit:[audit]},source:`Création portail Web — ${auth.user.fullname||auth.user.username}`},auth.session);
-      try{await webApi('send_web_access',{username,email,appUrl:location.origin},auth.session)}catch(e){console.warn('Invitation web',e)}
-      signupFullname.value='';signupUsername.value='';signupEmail.value='';signupPassword.value='';signupOwnerPassword.value='';loginUsername.value=username;
-      alert(`Compte ${username} créé avec succès. Vous pouvez maintenant vous connecter.`);showLoginForm();
-    }catch(e){alert(e?.message||String(e))}
-    finally{if(btn){btn.disabled=false;btn.textContent=old||'Créer le compte'}}
-  };
-
-  window.lanConfigured=lanConfigured=function(){return false};
-  window.cloudConfigured=cloudConfigured=function(){return !!webToken()};
-  window.networkConfigured=networkConfigured=function(){return !!webToken()};
-  window.capturePendingPatch=capturePendingPatch=function(){};
-  window.pendingChangesCount=pendingChangesCount=function(){if(!webBase||!currentUser)return 0;const p=securePatch(webBase,db);let n=0;for(const k of Object.keys(CLOUD_COLLECTION_KEYS))n+=(p?.[k]||[]).length;if(p.settings)n++;return n};
-  window.queueNetworkPush=queueNetworkPush=function(){queueSecurePush()};
-  window.queueCloudPush=queueCloudPush=function(){queueSecurePush()};
-  window.cloudPush=cloudPush=securePush;
-  window.cloudPull=cloudPull=securePull;
-  window.syncNow=syncNow=async function(){const pushed=await securePush(),pulled=await securePull(false);if(pushed||pulled)showToast(`<b>Synchronisation Web terminée</b><br>${pendingChangesCount()?pendingChangesCount()+' élément(s) restent en attente.':'Toutes les données sont à jour.'}`)};
-  window.cloudNextId=cloudNextId=async function(type,label){const j=await webApi('next_id',{year:activeYear(),kind:type,label},webToken());return j.id};
-  window.nextAcademicId=nextAcademicId=async function(type,label){if(webToken()&&navigator.onLine!==false){try{return await cloudNextId(type,label)}catch(e){console.error(e)}}return nextOfflineId(type,label)};
-  window.saveDB=saveDB=function(){persist();refreshAll();queueSecurePush()};
-  window.startPrimaryBridge=startPrimaryBridge=function(){startWebPolling()};
-
-  window.refreshCloudDevices=refreshCloudDevices=async function(interactive=false){
-    const t=document.getElementById('cloudDevicesTable');if(!t||!isOwner()||!webToken())return;
-    try{const j=await webApi('list_devices',{},webToken()),rows=j.rows||[],now=Date.now();t.innerHTML=`<thead><tr><th>Poste</th><th>Utilisateur</th><th>École</th><th>Version</th><th>Mode</th><th>Dernière activité</th><th>État</th></tr></thead><tbody>${rows.length?rows.map(x=>{const age=now-Date.parse(x.last_seen_at||0),online=Number.isFinite(age)&&age<5*60*1000;return `<tr><td><b>${esc(x.device_name||x.device_id)}</b></td><td>${esc(x.username||'—')}</td><td>${esc(schoolById(x.school_id)?.code||x.school_id||'—')}</td><td>${esc(x.app_version||'—')}</td><td>${esc(x.mode||'WEB')}</td><td>${esc(fmtCloudDate(x.last_seen_at))}</td><td><span class="status ${online?'valid':'pending'}">${online?'Actif':'Hors ligne'}</span></td></tr>`}).join(''):'<tr><td colspan="7" class="empty">Aucun poste enregistré</td></tr>'}</tbody>`;if(interactive)showToast(`<b>Postes Cloud actualisés</b><br>${rows.length} appareil(s) connu(s).`)}catch(e){t.innerHTML=`<tbody><tr><td class="empty">Impossible de lire les postes : ${esc(e?.message||e)}</td></tr></tbody>`}
-  };
-  window.refreshCloudBackups=refreshCloudBackups=async function(interactive=false){
-    const t=document.getElementById('cloudBackupsTable');if(!t||!isOwner()||!webToken())return;
-    try{const j=await webApi('list_backups',{},webToken()),rows=j.rows||[];t.innerHTML=`<thead><tr><th>Date</th><th>Révision</th><th>Source</th><th>Taille</th></tr></thead><tbody>${rows.length?rows.map(x=>`<tr><td>${esc(fmtCloudDate(x.created_at))}</td><td>${Number(x.revision||0)}</td><td>${esc(x.source||'Automatique')}</td><td>${Math.max(1,Math.round(Number(x.size_bytes||0)/1024)).toLocaleString('fr-FR')} Ko</td></tr>`).join(''):'<tr><td colspan="4" class="empty">Aucune sauvegarde disponible</td></tr>'}</tbody>`;if(interactive)showToast(`<b>Sauvegardes Cloud actualisées</b><br>${rows.length} version(s) disponible(s).`)}catch(e){t.innerHTML=`<tbody><tr><td class="empty">Impossible de lire les sauvegardes : ${esc(e?.message||e)}</td></tr></tbody>`}
-  };
-
-  window.logout=logout=function(){
-    try{if(currentUser)logAction('Déconnexion utilisateur',`${currentUser.username} — Web ${getDeviceId()}`)}catch(_e){}
-    clearWebSession(true);currentUser=null;
-    document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
-    const dashBtn=document.querySelector('.nav-btn[data-view="dashboard"]'),dash=document.getElementById('dashboard');dashBtn?.classList.add('active');dash?.classList.add('active');if(pageTitle)pageTitle.textContent='Tableau de bord';
-    webShowAuthChoice();
-  };
-
-  async function restoreWebSession(){
-    const t=webToken(),u=webStoredUser();if(!t||!u)return false;
-    try{
-      const j=await webApi('get_state',{},t);webRevision=Number(j.revision||0);webBase=normalizeDB(deepClone(j.state||{}));db=normalizeDB(deepClone(j.state||{}));persist();currentUser={...u,active:true,deleted:false};sessionStorage.setItem(SESSION_KEY,currentUser.username);cloudConnected=true;lanConnected=false;localSessionBase=deepClone(db);enterApp();startWebPolling();return true;
-    }catch(e){console.warn('Restauration session Web',e);clearWebSession(true);return false}
-  }
-  async function initPublicWeb(){
-    hideLegacyPortal();
-    if(await restoreWebSession())return;
-    clearWebSession(true);currentUser=null;if(signupOwnerUsername)signupOwnerUsername.value='fondateur';webShowAuthChoice();
-    if(bootStatus)setTimeout(()=>bootStatus.classList.add('hidden'),2500);
-  }
-  setTimeout(initPublicWeb,80);
-})();
-
-</script>
 </body></html>`;
  const blob=new Blob([loader],{type:"text/html;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`EIAFC_INSTALL_${cleanFileLabel(profile.label)}.html`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);logAction("Fichier installation généré",`${profile.label} — version Cloud ${APP_VERSION}`);persist();copyAppCode.value="";copyAppCodeConfirm.value="";alert("Fichier d’installation créé. Copiez ce petit fichier sur le nouveau PC. Il chargera automatiquement la dernière version EIAFC, puis demandera votre code EIAFC.")
 }
@@ -3114,6 +2895,229 @@ async function startApp(){
  }
 }
 startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("focus",()=>checkForAppUpdate());
+</script>
+
+<script id="eiafc-web-secure-patch">
+(function(){
+  'use strict';
+  const WEB_API='https://opypgilifxnrwqmpsnzp.supabase.co/functions/v1/eiafc-secure-api';
+  const WEB_APIKEY='sb_publishable_gAPfLd6okuu42hvOwQp35Q_L87JA22Q';
+  const WEB_WORKSPACE='EIAFC_V7';
+  const WEB_TOKEN_KEY='eiafc_web_secure_session_v4';
+  const WEB_USER_KEY='eiafc_web_secure_user_v4';
+  let webBase=null, webRevision=0, webTimer=null, webPushChain=Promise.resolve();
+
+  async function webApi(action,payload={},session=''){
+    const headers={'Content-Type':'application/json','apikey':WEB_APIKEY};
+    if(session)headers['x-eiafc-session']=session;
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),15000);
+    let r;
+    try{
+      r=await fetch(WEB_API,{method:'POST',headers,body:JSON.stringify({action,...payload}),cache:'no-store',signal:controller.signal});
+    }catch(e){
+      if(e?.name==='AbortError')throw new Error('Le serveur EIAFC met trop de temps à répondre. Vérifiez Internet puis réessayez.');
+      throw e;
+    }finally{
+      clearTimeout(timer);
+    }
+    let j={};
+    try{j=await r.json()}catch(_e){}
+    if(!r.ok||j?.ok===false)throw new Error(j?.error||`Service EIAFC indisponible (${r.status})`);
+    return j;
+  }
+  function webToken(){return sessionStorage.getItem(WEB_TOKEN_KEY)||''}
+  function webStoredUser(){try{return JSON.parse(sessionStorage.getItem(WEB_USER_KEY)||'null')}catch(_e){return null}}
+  function clearWebSession(clearCache=true){
+    sessionStorage.removeItem(WEB_TOKEN_KEY);sessionStorage.removeItem(WEB_USER_KEY);sessionStorage.removeItem(SESSION_KEY);
+    if(webTimer)clearInterval(webTimer);webTimer=null;webBase=null;webRevision=0;cloudConnected=false;lanConnected=false;
+    if(clearCache){try{db=defaultDB();persist()}catch(_e){}}
+  }
+  function hideLegacyPortal(){
+    document.querySelectorAll('#loginOverlay .cloud-box').forEach(x=>x.style.display='none');
+    [emptyInstallBox,firstAdminBox,existingInstallBox,founderAccessBox,activationKeyBox,autoInstallBox].forEach(x=>x?.classList.add('hidden'));
+    authChoiceBox?.querySelectorAll('button').forEach(b=>{
+      const oc=b.getAttribute('onclick')||'';
+      if(oc.includes('showActivationKey')||oc.includes('showFounderAccess'))b.style.display='none';
+    });
+    const p=authChoiceBox?.querySelector('p.small');
+    if(p)p.textContent="Chaque compte est associé à un rôle et à une école. Après connexion, EIAFC ouvre automatiquement le tableau de bord correspondant au poste.";
+    if(loginIntro)loginIntro.textContent='EIAFC — Accès Cloud sécurisé par rôle';
+  }
+  function webShowAuthChoice(){
+    hideLegacyPortal();
+    loginOverlay?.classList.remove('hidden');
+    authChoiceBox?.classList.remove('hidden');loginBox?.classList.add('hidden');signupBox?.classList.add('hidden');
+    if(bootStatus){bootStatus.textContent='Connexion Cloud sécurisée — aucun paramètre réseau à saisir.';bootStatus.classList.remove('hidden')}
+    loginPassword.value='';if(signupOwnerPassword)signupOwnerPassword.value='';
+  }
+  function webShowSignupForm(){
+    hideLegacyPortal();
+    authChoiceBox?.classList.add('hidden');loginBox?.classList.add('hidden');signupBox?.classList.remove('hidden');
+    if(signupSchool)signupSchool.innerHTML='<option value="">École choisie après autorisation du Fondateur</option>';
+    if(signupOwnerUsername&&!signupOwnerUsername.value)signupOwnerUsername.value='fondateur';
+    setTimeout(()=>signupFullname?.focus(),0);
+  }
+  window.showAuthChoice=showAuthChoice=webShowAuthChoice;
+  window.showSignupForm=showSignupForm=webShowSignupForm;
+
+  function activeRole(){return isOwner()?'Fondateur':String(currentUser?.role||'')}
+  function allowedWriteCollections(){
+    if(isOwner())return new Set(Object.keys(CLOUD_COLLECTION_KEYS));
+    const map={
+      'Comptable':['payments','other','expenses','closings','transfers','manualEntries','budgets','assets','periodLocks','inventory','inventoryMoves','payroll','audit'],
+      'RH':['staff','staffAttendance','staffLoans','payroll','audit'],
+      'Caissier':['payments','closings','audit'],
+      'Secrétariat':['students','attendance','audit'],
+      'Secrétariat & Caisse':['students','attendance','payments','closings','audit']
+    };
+    return new Set(map[activeRole()]||[]);
+  }
+  function securePatch(base,current){
+    const p=buildCloudPatch(base,current);
+    if(isOwner())return p;
+    delete p.settings;delete p.counters;delete p.users;delete p.expensePayments;
+    const allowed=allowedWriteCollections();
+    Object.keys(CLOUD_COLLECTION_KEYS).forEach(k=>{if(!allowed.has(k))delete p[k]});
+    return p;
+  }
+  async function securePush(){
+    if(!currentUser||!webToken()||!webBase||navigator.onLine===false)return false;
+    const snapshot=deepClone(db),patch=securePatch(webBase,snapshot);
+    if(!patchHasChanges(patch)){cloudConnected=true;setUnifiedStatus('Cloud Web synchronisé','ok');updateOfflineQueueUI();return true}
+    try{
+      const j=await webApi('apply_patch',{patch,source:`${currentUserLabel()} — Web ${getDeviceId()}`},webToken());
+      webRevision=Number(j.revision||webRevision);
+      const remote=normalizeDB(deepClone(j.state||snapshot));
+      const after=securePatch(snapshot,db);
+      webBase=deepClone(remote);db=patchHasChanges(after)?applyCloudPatchJS(remote,after):remote;persist();localSessionBase=deepClone(db);
+      cloudConnected=true;setUnifiedStatus(patchHasChanges(after)?'Synchronisation partielle':'Cloud Web synchronisé','ok');setLastSync(`Dernier envoi Web : ${new Date().toLocaleString('fr-FR')} — révision ${webRevision}`);refreshAll();
+      if(patchHasChanges(after))queueSecurePush();
+      return true;
+    }catch(e){
+      console.error('EIAFC Web push',e);cloudConnected=false;setUnifiedStatus('Synchronisation Web en attente','bad');showToast(`<b>Synchronisation en attente</b><br>${esc(e?.message||e)}`);return false;
+    }
+  }
+  function queueSecurePush(){webPushChain=webPushChain.then(()=>securePush()).catch(e=>console.error('EIAFC Web queue',e))}
+  async function securePull(interactive=false){
+    if(!currentUser||!webToken()||navigator.onLine===false)return false;
+    try{
+      const r=await webApi('get_revision',{},webToken());
+      if(Number(r.revision||0)<=webRevision){cloudConnected=true;if(interactive)showToast('<b>EIAFC Web</b><br>Les données sont déjà à jour.');return true}
+      const j=await webApi('get_state',{},webToken()),old=deepClone(db);
+      if(!j?.state)throw new Error('La base centrale EIAFC n’a pas été reçue. Les données locales restent inchangées.');
+      const remote=normalizeDB(deepClone(j.state));
+      webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();localSessionBase=deepClone(db);cloudConnected=true;refreshAll();notifyBossChanges(old,db);
+      if(interactive)showToast('<b>Données reçues</b><br>EIAFC Web est à jour.');return true;
+    }catch(e){
+      console.error('EIAFC Web pull',e);
+      if(/session|expir|compte/i.test(String(e?.message||e).toLowerCase())){clearWebSession(true);currentUser=null;webShowAuthChoice();alert('Votre session EIAFC a expiré. Reconnectez-vous.')}else if(interactive)alert(e?.message||e);
+      return false;
+    }
+  }
+  function startWebPolling(){if(webTimer)clearInterval(webTimer);webTimer=setInterval(()=>securePull(false),15000)}
+
+  window.login=login=async function(){
+    const username=loginUsername.value.trim().toLowerCase(),password=loginPassword.value;
+    if(!username||!password)return alert("Renseignez votre nom d'utilisateur et votre mot de passe.");
+    const btn=loginBox?.querySelector('.btn-primary'),old=btn?.textContent;
+    if(btn){btn.disabled=true;btn.textContent='Connexion…'}
+    try{
+      const j=await webApi('login',{workspace:WEB_WORKSPACE,username,password,deviceId:getDeviceId(),deviceName:`Web ${getDeviceId()}`,appVersion:APP_VERSION,userAgent:navigator.userAgent||''});
+      if(!j?.session||!j?.user)throw new Error('Connexion acceptée mais session EIAFC incomplète.');
+      if(btn)btn.textContent='Chargement des données…';
+      const full=await webApi('get_state',{},j.session);
+      if(!full?.state)throw new Error('La base centrale EIAFC n’a pas été reçue. Aucune base vide ne sera ouverte.');
+      const remote=normalizeDB(deepClone(full.state));
+      sessionStorage.setItem(WEB_TOKEN_KEY,j.session);sessionStorage.setItem(WEB_USER_KEY,JSON.stringify(j.user));sessionStorage.setItem(SESSION_KEY,j.user.username);
+      webRevision=Number(full.revision||j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();
+      currentUser={...j.user,active:true,deleted:false};loginPassword.value='';lanConnected=false;cloudConnected=true;localSessionBase=deepClone(db);
+      setUnifiedStatus('Cloud Web sécurisé','ok');refreshAll();enterApp();startWebPolling();
+    }catch(e){alert(e?.message||String(e))}
+    finally{if(btn){btn.disabled=false;btn.textContent=old||'Se connecter'}}
+  };
+
+  window.createAccountFromPortal=createAccountFromPortal=async function(){
+    const fullname=signupFullname.value.trim(),username=signupUsername.value.trim().toLowerCase(),email=normalizeEmail(signupEmail.value),pwd=signupPassword.value,role=signupRole.value,founderName=signupOwnerUsername.value.trim().toLowerCase(),founderPwd=signupOwnerPassword.value;
+    const allowed=['Comptable','RH','Caissier','Secrétariat','Secrétariat & Caisse'];
+    if(!fullname||!username||!validEmail(email)||pwd.length<6)return alert('Nom complet, utilisateur, e-mail personnel valide et mot de passe d’au moins 6 caractères sont obligatoires.');
+    if(!allowed.includes(role))return alert('Rôle non autorisé.');
+    if(!founderName||!founderPwd)return alert('Le Fondateur doit saisir son utilisateur et son mot de passe pour autoriser la création.');
+    const btn=signupBox?.querySelector('.btn-gold'),old=btn?.textContent;if(btn){btn.disabled=true;btn.textContent='Autorisation…'}
+    try{
+      const authLogin=await webApi('login',{workspace:WEB_WORKSPACE,username:founderName,password:founderPwd,deviceId:getDeviceId()+'-CREATE',deviceName:'Création compte Web',appVersion:APP_VERSION,userAgent:navigator.userAgent||''});
+      if(!authLogin?.session||!authLogin?.user)throw new Error('Autorisation Fondateur incomplète.');
+      const authState=await webApi('get_state',{},authLogin.session);
+      const auth={...authLogin,...authState,state:authState?.state||authLogin?.state};
+      if(auth.user?.role!=='Fondateur'||String(auth.user?.username)!==String(auth.state?.settings?.ownerUsername))throw new Error('Autorisation Fondateur requise.');
+      const schools=(auth.state?.settings?.schools||[]).filter(s=>s&&s.deleted!==true);
+      if(!schools.length)throw new Error("Aucune école active n'est configurée.");
+      let sid=schools[0].id;
+      if(schools.length>1){
+        const list=schools.map((s,i)=>`${i+1}. ${s.code||'EIAFC'} — ${s.name||'École'}${s.city?' — '+s.city:''}`).join('\n');
+        const pick=Number(prompt(`Choisissez l'école du nouveau compte :\n\n${list}`,'1'));
+        if(!Number.isInteger(pick)||pick<1||pick>schools.length)throw new Error("Création annulée : école non sélectionnée.");
+        sid=schools[pick-1].id;
+      }
+      if(auth.state.users?.some(u=>String(u.username||'').toLowerCase()===username))throw new Error("Ce nom d’utilisateur existe déjà.");
+      if(auth.state.users?.some(u=>u.deleted!==true&&normalizeEmail(u.email)===email))throw new Error("Cet e-mail personnel est déjà associé à un autre utilisateur actif.");
+      const nu={username,fullname,email,role,passwordHash:await makePasswordHash(pwd),active:true,allSchools:false,schoolIds:[sid],created:new Date().toISOString(),createdBy:auth.user.fullname||auth.user.username};
+      const audit={eventId:`WEB-${Date.now()}-${Math.random().toString(36).slice(2,9)}`,time:new Date().toISOString(),schoolId:sid,academicYear:auth.state?.settings?.year||'',user:auth.user.fullname||auth.user.username,role:'Fondateur',device:`Web ${getDeviceId()}`,action:'Création utilisateur portail web',details:`${username} — ${role}`,prevHash:'',auditVersion:2};
+      await webApi('apply_patch',{patch:{users:[nu],audit:[audit]},source:`Création portail Web — ${auth.user.fullname||auth.user.username}`},auth.session);
+      try{await webApi('send_web_access',{username,email,appUrl:location.origin},auth.session)}catch(e){console.warn('Invitation web',e)}
+      signupFullname.value='';signupUsername.value='';signupEmail.value='';signupPassword.value='';signupOwnerPassword.value='';loginUsername.value=username;
+      alert(`Compte ${username} créé avec succès. Vous pouvez maintenant vous connecter.`);showLoginForm();
+    }catch(e){alert(e?.message||String(e))}
+    finally{if(btn){btn.disabled=false;btn.textContent=old||'Créer le compte'}}
+  };
+
+  window.lanConfigured=lanConfigured=function(){return false};
+  window.cloudConfigured=cloudConfigured=function(){return !!webToken()};
+  window.networkConfigured=networkConfigured=function(){return !!webToken()};
+  window.capturePendingPatch=capturePendingPatch=function(){};
+  window.pendingChangesCount=pendingChangesCount=function(){if(!webBase||!currentUser)return 0;const p=securePatch(webBase,db);let n=0;for(const k of Object.keys(CLOUD_COLLECTION_KEYS))n+=(p?.[k]||[]).length;if(p.settings)n++;return n};
+  window.queueNetworkPush=queueNetworkPush=function(){queueSecurePush()};
+  window.queueCloudPush=queueCloudPush=function(){queueSecurePush()};
+  window.cloudPush=cloudPush=securePush;
+  window.cloudPull=cloudPull=securePull;
+  window.syncNow=syncNow=async function(){const pushed=await securePush(),pulled=await securePull(false);if(pushed||pulled)showToast(`<b>Synchronisation Web terminée</b><br>${pendingChangesCount()?pendingChangesCount()+' élément(s) restent en attente.':'Toutes les données sont à jour.'}`)};
+  window.cloudNextId=cloudNextId=async function(type,label){const j=await webApi('next_id',{year:activeYear(),kind:type,label},webToken());return j.id};
+  window.nextAcademicId=nextAcademicId=async function(type,label){if(webToken()&&navigator.onLine!==false){try{return await cloudNextId(type,label)}catch(e){console.error(e)}}return nextOfflineId(type,label)};
+  window.saveDB=saveDB=function(){persist();refreshAll();queueSecurePush()};
+  window.startPrimaryBridge=startPrimaryBridge=function(){startWebPolling()};
+
+  window.refreshCloudDevices=refreshCloudDevices=async function(interactive=false){
+    const t=document.getElementById('cloudDevicesTable');if(!t||!isOwner()||!webToken())return;
+    try{const j=await webApi('list_devices',{},webToken()),rows=j.rows||[],now=Date.now();t.innerHTML=`<thead><tr><th>Poste</th><th>Utilisateur</th><th>École</th><th>Version</th><th>Mode</th><th>Dernière activité</th><th>État</th></tr></thead><tbody>${rows.length?rows.map(x=>{const age=now-Date.parse(x.last_seen_at||0),online=Number.isFinite(age)&&age<5*60*1000;return `<tr><td><b>${esc(x.device_name||x.device_id)}</b></td><td>${esc(x.username||'—')}</td><td>${esc(schoolById(x.school_id)?.code||x.school_id||'—')}</td><td>${esc(x.app_version||'—')}</td><td>${esc(x.mode||'WEB')}</td><td>${esc(fmtCloudDate(x.last_seen_at))}</td><td><span class="status ${online?'valid':'pending'}">${online?'Actif':'Hors ligne'}</span></td></tr>`}).join(''):'<tr><td colspan="7" class="empty">Aucun poste enregistré</td></tr>'}</tbody>`;if(interactive)showToast(`<b>Postes Cloud actualisés</b><br>${rows.length} appareil(s) connu(s).`)}catch(e){t.innerHTML=`<tbody><tr><td class="empty">Impossible de lire les postes : ${esc(e?.message||e)}</td></tr></tbody>`}
+  };
+  window.refreshCloudBackups=refreshCloudBackups=async function(interactive=false){
+    const t=document.getElementById('cloudBackupsTable');if(!t||!isOwner()||!webToken())return;
+    try{const j=await webApi('list_backups',{},webToken()),rows=j.rows||[];t.innerHTML=`<thead><tr><th>Date</th><th>Révision</th><th>Source</th><th>Taille</th></tr></thead><tbody>${rows.length?rows.map(x=>`<tr><td>${esc(fmtCloudDate(x.created_at))}</td><td>${Number(x.revision||0)}</td><td>${esc(x.source||'Automatique')}</td><td>${Math.max(1,Math.round(Number(x.size_bytes||0)/1024)).toLocaleString('fr-FR')} Ko</td></tr>`).join(''):'<tr><td colspan="4" class="empty">Aucune sauvegarde disponible</td></tr>'}</tbody>`;if(interactive)showToast(`<b>Sauvegardes Cloud actualisées</b><br>${rows.length} version(s) disponible(s).`)}catch(e){t.innerHTML=`<tbody><tr><td class="empty">Impossible de lire les sauvegardes : ${esc(e?.message||e)}</td></tr></tbody>`}
+  };
+
+  window.logout=logout=function(){
+    try{if(currentUser)logAction('Déconnexion utilisateur',`${currentUser.username} — Web ${getDeviceId()}`)}catch(_e){}
+    clearWebSession(true);currentUser=null;
+    document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+    const dashBtn=document.querySelector('.nav-btn[data-view="dashboard"]'),dash=document.getElementById('dashboard');dashBtn?.classList.add('active');dash?.classList.add('active');if(pageTitle)pageTitle.textContent='Tableau de bord';
+    webShowAuthChoice();
+  };
+
+  async function restoreWebSession(){
+    const t=webToken(),u=webStoredUser();if(!t||!u)return false;
+    try{
+      const j=await webApi('get_state',{},t);if(!j?.state)throw new Error('Base centrale EIAFC indisponible');const remote=normalizeDB(deepClone(j.state));webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();currentUser={...u,active:true,deleted:false};sessionStorage.setItem(SESSION_KEY,currentUser.username);cloudConnected=true;lanConnected=false;localSessionBase=deepClone(db);refreshAll();enterApp();startWebPolling();return true;
+    }catch(e){console.warn('Restauration session Web',e);clearWebSession(true);return false}
+  }
+  async function initPublicWeb(){
+    hideLegacyPortal();
+    if(await restoreWebSession())return;
+    clearWebSession(true);currentUser=null;if(signupOwnerUsername)signupOwnerUsername.value='fondateur';webShowAuthChoice();
+    if(bootStatus)setTimeout(()=>bootStatus.classList.add('hidden'),2500);
+  }
+  setTimeout(initPublicWeb,80);
+})();
+
 </script>
 
 <script id="eiafc-v810-final-hardening">
