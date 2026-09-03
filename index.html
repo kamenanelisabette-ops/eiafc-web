@@ -6,9 +6,12 @@
 <meta name="theme-color" content="#111827">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de l’Université privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-03-v10-1-pedagogie">
+<meta name="eiafc-web-build" content="2026-09-03-v10-2-syncfix">
 <meta name="author" content="Université privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -314,7 +317,7 @@ body{background:linear-gradient(180deg,#f5f8fb 0%,#eef3f7 100%)}
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 9.3.0 • CLOUD 24/7 • MULTI-POSTES • FINANCE • RH • AUDIT</span></div>
+    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 10.2 • ERP SCOLAIRE • PÉDAGOGIE • CLOUD • ACCÈS PAR RÔLE</span></div>
     <div class="user-mini"><b id="currentUserName">Non connecté</b><span id="currentUserRole"></span><br><button class="btn btn-light btn-sm" onclick="logout()">Déconnexion</button></div>
     <div class="nav">
       <button class="nav-btn active" data-view="dashboard" data-perm="dashboard">📊 Tableau de bord</button>
@@ -1212,7 +1215,7 @@ body{background:linear-gradient(180deg,#f5f8fb 0%,#eef3f7 100%)}
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="10.1.0";
+const APP_VERSION="10.2.0";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -2361,7 +2364,7 @@ function forceAllowedView(){
  if(!active||!activeNav){document.querySelectorAll(".nav-btn").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));const b=firstAllowedNav();if(b){b.classList.add("active");const v=document.getElementById(b.dataset.view);if(v)v.classList.add("active");pageTitle.textContent=b.textContent.replace(/^[^\s]+\s/,"")}}
 }
 function clearRestrictedViews(){
- const defs={students:"students",classes:"students",attendance:"attendance",inventory:"inventory",staffpayroll:"staff",payments:"payments",schedule:"schedule",other:"other",expenses:"expenses",cash:"cash",closing:"closing",journal:"journal",accounting:"accounting",reports:"reports",audit:"audit",users:"users",settings:"settings"};
+ const defs={students:"students",classes:"students",attendance:"attendance",academic:"academic",timetable:"timetable",discipline:"discipline",inventory:"inventory",staffpayroll:"staff",payments:"payments",schedule:"schedule",other:"other",expenses:"expenses",cash:"cash",closing:"closing",journal:"journal",accounting:"accounting",reports:"reports",audit:"audit",users:"users",settings:"settings"};
  Object.entries(defs).forEach(([id,p])=>{const v=document.getElementById(id);if(v&&!can(p)){v.classList.remove("active");v.querySelectorAll("table").forEach(t=>t.innerHTML="");v.querySelectorAll(".kpis").forEach(k=>k.innerHTML="")}})
 }
 function applyRoleSensitiveVisibility(){
@@ -2875,14 +2878,14 @@ function studentAdminComplete(s){return !!String(s?.phone||"").trim()&&!!String(
 function founderDeleteStudent(mat){if(!canFounderDelete())return alert("Suppression réservée au Fondateur.");const s=db.students.find(x=>x.matricule===mat);if(!s||s.deleted===true)return;const linked=db.payments.filter(p=>p.deleted!==true&&p.student===mat),att=db.attendance.filter(a=>a.deleted!==true&&a.student===mat);const reason=prompt(`Motif obligatoire pour supprimer le dossier de ${s.name} :`);if(!reason?.trim())return;const msg=`Ce dossier possède ${linked.length} paiement(s) et ${att.length} présence(s). Ces éléments seront eux aussi supprimés logiquement pour ne pas laisser de données orphelines.`;if(!confirm(`CONFIRMATION FONDATEUR : supprimer ${s.name} (${mat}) ?\n\n${msg}\n\nLa trace restera dans l’historique.`))return;const stamp=new Date().toISOString();s.deleted=true;s.deletedAt=stamp;s.deletedBy=currentUserLabel();s.deleteReason=reason.trim();[...linked,...att].forEach(p=>{p.deleted=true;p.deletedAt=stamp;p.deletedBy=currentUserLabel();p.deleteReason=`Suppression dossier étudiant ${mat} — ${reason.trim()}`});logAction("SUPPRESSION FONDATEUR",`Étudiant ${mat} — ${s.name} — ${linked.length} paiement(s) et ${att.length} présence(s) liés — ${reason.trim()}`);saveDB()}
 function renderStudents(){
  const q=(studentSearch?.value||"").toLowerCase(),pf=studentProgramFilter?.value||"",af=studentAssignmentFilter?.value||"";let arr=currentStudents().filter(s=>(!pf||s.program===pf)&&assignmentMatches(s,af)&&([s.matricule,s.name,s.phone,s.guardianName,s.guardianPhone,s.guardianEmail,s.email,s.track,studentAssignmentLabel(s)].join(" ").toLowerCase().includes(q)));
- const secretary=roleName()==="Secrétariat";
- if(secretary){studentsTable.innerHTML=`<thead><tr><th>École</th><th>Matricule</th><th>Nom & Prénoms</th><th>Téléphone</th><th>Programme</th><th>Statut d’affectation</th><th>Filière</th><th>Dossier</th><th>Fournitures</th><th>Statut étudiant</th><th>Sync</th><th>Actions</th></tr></thead><tbody>${arr.length?arr.map(s=>{const sok=Number(s.reamReceived||0)>=1&&Number(s.markersReceived||0)>=3,assigned=studentIsAssigned(s),docs=studentDocsCount(s);return`<tr><td><span class="badge">${esc(activeSchoolCode())}</span></td><td>${esc(s.matricule)}</td><td><b>${esc(s.name)}</b></td><td>${esc(s.phone||"")}</td><td>${esc(s.program)}</td><td><span class="status ${assigned?"valid":"pending"}">${studentAssignmentLabel(s)}</span></td><td>${esc(s.track||"— filière à renseigner —")}</td><td><span class="status ${docs>=4?"valid":"pending"}">${docs}/4 pièces</span></td><td><span class="status ${sok?"valid":"pending"}">${Number(s.reamReceived||0)}/1 rame • ${Number(s.markersReceived||0)}/3 marqueurs</span></td><td>${esc(s.status||"Actif")}</td><td>${syncBadgeFor("students",s.matricule)}</td><td><button class="btn btn-light btn-sm" onclick="editStudent('${s.matricule}')">Modifier / Documents</button> <button class="btn btn-danger btn-sm" onclick="archiveStudent('${s.matricule}')">Archiver</button></td></tr>`}).join(""):`<tr><td colspan="12" class="empty">Aucun étudiant dans cette école</td></tr>`}</tbody>`;return}
+ const hideStudentMoney=!canSeeStudentFinance();
+ if(hideStudentMoney){studentsTable.innerHTML=`<thead><tr><th>École</th><th>Matricule</th><th>Nom & Prénoms</th><th>Téléphone</th><th>Programme</th><th>Statut d’affectation</th><th>Filière</th><th>Dossier</th><th>Fournitures</th><th>Statut étudiant</th><th>Sync</th><th>Actions</th></tr></thead><tbody>${arr.length?arr.map(s=>{const sok=Number(s.reamReceived||0)>=1&&Number(s.markersReceived||0)>=3,assigned=studentIsAssigned(s),docs=studentDocsCount(s);return`<tr><td><span class="badge">${esc(activeSchoolCode())}</span></td><td>${esc(s.matricule)}</td><td><b>${esc(s.name)}</b></td><td>${esc(s.phone||"")}</td><td>${esc(s.program)}</td><td><span class="status ${assigned?"valid":"pending"}">${studentAssignmentLabel(s)}</span></td><td>${esc(s.track||"— filière à renseigner —")}</td><td><span class="status ${docs>=4?"valid":"pending"}">${docs}/4 pièces</span></td><td><span class="status ${sok?"valid":"pending"}">${Number(s.reamReceived||0)}/1 rame • ${Number(s.markersReceived||0)}/3 marqueurs</span></td><td>${esc(s.status||"Actif")}</td><td>${syncBadgeFor("students",s.matricule)}</td><td>${canEditStudents()?`<button class="btn btn-light btn-sm" onclick="editStudent('${s.matricule}')">Modifier / Documents</button> <button class="btn btn-danger btn-sm" onclick="archiveStudent('${s.matricule}')">Archiver</button>`:'<span class="small">Lecture seule</span>'}</td></tr>`}).join(""):`<tr><td colspan="12" class="empty">Aucun étudiant dans cette école</td></tr>`}</tbody>`;return}
  studentsTable.innerHTML=`<thead><tr><th>École</th><th>Matricule</th><th>Nom & Prénoms</th><th>Téléphone</th><th>Programme</th><th>Statut d’affectation</th><th>Filière</th><th>Dossier</th><th>Fournitures</th><th class="money">Total dû</th><th class="money">Payé scolarité</th><th class="money">Reste</th><th class="money">Échu</th><th>Situation</th><th>Sync</th><th>Actions</th></tr></thead><tbody>${arr.length?arr.map(s=>{let due=studentDue(s),paid=studentDebtPaid(s.matricule),rest=studentRest(s),over=overdueAmount(s),st=paymentStatus(s),cl=st==="Soldé"?"sold":st==="Partiel"?"partial":"unpaid",sok=Number(s.reamReceived||0)>=1&&Number(s.markersReceived||0)>=3,assigned=studentIsAssigned(s),docs=studentDocsCount(s);return`<tr><td><span class="badge">${esc(activeSchoolCode())}</span></td><td>${esc(s.matricule)}</td><td><b>${esc(s.name)}</b></td><td>${esc(s.phone||"")}</td><td>${esc(s.program)}</td><td><span class="status ${assigned?"valid":"pending"}">${studentAssignmentLabel(s)}</span></td><td>${esc(s.track||"— filière à renseigner —")}</td><td><span class="status ${docs>=4?"valid":"pending"}">${docs}/4 pièces</span></td><td><span class="status ${sok?"valid":"pending"}">${Number(s.reamReceived||0)}/1 rame • ${Number(s.markersReceived||0)}/3 marqueurs</span></td><td class="money">${fmt(due)}</td><td class="money">${fmt(paid)}</td><td class="money">${fmt(rest)}</td><td class="money">${fmt(over)}</td><td><span class="status ${cl}">${st}</span></td><td>${syncBadgeFor("students",s.matricule)}</td><td>${can("studentFinance")?`<button class="btn btn-light btn-sm" onclick="showStudentFinance('${s.matricule}')">Fiche finance</button>`:""} ${canEditStudents()?`<button class="btn btn-light btn-sm" onclick="editStudent('${s.matricule}')">Modifier / Documents</button>`:""} ${canEditStudents()?`<button class="btn btn-danger btn-sm" onclick="archiveStudent('${s.matricule}')">Archiver</button>`:""} ${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="founderDeleteStudent('${s.matricule}')">Supprimer</button>`:""}</td></tr>`}).join(""):`<tr><td colspan="16" class="empty">Aucun étudiant dans cette école</td></tr>`}</tbody>`
 }
 function updateSupplyTrackOptions(){fillTrackSelect(supplyTrackFilter,supplyProgramFilter?.value||"","Toutes filières",false)}
 function supplyFilteredStudents(){const pf=supplyProgramFilter?.value||"",tf=supplyTrackFilter?.value||"",af=supplyAssignmentFilter?.value||"",sf=supplyStatusFilter?.value||"";return currentStudents().filter(s=>(!pf||s.program===pf)&&(!tf||studentTrackValue(s)===tf)&&assignmentMatches(s,af)&&(sf!=="missing"||(Number(s.reamReceived||0)<1||Number(s.markersReceived||0)<3))&&(sf!=="complete"||(Number(s.reamReceived||0)>=1&&Number(s.markersReceived||0)>=3)))}
 function supplyValuation(){const v=activeSchoolSupplyValues();return{ream:Number(v.ream||0),marker:Number(v.marker||0)}}
-function renderSupplies(){if(!document.getElementById("suppliesTable"))return;updateSupplyTrackOptions();const arr=supplyFilteredStudents(),dueR=arr.length,dueM=arr.length*3,gotR=arr.reduce((a,s)=>a+Math.min(1,Number(s.reamReceived||0)),0),gotM=arr.reduce((a,s)=>a+Math.min(3,Number(s.markersReceived||0)),0),val=supplyValuation(),est=gotR*val.ream+gotM*val.marker;supplyKpis.innerHTML=([["Rames attendues",dueR],["Rames reçues",gotR],["Marqueurs attendus",dueM],["Marqueurs reçus",gotM],["Rames manquantes",Math.max(0,dueR-gotR)],["Marqueurs manquants",Math.max(0,dueM-gotM)]].concat(["Secrétariat","Secrétariat & Caisse"].includes(roleName())?[]:[["Valeur estimative reçue",fmt(est)]])).map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");suppliesTable.innerHTML=`<thead><tr><th>Matricule</th><th>Étudiant</th><th>Programme</th><th>Statut d’affectation</th><th>Filière</th><th>Rame</th><th>Marqueurs</th><th>Date remise</th><th>État</th><th>Observation</th></tr></thead><tbody>${arr.length?arr.map(s=>{const ok=Number(s.reamReceived||0)>=1&&Number(s.markersReceived||0)>=3;return`<tr><td>${esc(s.matricule)}</td><td><b>${esc(s.name)}</b></td><td>${esc(s.program)}</td><td><span class="status ${studentIsAssigned(s)?"valid":"pending"}">${studentAssignmentLabel(s)}</span></td><td>${esc(s.track||"—")}</td><td>${Number(s.reamReceived||0)}/1</td><td>${Number(s.markersReceived||0)}/3</td><td>${esc(s.supplyDate||"—")}</td><td><span class="status ${ok?"valid":"pending"}">${ok?"Complet":"À compléter"}</span></td><td>${esc(s.supplyObs||"")}</td></tr>`}).join(""):`<tr><td colspan="10" class="empty">Aucun étudiant pour ce filtre</td></tr>`}</tbody>`}
+function renderSupplies(){if(!document.getElementById("suppliesTable"))return;updateSupplyTrackOptions();const arr=supplyFilteredStudents(),dueR=arr.length,dueM=arr.length*3,gotR=arr.reduce((a,s)=>a+Math.min(1,Number(s.reamReceived||0)),0),gotM=arr.reduce((a,s)=>a+Math.min(3,Number(s.markersReceived||0)),0),val=supplyValuation(),est=gotR*val.ream+gotM*val.marker;supplyKpis.innerHTML=([["Rames attendues",dueR],["Rames reçues",gotR],["Marqueurs attendus",dueM],["Marqueurs reçus",gotM],["Rames manquantes",Math.max(0,dueR-gotR)],["Marqueurs manquants",Math.max(0,dueM-gotM)]].concat(canSeeGlobalMoney()?[["Valeur estimative reçue",fmt(est)]]:[])).map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");suppliesTable.innerHTML=`<thead><tr><th>Matricule</th><th>Étudiant</th><th>Programme</th><th>Statut d’affectation</th><th>Filière</th><th>Rame</th><th>Marqueurs</th><th>Date remise</th><th>État</th><th>Observation</th></tr></thead><tbody>${arr.length?arr.map(s=>{const ok=Number(s.reamReceived||0)>=1&&Number(s.markersReceived||0)>=3;return`<tr><td>${esc(s.matricule)}</td><td><b>${esc(s.name)}</b></td><td>${esc(s.program)}</td><td><span class="status ${studentIsAssigned(s)?"valid":"pending"}">${studentAssignmentLabel(s)}</span></td><td>${esc(s.track||"—")}</td><td>${Number(s.reamReceived||0)}/1</td><td>${Number(s.markersReceived||0)}/3</td><td>${esc(s.supplyDate||"—")}</td><td><span class="status ${ok?"valid":"pending"}">${ok?"Complet":"À compléter"}</span></td><td>${esc(s.supplyObs||"")}</td></tr>`}).join(""):`<tr><td colspan="10" class="empty">Aucun étudiant pour ce filtre</td></tr>`}</tbody>`}
 
 function classFilteredStudents(){const pf=classProgram?.value||"",tf=classTrack?.value||"",af=classAssignment?.value||"",lf=classLevel?.value||"",sf=classStatus?.value??"Actif",q=(classSearch?.value||"").toLowerCase();return currentStudents().filter(s=>(!pf||s.program===pf)&&(!tf||studentTrackValue(s)===tf)&&assignmentMatches(s,af)&&(!lf||s.level===lf)&&(!sf||s.status===sf)&&([s.matricule,s.name,s.phone,s.track,s.level].join(" ").toLowerCase().includes(q))).sort((a,b)=>String(a.name).localeCompare(String(b.name),"fr"))}
 function updateClassFilters(){if(!classTrack||!classLevel)return;const p=classProgram.value||"",sts=currentStudents().filter(s=>!p||s.program===p),oldT=classTrack.value,oldL=classLevel.value,tracks=[...new Set(sts.map(s=>normalizeTrackName(s.track)).filter(Boolean))].sort(),levels=[...new Set(sts.map(s=>s.level).filter(Boolean))].sort();classTrack.innerHTML='<option value="">Toutes filières</option>'+tracks.map(x=>`<option>${esc(x)}</option>`).join("");classLevel.innerHTML='<option value="">Tous niveaux / classes</option>'+levels.map(x=>`<option>${esc(x)}</option>`).join("");if(tracks.includes(oldT))classTrack.value=oldT;if(levels.includes(oldL))classLevel.value=oldL}
@@ -3391,8 +3394,8 @@ async function startApp(){
   populateLanFields();populateCloudFields();updateInstallHints();updateOfflineQueueUI();const invited=await processInviteFromUrl();if(!invited)authInit();
   if(bootStatus){bootStatus.textContent=db.users.length?"Base locale chargée — choisissez votre accès.":"Nouveau poste — rejoignez votre installation EIAFC sécurisée.";setTimeout(()=>bootStatus.classList.add("hidden"),2500)}
   updateStudentTrackState();refreshTrackDatalists();updatePayTrackOptions();updateScheduleTrackOptions();
-  if(attendanceDate)attendanceDate.value=defaultAcademicDate();if(attendanceMonth)attendanceMonth.value=ym(defaultAcademicDate());if(inventoryMoveDate)inventoryMoveDate.value=defaultManagementDate();if(staffHireDate)staffHireDate.value=defaultManagementDate();if(staffAttendanceDate)staffAttendanceDate.value=defaultManagementDate();if(staffAttendanceMonth)staffAttendanceMonth.value=ym(defaultManagementDate());if(staffLoanDate)staffLoanDate.value=defaultManagementDate();if(payrollMonth)payrollMonth.value=ym(defaultManagementDate());if(payrollHistoryMonth)payrollHistoryMonth.value=ym(defaultManagementDate());if(payrollPayDate)payrollPayDate.value=defaultManagementDate();
-  if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)){navigator.serviceWorker.register("?asset=sw").catch(e=>console.warn("Service worker EIAFC",e))}
+  if(attendanceDate)attendanceDate.value=defaultAcademicDate();if(attendanceMonth)attendanceMonth.value=ym(defaultAcademicDate());if(gradeDate)gradeDate.value=defaultAcademicDate();if(lessonDate)lessonDate.value=defaultAcademicDate();if(discDate)discDate.value=defaultAcademicDate();if(inventoryMoveDate)inventoryMoveDate.value=defaultManagementDate();if(staffHireDate)staffHireDate.value=defaultManagementDate();if(staffAttendanceDate)staffAttendanceDate.value=defaultManagementDate();if(staffAttendanceMonth)staffAttendanceMonth.value=ym(defaultManagementDate());if(staffLoanDate)staffLoanDate.value=defaultManagementDate();if(payrollMonth)payrollMonth.value=ym(defaultManagementDate());if(payrollHistoryMonth)payrollHistoryMonth.value=ym(defaultManagementDate());if(payrollPayDate)payrollPayDate.value=defaultManagementDate();
+  if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)&&!String(location.hostname).endsWith(".vercel.app")){navigator.serviceWorker.register("?asset=sw").catch(e=>console.warn("Service worker EIAFC",e))}
   // Networking is deliberately non-blocking: the login/home page is already visible.
   setTimeout(async()=>{try{const lok=await lanBoot();if(!lok&&navigator.onLine!==false&&cloudConfigured())await cloudBoot();runNetworkDiagnostic(false)}catch(e){console.warn("Réseau au démarrage",e)}},150)
  }catch(e){
@@ -3411,6 +3414,18 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   const WEB_APIKEY='sb_publishable_gAPfLd6okuu42hvOwQp35Q_L87JA22Q';
   const WEB_WORKSPACE='EIAFC_V7';
   const WEB_TOKEN_KEY='eiafc_web_secure_session_v4';
+  const WEB_BUILD='2026-09-03-v10-2-syncfix';
+  (async()=>{
+    if(!String(location.hostname).endsWith('.vercel.app'))return;
+    try{
+      const k='eiafc_web_cache_build';
+      if(localStorage.getItem(k)===WEB_BUILD)return;
+      if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()))}
+      if('caches' in window){const names=await caches.keys();await Promise.all(names.map(n=>caches.delete(n)))}
+      localStorage.setItem(k,WEB_BUILD)
+    }catch(e){console.warn('Nettoyage cache Web',e)}
+  })();
+
   const WEB_USER_KEY='eiafc_web_secure_user_v4';
   let webBase=null, webRevision=0, webTimer=null, webPushChain=Promise.resolve();
 
@@ -3435,6 +3450,10 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   }
   function webToken(){return sessionStorage.getItem(WEB_TOKEN_KEY)||''}
   function webStoredUser(){try{return JSON.parse(sessionStorage.getItem(WEB_USER_KEY)||'null')}catch(_e){return null}}
+  function webPendingKey(user=currentUser||webStoredUser()){return `eiafc_web_pending_v102_${String(user?.username||'anonymous').toLowerCase()}`}
+  function loadWebPending(user=currentUser||webStoredUser()){try{return JSON.parse(localStorage.getItem(webPendingKey(user))||'null')||{}}catch(_e){return{}}}
+  function saveWebPending(p,user=currentUser||webStoredUser()){try{const k=webPendingKey(user);if(patchHasChanges(p))localStorage.setItem(k,JSON.stringify(p));else localStorage.removeItem(k)}catch(_e){}updateOfflineQueueUI()}
+
   function clearWebSession(clearCache=true){
     sessionStorage.removeItem(WEB_TOKEN_KEY);sessionStorage.removeItem(WEB_USER_KEY);sessionStorage.removeItem(SESSION_KEY);
     if(webTimer)clearInterval(webTimer);webTimer=null;webBase=null;webRevision=0;cloudConnected=false;lanConnected=false;
@@ -3493,19 +3512,46 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   }
   async function securePush(){
     if(!currentUser||!webToken()||!webBase||navigator.onLine===false)return false;
-    const snapshot=deepClone(db),patch=securePatch(webBase,snapshot);
-    if(!patchHasChanges(patch)){cloudConnected=true;setUnifiedStatus('Cloud Web synchronisé','ok');updateOfflineQueueUI();return true}
+    const snapshot=deepClone(db);
+    const localDiff=securePatch(webBase,snapshot);
+    const patch=mergeCloudPatches(loadWebPending(),localDiff);
+    if(!patchHasChanges(patch)){
+      saveWebPending({});
+      cloudConnected=true;setUnifiedStatus('Cloud Web synchronisé','ok');updateOfflineQueueUI();return true
+    }
     try{
       const j=await webApi('apply_patch',{patch,source:`${currentUserLabel()} — Web ${getDeviceId()}`},webToken());
       webRevision=Number(j.revision||webRevision);
-      const remote=normalizeDB(deepClone(j.state||snapshot));
-      const after=securePatch(snapshot,db);
-      webBase=deepClone(remote);db=patchHasChanges(after)?applyCloudPatchJS(remote,after):remote;persist();localSessionBase=deepClone(db);
-      cloudConnected=true;setUnifiedStatus(patchHasChanges(after)?'Synchronisation partielle':'Cloud Web synchronisé','ok');setLastSync(`Dernier envoi Web : ${new Date().toLocaleString('fr-FR')} — révision ${webRevision}`);refreshAll();
-      if(patchHasChanges(after))queueSecurePush();
+
+      // IMPORTANT V10.2:
+      // Le serveur devient la nouvelle base de référence, MAIS toute donnée du snapshot
+      // que le serveur n'a pas encore renvoyée reste locale et "À synchroniser".
+      const remote=normalizeDB(sanitizeRemoteStateForRole(deepClone(j.state||{}),currentUser));
+      const unconfirmed=securePatch(remote,snapshot);
+      const newer=securePatch(snapshot,db);
+      const remain=mergeCloudPatches(unconfirmed,newer);
+
+      webBase=deepClone(remote);
+      db=patchHasChanges(remain)?applyCloudPatchJS(remote,remain):remote;
+      persist();localSessionBase=deepClone(db);
+      saveWebPending(remain);
+
+      cloudConnected=true;
+      setUnifiedStatus(patchHasChanges(remain)?'Cloud Web — éléments en attente':'Cloud Web synchronisé',patchHasChanges(remain)?'warn':'ok');
+      setLastSync(`Dernier envoi Web : ${new Date().toLocaleString('fr-FR')} — révision ${webRevision}`);
+      refreshAll();
+
+      if(patchHasChanges(remain)){
+        showToast(`<b>Données conservées</b><br>${pendingChangesCount()} élément(s) attendent encore la confirmation du Cloud.`);
+      }
       return true;
     }catch(e){
-      console.error('EIAFC Web push',e);cloudConnected=false;setUnifiedStatus('Synchronisation Web en attente','bad');showToast(`<b>Synchronisation en attente</b><br>${esc(e?.message||e)}`);return false;
+      console.error('EIAFC Web push',e);
+      const pending=mergeCloudPatches(loadWebPending(),securePatch(webBase,db));
+      saveWebPending(pending);
+      cloudConnected=false;setUnifiedStatus('Synchronisation Web en attente','bad');
+      showToast(`<b>Données conservées localement</b><br>${esc(e?.message||e)}`);
+      return false;
     }
   }
   function queueSecurePush(){webPushChain=webPushChain.then(()=>securePush()).catch(e=>console.error('EIAFC Web queue',e))}
@@ -3513,15 +3559,27 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
     if(!currentUser||!webToken()||navigator.onLine===false)return false;
     try{
       const r=await webApi('get_revision',{},webToken());
-      if(Number(r.revision||0)<=webRevision){cloudConnected=true;if(interactive)showToast('<b>EIAFC Web</b><br>Les données sont déjà à jour.');return true}
+      const localPending=mergeCloudPatches(loadWebPending(),webBase?securePatch(webBase,db):{});
+      if(Number(r.revision||0)<=webRevision){
+        if(patchHasChanges(localPending)){saveWebPending(localPending);cloudConnected=true;if(interactive)showToast(`<b>EIAFC Web</b><br>${pendingChangesCount()} élément(s) restent à synchroniser.`);return true}
+        cloudConnected=true;if(interactive)showToast('<b>EIAFC Web</b><br>Les données sont déjà à jour.');return true
+      }
       const j=await webApi('get_state',{},webToken()),old=deepClone(db);
       if(!j?.state)throw new Error('La base centrale EIAFC n’a pas été reçue. Les données locales restent inchangées.');
       const remote=normalizeDB(sanitizeRemoteStateForRole(deepClone(j.state),currentUser));
-      webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();localSessionBase=deepClone(db);cloudConnected=true;alignWebScopeToLoadedData();refreshAll();notifyBossChanges(old,db);
-      if(interactive)showToast('<b>Données reçues</b><br>EIAFC Web est à jour.');return true;
+
+      // Fusionner la nouvelle base Cloud avec les saisies locales non encore confirmées.
+      const merged=patchHasChanges(localPending)?applyCloudPatchJS(remote,localPending):remote;
+      const remain=securePatch(remote,merged);
+
+      webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(merged);
+      persist();localSessionBase=deepClone(db);saveWebPending(remain);
+      cloudConnected=true;alignWebScopeToLoadedData();refreshAll();notifyBossChanges(old,db);
+      if(interactive)showToast(`<b>Données reçues</b><br>${patchHasChanges(remain)?pendingChangesCount()+' élément(s) locaux restent en attente.':'EIAFC Web est à jour.'}`);
+      return true;
     }catch(e){
       console.error('EIAFC Web pull',e);
-      if(/session|expir|compte/i.test(String(e?.message||e).toLowerCase())){clearWebSession(true);currentUser=null;webShowAuthChoice();alert('Votre session EIAFC a expiré. Reconnectez-vous.')}else if(interactive)alert(e?.message||e);
+      if(/session|expir|compte/i.test(String(e?.message||e).toLowerCase())){clearWebSession(false);currentUser=null;webShowAuthChoice();alert('Votre session EIAFC a expiré. Reconnectez-vous.')}else if(interactive)alert(e?.message||e);
       return false;
     }
   }
@@ -3585,18 +3643,21 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
       if(!full?.state)throw new Error('La base centrale EIAFC n’a pas été reçue. Aucune base vide ne sera ouverte.');
       const remote=normalizeDB(sanitizeRemoteStateForRole(deepClone(full.state),j.user));
       sessionStorage.setItem(WEB_TOKEN_KEY,j.session);sessionStorage.setItem(WEB_USER_KEY,JSON.stringify(j.user));sessionStorage.setItem(SESSION_KEY,j.user.username);
-      webRevision=Number(full.revision||j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();
-      currentUser={...j.user,active:true,deleted:false};loginPassword.value='';lanConnected=false;cloudConnected=true;localSessionBase=deepClone(db);
+      webRevision=Number(full.revision||j.revision||0);webBase=deepClone(remote);
+      currentUser={...j.user,active:true,deleted:false};
+      const pendingAtLogin=loadWebPending(currentUser);
+      db=patchHasChanges(pendingAtLogin)?applyCloudPatchJS(remote,pendingAtLogin):deepClone(remote);persist();
+      loginPassword.value='';lanConnected=false;cloudConnected=true;localSessionBase=deepClone(db);
       const scope=alignWebScopeToLoadedData();
       setUnifiedStatus('Cloud Web sécurisé','ok');refreshAll();enterApp();startWebPolling();
-      setTimeout(()=>showToast(`<b>Base EIAFC chargée</b><br>${scope.students} étudiant(s) reçus du Cloud — ${scope.visible??currentStudents().length} affiché(s) pour ${esc(scope.year||activeYear())}.`),250);
+      setTimeout(()=>showToast(`<b>EIAFC V10.2 chargée</b><br>${scope.students} étudiant(s) • Pédagogie, emploi du temps et discipline activés • ${pendingChangesCount()} élément(s) en attente.`),250);
     }catch(e){alert(e?.message||String(e))}
     finally{if(btn){btn.disabled=false;btn.textContent=old||'Se connecter'}}
   };
 
   window.createAccountFromPortal=createAccountFromPortal=async function(){
     const fullname=signupFullname.value.trim(),username=signupUsername.value.trim().toLowerCase(),email=normalizeEmail(signupEmail.value),pwd=signupPassword.value,role=signupRole.value,founderName=signupOwnerUsername.value.trim().toLowerCase(),founderPwd=signupOwnerPassword.value;
-    const allowed=['Comptable','RH','Caissier','Secrétariat','Secrétariat & Caisse'];
+    const allowed=['Comptable','Directeur des études','Éducateur','Enseignant','RH','Caissier','Secrétariat','Secrétariat & Caisse'];
     if(!fullname||!username||!validEmail(email)||pwd.length<6)return alert('Nom complet, utilisateur, e-mail personnel valide et mot de passe d’au moins 6 caractères sont obligatoires.');
     if(!allowed.includes(role))return alert('Rôle non autorisé.');
     if(!founderName||!founderPwd)return alert('Le Fondateur doit saisir son utilisateur et son mot de passe pour autoriser la création.');
@@ -3631,8 +3692,16 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   window.lanConfigured=lanConfigured=function(){return false};
   window.cloudConfigured=cloudConfigured=function(){return !!webToken()};
   window.networkConfigured=networkConfigured=function(){return !!webToken()};
-  window.capturePendingPatch=capturePendingPatch=function(){};
-  window.pendingChangesCount=pendingChangesCount=function(){if(!webBase||!currentUser)return 0;const p=securePatch(webBase,db);let n=0;for(const k of Object.keys(CLOUD_COLLECTION_KEYS))n+=(p?.[k]||[]).length;if(p.settings)n++;return n};
+  window.capturePendingPatch=capturePendingPatch=function(){
+    if(!webBase||!currentUser)return;
+    const p=mergeCloudPatches(loadWebPending(),securePatch(webBase,db));
+    saveWebPending(p)
+  };
+  window.pendingChangesCount=pendingChangesCount=function(){
+    if(!webBase||!currentUser)return 0;
+    const p=mergeCloudPatches(loadWebPending(),securePatch(webBase,db));
+    let n=0;for(const k of Object.keys(CLOUD_COLLECTION_KEYS))n+=(p?.[k]||[]).length;if(p.settings)n++;return n
+  };
   window.queueNetworkPush=queueNetworkPush=function(){queueSecurePush()};
   window.queueCloudPush=queueCloudPush=function(){queueSecurePush()};
   window.cloudPush=cloudPush=securePush;
@@ -3640,7 +3709,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   window.syncNow=syncNow=async function(){const pushed=await securePush(),pulled=await securePull(false);if(pushed||pulled)showToast(`<b>Synchronisation Web terminée</b><br>${pendingChangesCount()?pendingChangesCount()+' élément(s) restent en attente.':'Toutes les données sont à jour.'}`)};
   window.cloudNextId=cloudNextId=async function(type,label){const j=await webApi('next_id',{year:activeYear(),kind:type,label},webToken());return j.id};
   window.nextAcademicId=nextAcademicId=async function(type,label){if(webToken()&&navigator.onLine!==false){try{return await cloudNextId(type,label)}catch(e){console.error(e)}}return nextOfflineId(type,label)};
-  window.saveDB=saveDB=function(){persist();refreshAll();queueSecurePush()};
+  window.saveDB=saveDB=function(){persist();capturePendingPatch();refreshAll();queueSecurePush()};
   window.startPrimaryBridge=startPrimaryBridge=function(){startWebPolling()};
 
   window.refreshCloudDevices=refreshCloudDevices=async function(interactive=false){
@@ -3697,7 +3766,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   });
 
   // Marque visuellement l'environnement de production web pour faciliter l'audit.
-  document.documentElement.setAttribute('data-eiafc-version','10.1.0');
+  document.documentElement.setAttribute('data-eiafc-version','10.2.0');
   // Sécurité connexion : 5 échecs => blocage local de 15 minutes sur ce poste.
   try {
     const originalLogin = window.login;
