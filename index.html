@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de l’Université privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-03-v10-2-syncfix">
+<meta name="eiafc-web-build" content="2026-09-03-v10-3-design-premium">
 <meta name="author" content="Université privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -148,6 +148,513 @@ body{background:linear-gradient(180deg,#f5f8fb 0%,#eef3f7 100%)}
 .kpi,.stat,.account-card{transition:transform .16s ease,box-shadow .16s ease}.kpi:hover,.stat:hover,.account-card:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(20,53,74,.10)}
 .btn-primary{box-shadow:0 7px 18px rgba(18,48,74,.18)}.btn-gold{box-shadow:0 7px 18px rgba(198,154,43,.19)}
 @media(max-width:760px){.production-hero{align-items:flex-start;flex-direction:column}.prod-hero-badge{display:flex;gap:8px;align-items:center}.prod-hero-badge b{font-size:18px}.login-card>h1{font-size:34px}}
+
+
+/* ============================================================
+   EIAFC V10.3 — DESIGN PREMIUM
+   ============================================================ */
+:root{
+  --premium-navy:#0b2439;
+  --premium-navy-2:#103a58;
+  --premium-blue:#1f6e9a;
+  --premium-cyan:#0f8b8d;
+  --premium-gold:#d7a82f;
+  --premium-gold-soft:#fff4cf;
+  --premium-bg:#f4f7fb;
+  --premium-border:#e2e9f0;
+  --premium-text:#162230;
+  --premium-muted:#6f7d8c;
+  --premium-shadow:0 12px 34px rgba(22,49,74,.08);
+  --premium-shadow-lg:0 22px 55px rgba(12,37,57,.14);
+}
+html{background:#eef3f8}
+body{
+  background:
+    radial-gradient(circle at 88% -10%,rgba(31,110,154,.10),transparent 28%),
+    radial-gradient(circle at 10% 100%,rgba(215,168,47,.08),transparent 26%),
+    var(--premium-bg);
+  color:var(--premium-text);
+}
+body::-webkit-scrollbar,.sidebar::-webkit-scrollbar,.table-wrap::-webkit-scrollbar{width:9px;height:9px}
+body::-webkit-scrollbar-thumb,.sidebar::-webkit-scrollbar-thumb,.table-wrap::-webkit-scrollbar-thumb{background:#b7c5d0;border-radius:999px}
+body::-webkit-scrollbar-track,.sidebar::-webkit-scrollbar-track,.table-wrap::-webkit-scrollbar-track{background:transparent}
+
+.app{grid-template-columns:286px minmax(0,1fr)}
+.sidebar{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0)),
+    linear-gradient(165deg,#071c2c 0%,#0c3049 48%,#123f5f 100%);
+  padding:20px 15px;
+  box-shadow:14px 0 42px rgba(4,23,36,.13);
+  border-right:1px solid rgba(255,255,255,.06);
+}
+.brand{
+  position:relative;
+  border:1px solid rgba(255,255,255,.10);
+  background:linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.035));
+  border-radius:18px;
+  padding:18px 16px;
+  margin:0 2px 16px;
+  overflow:hidden;
+}
+.brand:after{
+  content:"E";
+  position:absolute;
+  right:-8px;top:-22px;
+  font-size:112px;font-weight:950;
+  color:rgba(255,255,255,.035);
+  line-height:1;
+}
+.brand-kicker{color:#f5d875!important;font-size:10px!important;letter-spacing:.18em!important;font-weight:900!important}
+.brand h1{font-size:28px!important;letter-spacing:-.04em;margin-top:4px!important}
+.brand p{line-height:1.45;color:#cad8e2!important}
+.version{
+  margin-top:12px!important;
+  padding:6px 9px!important;
+  background:rgba(215,168,47,.16)!important;
+  border:1px solid rgba(245,216,117,.25);
+  color:#ffe7a0!important;
+  font-size:9px!important;
+  line-height:1.4;
+}
+.user-mini{
+  border:1px solid rgba(255,255,255,.11);
+  background:linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.04));
+  border-radius:16px;
+  padding:13px 14px;
+  box-shadow:inset 0 1px rgba(255,255,255,.05);
+}
+.user-mini b{font-size:14px!important}
+.user-mini span{display:inline-block;margin-top:3px;color:#bed0db!important}
+.user-mini .btn{background:rgba(255,255,255,.92)!important;color:#0b3049!important}
+
+.nav{padding-top:2px}
+.nav-btn{
+  position:relative;
+  padding:11px 12px;
+  margin:3px 0;
+  border-radius:11px;
+  font-weight:650;
+  color:#d9e6ee;
+  transition:all .17s ease;
+}
+.nav-btn:hover{
+  transform:translateX(2px);
+  background:rgba(255,255,255,.09);
+  color:#fff;
+}
+.nav-btn.active{
+  background:linear-gradient(90deg,rgba(215,168,47,.22),rgba(255,255,255,.08));
+  color:#fff;
+  box-shadow:inset 3px 0 #f2c94c;
+}
+.nav-btn.active:after{
+  content:"";
+  position:absolute;right:10px;top:50%;
+  width:6px;height:6px;border-radius:50%;
+  background:#f3cf63;
+  transform:translateY(-50%);
+  box-shadow:0 0 0 4px rgba(243,207,99,.10);
+}
+
+.main{padding:26px 30px 42px}
+.topbar{
+  position:sticky;top:0;z-index:35;
+  margin:-26px -30px 22px;
+  padding:17px 30px;
+  background:rgba(244,247,251,.90);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(204,216,226,.78);
+  box-shadow:0 6px 24px rgba(26,55,79,.035);
+}
+.topbar h2{font-size:24px;letter-spacing:-.025em}
+#schoolSubtitle{margin-top:4px}
+.toolbar select{
+  border:1px solid #d7e1e9;
+  background:#fff;
+  min-height:36px;
+  border-radius:10px;
+  padding:6px 28px 6px 10px;
+  color:#16354d;
+  font-weight:700;
+}
+.badge{
+  border-radius:999px!important;
+  border:1px solid #dbe5ec!important;
+  background:#fff!important;
+  color:#294b64!important;
+  box-shadow:0 3px 10px rgba(16,52,77,.045);
+}
+
+.production-hero{
+  min-height:176px;
+  border-radius:24px!important;
+  padding:28px 30px!important;
+  margin-bottom:18px!important;
+  background:
+    radial-gradient(circle at 82% 20%,rgba(248,211,104,.22),transparent 24%),
+    radial-gradient(circle at 100% 100%,rgba(40,144,177,.28),transparent 31%),
+    linear-gradient(128deg,#071e30 0%,#0d3854 48%,#166486 100%)!important;
+  box-shadow:0 24px 52px rgba(10,45,68,.18)!important;
+  border:1px solid rgba(255,255,255,.08);
+}
+.production-hero:before{
+  content:"";
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:32px 32px;
+  mask-image:linear-gradient(to right,transparent,black);
+  pointer-events:none;
+}
+.production-hero h2{font-size:31px!important;max-width:760px}
+.production-hero p{font-size:14px;max-width:800px}
+.prod-eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;
+  padding:6px 10px;
+}
+.prod-eyebrow:before{content:"◆";font-size:7px;color:#f3cb55}
+.prod-hero-badge{
+  min-width:158px!important;
+  border-radius:20px!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.06))!important;
+  backdrop-filter:blur(7px);
+  box-shadow:inset 0 1px rgba(255,255,255,.10);
+}
+.prod-hero-badge b{font-size:29px!important}
+
+.premium-context-strip{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:16px;
+}
+.premium-context-card{
+  min-height:82px;
+  display:flex;align-items:center;gap:13px;
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(10px);
+  border:1px solid var(--premium-border);
+  box-shadow:0 8px 24px rgba(22,49,74,.045);
+  border-radius:16px;
+  padding:13px 15px;
+}
+.context-icon{
+  width:46px;height:46px;flex:0 0 46px;
+  display:grid;place-items:center;
+  font-size:20px;
+  border-radius:13px;
+  background:linear-gradient(145deg,#eff6fb,#fff);
+  border:1px solid #dce8f0;
+}
+.premium-context-card span{
+  display:block;color:#83909c;font-size:9px;font-weight:900;letter-spacing:.11em;margin-bottom:3px
+}
+.premium-context-card b{display:block;color:#12344d;font-size:14px}
+.premium-context-card small{display:block;color:#72808d;margin-top:2px;font-size:11px}
+
+.role-dashboard-head{
+  position:relative;
+  overflow:hidden;
+  border:1px solid #e1e9ef!important;
+  border-left:0!important;
+  border-radius:18px!important;
+  padding:20px 21px!important;
+  background:linear-gradient(135deg,#fff 0%,#f7fbfe 100%)!important;
+  box-shadow:var(--premium-shadow)!important;
+}
+.role-dashboard-head:before{
+  content:"";
+  position:absolute;left:0;top:0;bottom:0;width:5px;
+  background:linear-gradient(#d7a82f,#f0ce66);
+}
+.role-dashboard-head:after{
+  content:"";
+  position:absolute;right:-55px;top:-65px;width:160px;height:160px;border-radius:50%;
+  background:rgba(31,110,154,.035);
+}
+.role-dashboard-head h3{font-size:21px!important;letter-spacing:-.02em}
+.role-badge{
+  padding:7px 11px!important;
+  border:1px solid #cfe0ee;
+  background:linear-gradient(135deg,#edf6fc,#fff)!important;
+  color:#1b5879!important;
+}
+.quick-actions .btn{
+  border:1px solid #dce6ed;
+  background:#fff;
+  padding:9px 12px;
+  box-shadow:0 4px 12px rgba(22,49,74,.045);
+}
+.quick-actions .btn:hover{background:#eef7fc;transform:translateY(-1px)}
+
+.dashboard-privacy{
+  border:0!important;
+  border-radius:15px!important;
+  box-shadow:0 7px 20px rgba(22,49,74,.045);
+  padding:13px 15px!important;
+}
+.dashboard-privacy.private{background:linear-gradient(135deg,#edf6ff,#f9fcff)!important}
+.dashboard-privacy.finance{background:linear-gradient(135deg,#fff7d9,#fffdf6)!important}
+.dashboard-privacy.cash{background:linear-gradient(135deg,#eaf9f1,#f9fffc)!important}
+
+.card{
+  border:1px solid var(--premium-border)!important;
+  border-radius:18px!important;
+  box-shadow:var(--premium-shadow)!important;
+  background:rgba(255,255,255,.96)!important;
+}
+.view>.card{margin-bottom:17px}
+.card:hover{border-color:#d7e2ea!important}
+.kpis{gap:14px!important}
+.kpi{
+  position:relative;
+  overflow:hidden;
+  min-height:132px;
+  padding:18px 18px 16px!important;
+  border:1px solid #e2eaf0!important;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(31,110,154,.055),transparent 35%),
+    linear-gradient(145deg,#fff,#fbfdff)!important;
+  box-shadow:0 9px 25px rgba(22,49,74,.055)!important;
+}
+.kpi:before{
+  content:"";
+  position:absolute;left:0;right:0;top:0;height:3px;
+  background:linear-gradient(90deg,var(--kpi-accent,#1f6e9a),rgba(31,110,154,.08));
+}
+.kpi:after{
+  content:attr(data-icon);
+  position:absolute;right:15px;top:14px;
+  width:35px;height:35px;border-radius:11px;
+  display:grid;place-items:center;
+  font-size:17px;
+  background:var(--kpi-soft,#eef6fb);
+  border:1px solid rgba(27,89,122,.07);
+}
+.kpi .label{
+  padding-right:46px;
+  font-size:10px!important;
+  color:#7c8895!important;
+  letter-spacing:.075em!important;
+}
+.kpi .value{
+  font-size:27px!important;
+  letter-spacing:-.025em;
+  color:#102f47!important;
+  margin-top:13px!important;
+}
+.kpi .sub{font-size:11px!important;color:#7f8c98!important}
+.kpi:nth-child(4n+2){--kpi-accent:#0f8b8d;--kpi-soft:#eaf8f7}
+.kpi:nth-child(4n+3){--kpi-accent:#d19a19;--kpi-soft:#fff6da}
+.kpi:nth-child(4n+4){--kpi-accent:#6d63b8;--kpi-soft:#f1effc}
+
+.section-title{
+  padding-bottom:10px;
+  border-bottom:1px solid #edf1f4;
+  margin-bottom:15px!important;
+}
+.section-title h3{
+  font-size:18px;
+  letter-spacing:-.018em;
+  display:flex;align-items:center;gap:8px;
+}
+.section-title h3:after{
+  content:"";
+  width:28px;height:3px;border-radius:999px;
+  background:linear-gradient(90deg,#d7a82f,transparent);
+  margin-left:3px;
+}
+
+.btn{
+  border-radius:11px!important;
+  min-height:38px;
+  transition:transform .14s ease,box-shadow .14s ease,filter .14s ease;
+}
+.btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.015)}
+.btn-primary{
+  background:linear-gradient(135deg,#0c324c,#155778)!important;
+  box-shadow:0 8px 18px rgba(18,67,96,.18)!important;
+}
+.btn-gold{
+  background:linear-gradient(135deg,#d3a127,#efc955)!important;
+  color:#3c2d03!important;
+}
+.btn-light{background:#f1f5f8!important;border:1px solid #e0e8ee!important}
+.btn-success{background:#e8f7ee!important;border:1px solid #cbe8d6!important}
+.btn-danger{background:#fff0ef!important;border:1px solid #f6d5d2!important}
+.btn-sm{min-height:31px!important}
+
+.form-grid{
+  gap:14px!important;
+  padding-top:3px;
+}
+.field label{
+  font-size:11px!important;
+  color:#536473!important;
+  letter-spacing:.025em;
+  margin-bottom:6px!important;
+}
+.field input,.field select,.field textarea{
+  min-height:41px;
+  border:1px solid #d8e1e8!important;
+  border-radius:11px!important;
+  background:linear-gradient(#fff,#fdfefe)!important;
+  box-shadow:inset 0 1px 2px rgba(15,44,64,.02);
+  transition:border .15s ease,box-shadow .15s ease,background .15s ease;
+}
+.field textarea{min-height:auto}
+.field input:hover,.field select:hover,.field textarea:hover{border-color:#bfcdd8!important}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:#5490ad!important;
+  box-shadow:0 0 0 4px rgba(31,110,154,.09)!important;
+  background:#fff!important;
+}
+
+.table-wrap{
+  border:1px solid #e1e8ee!important;
+  border-radius:14px!important;
+  background:#fff;
+  box-shadow:inset 0 1px rgba(255,255,255,.8);
+}
+table{background:#fff!important}
+th{
+  background:linear-gradient(180deg,#eef4f8,#e8f0f5)!important;
+  color:#27475e!important;
+  text-transform:uppercase;
+  letter-spacing:.035em;
+  font-size:10px!important;
+  border-bottom:1px solid #d9e4eb!important;
+}
+td{padding:11px 10px!important;border-bottom:1px solid #eef2f5!important}
+tbody tr:nth-child(even) td{background:#fbfcfd}
+tbody tr:hover td{background:#f4f9fc!important}
+.money{font-weight:650}
+
+.status{
+  padding:5px 9px!important;
+  border-radius:999px!important;
+  border:1px solid transparent;
+}
+.valid,.sold{border-color:#c8ead6}.pending,.partial{border-color:#f2dea0}.rejected,.cancelled,.unpaid{border-color:#f3cfcb}
+
+.notice,.info,.danger-note{
+  border-radius:13px!important;
+  padding:13px 14px!important;
+}
+.notice{background:linear-gradient(135deg,#fff9e6,#fffdf7)!important}
+.info{background:linear-gradient(135deg,#eef7ff,#fbfdff)!important}
+.danger-note{background:linear-gradient(135deg,#fff1f0,#fffafa)!important}
+
+.modal{backdrop-filter:blur(5px)}
+.modal-box{
+  border-radius:20px!important;
+  border:1px solid rgba(255,255,255,.25);
+  box-shadow:0 35px 100px rgba(4,25,40,.28)!important;
+}
+.modal-head{background:rgba(255,255,255,.96)!important;backdrop-filter:blur(12px)}
+
+.login-overlay{
+  background:
+    radial-gradient(circle at 78% 20%,rgba(38,126,164,.30),transparent 28%),
+    radial-gradient(circle at 10% 90%,rgba(215,168,47,.15),transparent 30%),
+    linear-gradient(135deg,#071c2b,#0c3551 60%,#155a79)!important;
+}
+.login-card{
+  border-radius:24px!important;
+  border:1px solid rgba(255,255,255,.5)!important;
+  box-shadow:0 35px 100px rgba(3,24,38,.28)!important;
+}
+.login-card>h1{font-size:43px!important;letter-spacing:-.055em}
+.prod-mark{border-radius:999px!important}
+.prod-chips span{border-radius:999px!important}
+
+.power-score,.power-alert,.power-search-row,.power-forecast>div{
+  border-radius:13px!important;
+}
+.power-score{background:linear-gradient(145deg,#fbfdff,#f4f9fc)!important}
+.power-alert{box-shadow:0 4px 13px rgba(22,49,74,.035)}
+.power-search-row:hover{border-color:#c9dbe7!important;background:#f8fbfd!important}
+
+.receipt{
+  border-radius:14px!important;
+  box-shadow:0 13px 32px rgba(22,49,74,.07);
+}
+.empty{
+  background:linear-gradient(135deg,#fbfcfd,#f7fafc);
+  border-radius:10px;
+  margin:5px;
+}
+
+/* Role themes */
+body[data-role-theme="direction"] .production-hero{
+  background:
+    radial-gradient(circle at 84% 22%,rgba(245,203,78,.24),transparent 25%),
+    linear-gradient(128deg,#071d2e,#0d3b58 55%,#155f82)!important;
+}
+body[data-role-theme="finance"] .production-hero{
+  background:
+    radial-gradient(circle at 83% 18%,rgba(245,208,89,.25),transparent 25%),
+    linear-gradient(128deg,#132c35,#1b5056 55%,#257369)!important;
+}
+body[data-role-theme="pedagogy"] .production-hero{
+  background:
+    radial-gradient(circle at 85% 18%,rgba(136,201,224,.24),transparent 25%),
+    linear-gradient(128deg,#112743,#274a71 55%,#416fa0)!important;
+}
+body[data-role-theme="education"] .production-hero{
+  background:
+    radial-gradient(circle at 84% 18%,rgba(132,218,184,.20),transparent 25%),
+    linear-gradient(128deg,#123530,#1c5e51 55%,#2d7b68)!important;
+}
+body[data-role-theme="hr"] .production-hero{
+  background:
+    radial-gradient(circle at 84% 18%,rgba(194,170,233,.22),transparent 25%),
+    linear-gradient(128deg,#2a2446,#514277 55%,#68568f)!important;
+}
+body[data-role-theme="cash"] .production-hero{
+  background:
+    radial-gradient(circle at 84% 18%,rgba(247,207,88,.25),transparent 25%),
+    linear-gradient(128deg,#382c16,#6a521e 55%,#88712a)!important;
+}
+body[data-role-theme="secretariat"] .production-hero{
+  background:
+    radial-gradient(circle at 84% 18%,rgba(133,203,218,.22),transparent 25%),
+    linear-gradient(128deg,#19323c,#315866 55%,#477889)!important;
+}
+
+/* Compact polish on every application page */
+.view{animation:premiumFade .18s ease}
+@keyframes premiumFade{from{opacity:.55;transform:translateY(2px)}to{opacity:1;transform:none}}
+.view>.card>.section-title:first-child{margin-top:0!important}
+.view>.card:first-child{box-shadow:0 14px 36px rgba(22,49,74,.075)!important}
+.view h2,.view h3{scroll-margin-top:100px}
+.small{line-height:1.45}
+
+@media(max-width:1180px){
+  .premium-context-strip{grid-template-columns:1fr}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:900px){
+  .app{grid-template-columns:230px minmax(0,1fr)}
+  .main{padding:20px}
+  .topbar{margin:-20px -20px 18px;padding:14px 20px}
+}
+@media(max-width:760px){
+  .main{padding:14px}
+  .topbar{margin:-14px -14px 15px;padding:12px 14px;position:relative}
+  .production-hero{padding:22px!important;min-height:auto}
+  .production-hero h2{font-size:25px!important}
+  .premium-context-strip{gap:8px}
+  .kpis{grid-template-columns:1fr!important}
+  .kpi{min-height:112px}
+}
 
 </style>
 </head>
@@ -317,7 +824,7 @@ body{background:linear-gradient(180deg,#f5f8fb 0%,#eef3f7 100%)}
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 10.2 • ERP SCOLAIRE • PÉDAGOGIE • CLOUD • ACCÈS PAR RÔLE</span></div>
+    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 10.3 • DESIGN PREMIUM • ERP SCOLAIRE • CLOUD</span></div>
     <div class="user-mini"><b id="currentUserName">Non connecté</b><span id="currentUserRole"></span><br><button class="btn btn-light btn-sm" onclick="logout()">Déconnexion</button></div>
     <div class="nav">
       <button class="nav-btn active" data-view="dashboard" data-perm="dashboard">📊 Tableau de bord</button>
@@ -354,7 +861,21 @@ body{background:linear-gradient(180deg,#f5f8fb 0%,#eef3f7 100%)}
     <section id="dashboard" class="view active">
       <div class="production-hero">
         <div><span class="prod-eyebrow">CENTRE DE PILOTAGE EIAFC</span><h2>Une vision claire de l’école, en temps réel.</h2><p>Suivez les inscriptions, encaissements, dépenses, caisse, dettes fournisseurs, paie, stock et alertes depuis un seul espace sécurisé.</p></div>
-        <div class="prod-hero-badge"><b>V10.1</b><span>ERP SCOLAIRE • Pédagogie • Cloud 24/7</span></div>
+        <div class="prod-hero-badge"><b>V10.3</b><span>DESIGN PREMIUM • ERP • CLOUD 24/7</span></div>
+      </div>
+      <div class="premium-context-strip">
+        <div class="premium-context-card role-context">
+          <div class="context-icon" id="premiumRoleIcon">👤</div>
+          <div><span>ESPACE CONNECTÉ</span><b id="premiumRoleLabel">Utilisateur</b><small id="premiumUserLabel">EIAFC</small></div>
+        </div>
+        <div class="premium-context-card">
+          <div class="context-icon">🏫</div>
+          <div><span>ÉTABLISSEMENT</span><b id="premiumSchoolLabel">EIAFC</b><small id="premiumYearLabel">Année scolaire</small></div>
+        </div>
+        <div class="premium-context-card">
+          <div class="context-icon">☁️</div>
+          <div><span>ÉTAT DU SYSTÈME</span><b id="premiumCloudLabel">Cloud EIAFC</b><small id="premiumSyncLabel">Synchronisation sécurisée</small></div>
+        </div>
       </div>
       <div class="card role-dashboard-head" id="roleDashboardHeader" style="margin-bottom:16px">
         <div class="section-title"><h3 id="roleDashboardTitle">Tableau de bord</h3><span class="role-badge" id="roleDashboardBadge">Rôle</span></div>
@@ -1215,7 +1736,7 @@ body{background:linear-gradient(180deg,#f5f8fb 0%,#eef3f7 100%)}
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="10.2.0";
+const APP_VERSION="10.3.0";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -2340,8 +2861,80 @@ function renderDashboardPrivacyNotice(){
  }[role]||"Les informations visibles sont limitées à votre fonction.";
  dashboardPrivacyText.textContent=`${p.label}. ${detail}`
 }
+
+function premiumRoleTheme(role=roleName()){
+ const map={
+  "Fondateur":"direction",
+  "Comptable":"finance",
+  "Directeur des études":"pedagogy",
+  "Éducateur":"education",
+  "Enseignant":"pedagogy",
+  "RH":"hr",
+  "Caissier":"cash",
+  "Secrétariat":"secretariat",
+  "Secrétariat & Caisse":"cash"
+ };
+ return map[role]||"direction"
+}
+function premiumRoleIcon(role=roleName()){
+ return {
+  "Fondateur":"👑","Comptable":"🧮","Directeur des études":"📚","Éducateur":"🛡️",
+  "Enseignant":"👨‍🏫","RH":"👔","Caissier":"💳","Secrétariat":"🎓","Secrétariat & Caisse":"🏫"
+ }[role]||"👤"
+}
+function updatePremiumContext(){
+ try{
+  const role=roleName();
+  document.body.dataset.roleTheme=premiumRoleTheme(role);
+  if(premiumRoleIcon)premiumRoleIcon.textContent=window.premiumRoleIcon(role);
+  if(premiumRoleLabel)premiumRoleLabel.textContent=role||"Utilisateur EIAFC";
+  if(premiumUserLabel)premiumUserLabel.textContent=currentUserLabel()||"EIAFC";
+  if(premiumSchoolLabel)premiumSchoolLabel.textContent=schoolLabel()||"EIAFC";
+  if(premiumYearLabel)premiumYearLabel.textContent=`Année ${activeYear()}`;
+  if(premiumCloudLabel)premiumCloudLabel.textContent=cloudConnected?"Cloud connecté":"Cloud à vérifier";
+  if(premiumSyncLabel)premiumSyncLabel.textContent=cloudConnected?`${pendingChangesCount()} élément(s) en attente`:"Données locales protégées";
+ }catch(e){console.warn("Premium context",e)}
+}
+function premiumKpiIcon(label=""){
+ const s=textKey(label);
+ if(/etudiant|eleve|effectif/.test(s))return"🎓";
+ if(/paiement|encaisse|recette|recouvrement/.test(s))return"💳";
+ if(/caisse|solde|tresorerie|flux/.test(s))return"💰";
+ if(/depense|fournisseur|dette/.test(s))return"🧾";
+ if(/presence|assiduite/.test(s))return"🕘";
+ if(/absence|retard/.test(s))return"⏱️";
+ if(/matiere|cours|cahier/.test(s))return"📚";
+ if(/enseignant/.test(s))return"👨‍🏫";
+ if(/note|moyenne|bulletin/.test(s))return"📝";
+ if(/discipline|critique/.test(s))return"🛡️";
+ if(/personnel|contrat/.test(s))return"👔";
+ if(/paie|salaire/.test(s))return"💼";
+ if(/stock|article/.test(s))return"📦";
+ if(/cloture/.test(s))return"🔒";
+ if(/sync|cloud/.test(s))return"☁️";
+ if(/dossier/.test(s))return"📁";
+ if(/alerte/.test(s))return"⚠️";
+ return"📊"
+}
+function decoratePremiumKpis(){
+ try{
+  document.querySelectorAll(".kpi").forEach(k=>{
+   const label=k.querySelector(".label")?.textContent||"";
+   k.dataset.icon=premiumKpiIcon(label)
+  })
+ }catch(e){}
+}
+const premiumKpiObserver=new MutationObserver(()=>decoratePremiumKpis());
+window.addEventListener("DOMContentLoaded",()=>{
+ try{
+  if(kpiGrid)premiumKpiObserver.observe(kpiGrid,{childList:true,subtree:true});
+  decoratePremiumKpis();updatePremiumContext()
+ }catch(e){}
+});
+
 function renderRoleDashboardHeader(){
  if(!roleDashboardTitle)return;
+ updatePremiumContext();
  const role=roleName(),school=schoolLabel(),defs={
   "Fondateur":{title:"👑 Tableau de bord Fondateur",intro:`Pilotage global de ${school} : gestion, finances, utilisateurs, audit et contrôle du réseau.`,actions:[["Rapports","reports"],["Audit","audit"],["Utilisateurs","users"],["Paramètres","settings"]]},
   "Comptable":{title:"🧮 Tableau de bord Comptable",intro:`Suivi financier et comptable de ${school} : encaissements, dépenses, trésorerie, validations et rapports.`,actions:[["Paiements","payments"],["Dépenses","expenses"],["Comptabilité","accounting"],["Rapports","reports"]]},
@@ -2557,6 +3150,7 @@ function maintenanceHealthChecks(){
  return issues
 }
 function refreshAll(){
+ try{updatePremiumContext();setTimeout(decoratePremiumKpis,0)}catch(_e){}
  refreshSchoolSelectors();refreshYearSelector();yearBadge.textContent="Année "+activeYear();renderRoleDashboardHeader();const sch=activeSchool();schoolSubtitle.textContent=schoolLabel(sch)+" — accès "+roleName();
  clearRestrictedViews();applyRoleSensitiveVisibility();
  if(can("dashboard"))renderDashboard();
@@ -3414,7 +4008,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   const WEB_APIKEY='sb_publishable_gAPfLd6okuu42hvOwQp35Q_L87JA22Q';
   const WEB_WORKSPACE='EIAFC_V7';
   const WEB_TOKEN_KEY='eiafc_web_secure_session_v4';
-  const WEB_BUILD='2026-09-03-v10-2-syncfix';
+  const WEB_BUILD='2026-09-03-v10-3-design-premium';
   (async()=>{
     if(!String(location.hostname).endsWith('.vercel.app'))return;
     try{
@@ -3650,7 +4244,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
       loginPassword.value='';lanConnected=false;cloudConnected=true;localSessionBase=deepClone(db);
       const scope=alignWebScopeToLoadedData();
       setUnifiedStatus('Cloud Web sécurisé','ok');refreshAll();enterApp();startWebPolling();
-      setTimeout(()=>showToast(`<b>EIAFC V10.2 chargée</b><br>${scope.students} étudiant(s) • Pédagogie, emploi du temps et discipline activés • ${pendingChangesCount()} élément(s) en attente.`),250);
+      setTimeout(()=>showToast(`<b>EIAFC V10.3 Premium chargée</b><br>${scope.students} étudiant(s) • Pédagogie, emploi du temps et discipline activés • ${pendingChangesCount()} élément(s) en attente.`),250);
     }catch(e){alert(e?.message||String(e))}
     finally{if(btn){btn.disabled=false;btn.textContent=old||'Se connecter'}}
   };
@@ -3766,7 +4360,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   });
 
   // Marque visuellement l'environnement de production web pour faciliter l'audit.
-  document.documentElement.setAttribute('data-eiafc-version','10.2.0');
+  document.documentElement.setAttribute('data-eiafc-version','10.3.0');
   // Sécurité connexion : 5 échecs => blocage local de 15 minutes sur ce poste.
   try {
     const originalLogin = window.login;
