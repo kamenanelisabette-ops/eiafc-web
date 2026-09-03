@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de l’Université privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-02-public-web-v5">
+<meta name="eiafc-web-build" content="2026-09-03-expenses-v7">
 <meta name="author" content="Université privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -684,12 +684,12 @@ body{background:linear-gradient(180deg,#f5f8fb 0%,#eef3f7 100%)}
           <div class="field"><label>Pôle / Programme</label><select id="expService" required><option>Formation qualifiante</option><option>BTS 1</option><option>BTS 2</option><option>Licence</option><option>Master</option><option selected>Administration générale</option><option value="BTS à classer">⚠ BTS à classer (ancienne donnée)</option></select></div>
           <div class="field"><label>Filière / centre de coût</label><input id="expTrack" list="operationTrackList" placeholder="Ex. RHCOM / Finance / Commun"></div>
           <div class="field"><label>Agent</label><input id="expAgent" readonly></div>
-          <div class="field"><label>Statut</label><select id="expStatus"><option>En attente</option><option>Validé</option><option>Rejeté</option></select></div>
+          <div class="field"><label>Statut d’approbation</label><select id="expStatus"><option>En attente</option><option selected>Validé</option><option>Rejeté</option></select></div><div class="field span-4"><div id="expenseLiveSummary" class="info"><b>Calcul automatique :</b> saisissez le montant total et l’avance pour voir le reste fournisseur.</div></div>
           <div class="field span-4"><button class="btn btn-primary" type="submit">Enregistrer la dépense</button></div>
         </form>
       </div>
       <div class="card" style="margin-top:16px">
-        <div class="section-title"><h3>💸 Règlement fournisseur / nouvelle avance</h3><span class="small">Le paiement réel diminue la caisse, pas le montant restant à payer.</span></div>
+        <div class="section-title"><h3>💸 Règlement fournisseur / nouvelle avance</h3><span class="small">Chaque règlement diminue automatiquement le reste fournisseur et la trésorerie du mode utilisé.</span></div>
         <form id="expensePaymentForm" class="form-grid">
           <div class="field span-2"><label>Dépense à régler</label><select id="expensePaymentExpense" required></select></div>
           <div class="field"><label>Date du règlement</label><input type="date" id="expensePaymentDate" required></div>
@@ -1235,8 +1235,9 @@ function normalizeDB(x){
  const schoolFromStudent=mat=>d.students.find(s=>s.matricule===mat)?.schoolId||defSid;
  d.payments=d.payments.map(v=>({...v,schoolId:v.schoolId||schoolFromStudent(v.student),academicYear:v.academicYear||studentYearFromMat(v.student)||d.settings.year}));
  d.other=d.other.map(v=>({...v,schoolId:v.schoolId||defSid,academicYear:v.academicYear||d.settings.year,serviceLabel:v.serviceLabel||v.service||"",program:normalizeOperationProgram(v.program||v.service),track:String(v.track||COMMON_TRACK).trim()||COMMON_TRACK}));
- d.expenses=d.expenses.map(v=>{const total=Math.max(0,Number(v.totalAmount??v.amount??0)),legacy=v.paymentModelVersion===1?!!v.legacyFullyPaid:true;return{...v,schoolId:v.schoolId||defSid,academicYear:v.academicYear||d.settings.year,serviceLabel:v.serviceLabel||v.service||"",program:normalizeOperationProgram(v.program||v.service),track:String(v.track||COMMON_TRACK).trim()||COMMON_TRACK,totalAmount:total,amount:total,dueDate:v.dueDate||v.date||"",paymentModelVersion:1,legacyFullyPaid:legacy}});
+ d.expenses=d.expenses.map(v=>{const total=Math.max(0,Number(v.totalAmount??v.amount??0)),legacy=v.paymentModelVersion===1?!!v.legacyFullyPaid:(v.paymentModelVersion>=2?!!v.legacyFullyPaid:true),settlements=Array.isArray(v.settlements)?v.settlements.map(p=>({...p,amount:Math.max(0,Number(p.amount||0)),status:p.status||"Validé"})):[];return{...v,schoolId:v.schoolId||defSid,academicYear:v.academicYear||d.settings.year,serviceLabel:v.serviceLabel||v.service||"",program:normalizeOperationProgram(v.program||v.service),track:String(v.track||COMMON_TRACK).trim()||COMMON_TRACK,totalAmount:total,amount:total,dueDate:v.dueDate||v.date||"",settlements,paymentModelVersion:Math.max(2,Number(v.paymentModelVersion||0)),legacyFullyPaid:legacy}});
  d.expensePayments=d.expensePayments.map(v=>({...v,schoolId:v.schoolId||defSid,academicYear:v.academicYear||d.settings.year,status:v.status||"Validé",amount:Math.max(0,Number(v.amount||0)),mode:v.mode||"Espèces",date:v.date||d.settings.year.slice(0,4)+"-09-01"}));
+ d.expensePayments.forEach(p=>{const ex=d.expenses.find(e=>String(e.id)===String(p.expenseId));if(!ex)return;ex.settlements=Array.isArray(ex.settlements)?ex.settlements:[];if(!ex.settlements.some(q=>String(q.id)===String(p.id)))ex.settlements.push({...p})});
  d.closings=d.closings.map(v=>({...v,schoolId:v.schoolId||defSid,academicYear:v.academicYear||d.settings.year}));
  d.transfers=d.transfers.map(v=>({...v,schoolId:v.schoolId||defSid,academicYear:v.academicYear||d.settings.year,status:v.status||"Validé"}));
  d.manualEntries=d.manualEntries.map(v=>({...v,schoolId:v.schoolId||defSid,academicYear:v.academicYear||d.settings.year,status:v.status||"Validé",track:String(v.track||COMMON_TRACK).trim()||COMMON_TRACK}));
@@ -2128,7 +2129,7 @@ function enterApp(){
  document.querySelectorAll(".nav-btn").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
  const dashBtn=document.querySelector('.nav-btn[data-view="dashboard"]'),dash=document.getElementById("dashboard");if(dashBtn)dashBtn.classList.add("active");if(dash)dash.classList.add("active");
  pageTitle.textContent=`Tableau de bord — ${isOwner()?"Fondateur":currentUser.role}`;
- if(payAgent)payAgent.value=currentUserLabel();if(otherAgent)otherAgent.value=currentUserLabel();if(expAgent)expAgent.value=currentUserLabel();if(closingAgent)closingAgent.value=currentUserLabel();
+ if(payAgent)payAgent.value=currentUserLabel();if(otherAgent)otherAgent.value=currentUserLabel();if(expAgent)expAgent.value=currentUserLabel();if(expStatus&&can("validate"))expStatus.value="Validé";updateExpenseLiveSummary();if(closingAgent)closingAgent.value=currentUserLabel();
  applyPermissions();populateLanFields();populateCloudFields();refreshAll();startPrimaryBridge();if(isOwner())flushIdentityQueue(false);
 }
 
@@ -2218,11 +2219,38 @@ function validOther(){return currentRecords(db.other).filter(x=>x.status==="Vali
 function validExpenses(){return currentRecords(db.expenses).filter(x=>x.status==="Validé")}
 function validExpensePayments(){return currentRecords(db.expensePayments).filter(x=>x.status!=="Annulé")}
 function expenseTotal(x){return Math.max(0,Number(x?.totalAmount??x?.amount??0))}
-function expensePaymentRecords(id){return validExpensePayments().filter(p=>String(p.expenseId)===String(id))}
-function expensePaidTotal(x){const rows=expensePaymentRecords(x.id);if(rows.length)return Math.min(expenseTotal(x),rows.reduce((a,p)=>a+Number(p.amount||0),0));return x?.legacyFullyPaid!==false&&x?.status==="Validé"?expenseTotal(x):0}
+function embeddedExpensePayments(x){return (Array.isArray(x?.settlements)?x.settlements:[]).filter(p=>p&&p.status!=="Annulé").map(p=>({...p,expenseId:p.expenseId||x.id,schoolId:p.schoolId||recordSchoolId(x),academicYear:p.academicYear||recordYear(x)}))}
+function expensePaymentRecords(id){
+ const x=db.expenses.find(e=>String(e.id)===String(id)),m=new Map();
+ embeddedExpensePayments(x).forEach(p=>m.set(String(p.id||`${id}|${p.date}|${p.amount}|${p.mode}`),p));
+ validExpensePayments().filter(p=>String(p.expenseId)===String(id)).forEach(p=>m.set(String(p.id||`${id}|${p.date}|${p.amount}|${p.mode}`),p));
+ return [...m.values()].filter(p=>p.status!=="Annulé")
+}
+function expensePaymentHistoryRows(){
+ const m=new Map();
+ currentRecords(db.expenses).forEach(x=>(Array.isArray(x.settlements)?x.settlements:[]).forEach(p=>{if(p&&p.id)m.set(String(p.id),{...p,expenseId:p.expenseId||x.id,schoolId:p.schoolId||recordSchoolId(x),academicYear:p.academicYear||recordYear(x),embedded:true})}));
+ currentRecords(db.expensePayments).forEach(p=>{if(p&&p.id)m.set(String(p.id),{...p,embedded:false})});
+ return [...m.values()].filter(p=>p.deleted!==true)
+}
+function expensePaidTotal(x){
+ const rows=expensePaymentRecords(x.id);
+ if(rows.length)return Math.min(expenseTotal(x),rows.reduce((a,p)=>a+Number(p.amount||0),0));
+ const mirrored=Math.max(0,Number(x?.initialPaid||x?.paidMirror||0));
+ if(mirrored>0)return Math.min(expenseTotal(x),mirrored);
+ return x?.legacyFullyPaid!==false&&x?.status==="Validé"?expenseTotal(x):0
+}
 function expenseRest(x){return Math.max(0,expenseTotal(x)-expensePaidTotal(x))}
 function expenseSettlementStatus(x){if(x.status!=="Validé")return x.status;const paid=expensePaidTotal(x),rest=expenseRest(x);return rest<=0?"Soldée":paid>0?"Partielle":"Non payée"}
-function expenseCashMovements(){const out=validExpensePayments().map(p=>({...p,synthetic:false}));validExpenses().filter(x=>x.legacyFullyPaid!==false&&!expensePaymentRecords(x.id).length&&expenseTotal(x)>0).forEach(x=>out.push({id:`LEG-${x.id}`,expenseId:x.id,schoolId:recordSchoolId(x),academicYear:recordYear(x),date:x.date,amount:expenseTotal(x),mode:x.mode||"Espèces",ref:x.ref||"",obs:"Dépense historique considérée soldée",status:"Validé",synthetic:true}));return out}
+function expenseCashMovements(){
+ const out=[];
+ validExpenses().forEach(x=>{
+   const rows=expensePaymentRecords(x.id);
+   rows.forEach(p=>out.push({...p,synthetic:!!p.synthetic}));
+   if(!rows.length&&Number(x.initialPaid||0)>0)out.push({id:`MIR-${x.id}`,expenseId:x.id,schoolId:recordSchoolId(x),academicYear:recordYear(x),date:x.initialPaidDate||x.date,amount:Math.min(expenseTotal(x),Number(x.initialPaid||0)),mode:x.initialPaidMode||x.mode||"Espèces",ref:x.initialPaidRef||x.ref||"",obs:"Avance initiale miroir",status:"Validé",synthetic:true});
+   else if(!rows.length&&x.legacyFullyPaid!==false&&expenseTotal(x)>0)out.push({id:`LEG-${x.id}`,expenseId:x.id,schoolId:recordSchoolId(x),academicYear:recordYear(x),date:x.date,amount:expenseTotal(x),mode:x.mode||"Espèces",ref:x.ref||"",obs:"Dépense historique considérée soldée",status:"Validé",synthetic:true});
+ });
+ return out
+}
 function validTransfers(){return currentRecords(db.transfers).filter(x=>x.status!=="Annulé")}
 function studentAllPaid(mat,status="Validé"){return db.payments.filter(p=>p.deleted!==true&&p.student===mat&&p.status===status&&recordYear(p)===activeYear()&&recordSchoolId(p)===activeSchoolId()).reduce((a,p)=>a+Number(p.amount||0),0)}
 function studentDebtPaid(mat,status="Validé"){return db.payments.filter(p=>p.deleted!==true&&p.student===mat&&p.status===status&&DEBT_PAYMENT_TYPES.has(p.type)&&recordYear(p)===activeYear()&&recordSchoolId(p)===activeSchoolId()).reduce((a,p)=>a+Number(p.amount||0),0)}
@@ -2254,6 +2282,14 @@ function refreshYearSelector(){if(!yearSwitcher)return;const years=availableYear
 function switchAcademicYear(y){if(!ensureYear(y))return alert("Année invalide. Format attendu : 2026-2027");setActiveYearLocal(y);applyYearDefaults();refreshAll()}
 function createNextAcademicYear(){if(!requireOwner("la création d’une année académique"))return;const oldYear=activeYear(),oldBalance=balances(),oldItems=currentRecords(db.inventory).filter(x=>x.active!==false).map(x=>({...x,stock:inventoryStock(x.id)})),[a,b]=yearParts(oldYear),next=`${a+1}-${b+1}`;if(!confirm(`Créer et activer l'année académique ${next} ?`))return;ensureYear(next);const carry=confirm("Reprendre automatiquement les soldes de trésorerie de fin d'année comme soldes d'ouverture de la nouvelle année ?");if(carry)Object.assign(openingForYear(next),{cash:oldBalance["Espèces"]||0,wave:oldBalance["Wave"]||0,mtn:oldBalance["MTN Mobile Money"]||0,bank:oldBalance["Banque"]||0,orange:oldBalance["Orange Money"]||0});const carryStock=oldItems.length?confirm("Reprendre aussi le stock physique disponible dans la nouvelle année ?"):false;if(carryStock){oldItems.forEach(i=>{const id=makeUniqueId("STK",next),ni={id,schoolId:activeSchoolId(),academicYear:next,label:i.label,category:i.category,unit:i.unit,minStock:i.minStock,active:true,createdAt:new Date().toISOString(),createdBy:currentUserLabel()};db.inventory.unshift(ni);if(i.stock>0)db.inventoryMoves.unshift({id:makeUniqueId("MVT",next),schoolId:activeSchoolId(),academicYear:next,itemId:id,date:managementBounds(next).start,type:"Entrée",qty:i.stock,ref:`REPORT-${oldYear}`,obs:"Report automatique du stock de fin d’année",agent:currentUserLabel(),device:deviceName(),createdAt:new Date().toISOString()})})}db.settings.year=next;setActiveYearLocal(next);logAction("Nouvelle année académique",`${next} créée${carry?" avec reprise des soldes":""}${carryStock?" et report du stock":""}`);saveDB();applyYearDefaults();refreshAll();alert(`Année ${next} activée.`)}
 setDefaults();
+function updateExpenseLiveSummary(){
+ if(!expenseLiveSummary)return;
+ const total=Math.max(0,Number(expAmount?.value||0)),advance=Math.max(0,Number(expInitialPaid?.value||0)),paid=Math.min(total,advance),rest=Math.max(0,total-paid),situation=total<=0?"À saisir":rest<=0?"Soldée":paid>0?"Partielle":"Non payée";
+ expenseLiveSummary.innerHTML=`<b>Calcul automatique :</b> Total engagé <b>${fmt(total)}</b> — Avance <b>${fmt(paid)}</b> — Reste fournisseur <b>${fmt(rest)}</b> — Situation <span class="status ${situation==="Soldée"?"valid":situation==="Partielle"?"pending":"rejected"}">${situation}</span>`;
+}
+expAmount?.addEventListener("input",updateExpenseLiveSummary);
+expInitialPaid?.addEventListener("input",updateExpenseLiveSummary);
+updateExpenseLiveSummary();
 
 loginUsername?.addEventListener("keydown",e=>{if(e.key==="Enter")loginPassword?.focus()});
 loginPassword?.addEventListener("keydown",e=>{if(e.key==="Enter")login()});
@@ -2559,12 +2595,67 @@ function renderOther(){const pf=otherProgramFilter?.value||"",arr=currentRecords
 function cancelOther(id){const x=db.other.find(a=>a.receipt===id),r=prompt("Motif de l'annulation :");if(x&&r?.trim()){x.status="Annulé";x.cancelReason=r.trim();logAction("Annulation autre recette",`${id} - ${r.trim()}`);saveDB()}}
 
 expenseForm.addEventListener("submit",async e=>{
- e.preventDefault();if(!can("expenses"))return;if(!requireManagementDate(expDate.value,"La date de la dépense")||!requireOpenPeriod(expDate.value,"La dépense"))return;const total=Math.max(0,Number(expAmount.value||0)),initial=Math.max(0,Number(expInitialPaid.value||0));if(total<=0)return alert("Le montant total de la dépense doit être supérieur à zéro.");if(initial>total)return alert("L’avance initiale ne peut pas dépasser le montant total engagé.");const status=can("validate")?expStatus.value:"En attente";if(initial>0&&status!=="Validé")return alert("Pour enregistrer une avance, la dépense doit être validée.");if(status==="Validé"&&!expRef.value.trim()&&!confirm("Cette dépense validée n’a pas de référence / facture. Continuer malgré l’alerte d’audit ?"))return;if(initial>0&&expMode.value!=="Espèces"&&!expRef.value.trim())return alert("Une référence est obligatoire pour une avance non payée en espèces.");const id=await nextUniqueAcademicId("expense",`DEP-${activeSchoolCode()}`);if(!id)return;const program=normalizeOperationProgram(expService.value),x={schoolId:activeSchoolId(),academicYear:activeYear(),date:expDate.value,dueDate:expDueDate.value||expDate.value,id,createdOffline:isOfflineId(id),device:deviceName(),category:expCategory.value,beneficiary:expBeneficiary.value.trim(),label:expLabel.value.trim(),mode:expMode.value,totalAmount:total,amount:total,ref:expRef.value.trim(),program,service:program,serviceLabel:program,track:cleanTrack(expTrack.value),agent:currentUserLabel(),createdBy:currentUserLabel(),createdAt:new Date().toISOString(),status,paymentModelVersion:1,legacyFullyPaid:false};db.expenses.unshift(x);if(initial>0){db.expensePayments.unshift({id:makeUniqueId("REGFOUR"),schoolId:activeSchoolId(),academicYear:activeYear(),expenseId:id,date:expDate.value,amount:initial,mode:expMode.value,ref:expRef.value.trim(),obs:"Avance initiale à la création",status:"Validé",agent:currentUserLabel(),device:deviceName(),createdAt:new Date().toISOString()})}logAction("Nouvelle dépense",`${x.id} - ${program} / ${x.track} - engagé ${fmt(total)} - payé ${fmt(initial)} - ${x.status}`);saveDB();expenseForm.reset();expService.value=GENERAL_PROGRAM;expTrack.value="";expDate.value=defaultManagementDate();expDueDate.value=defaultManagementDate();expInitialPaid.value=0;expAgent.value=currentUserLabel()
+ e.preventDefault();if(!can("expenses"))return;
+ if(!requireManagementDate(expDate.value,"La date de la dépense")||!requireOpenPeriod(expDate.value,"La dépense"))return;
+ const total=Math.max(0,Number(expAmount.value||0)),initial=Math.max(0,Number(expInitialPaid.value||0));
+ if(total<=0)return alert("Le montant total de la dépense doit être supérieur à zéro.");
+ if(initial>total)return alert("L’avance initiale ne peut pas dépasser le montant total engagé.");
+ let status=can("validate")?expStatus.value:"En attente";
+ if(initial>0&&status!=="Validé"){
+   if(can("validate")){
+     if(!confirm("Une avance fournisseur est un paiement réel. La dépense doit être validée pour enregistrer cette avance. Valider automatiquement la dépense ?"))return;
+     status="Validé";expStatus.value="Validé";
+   }else return alert("Pour enregistrer une avance, la dépense doit être validée par un utilisateur autorisé.");
+ }
+ if(status==="Validé"&&!expRef.value.trim()&&!confirm("Cette dépense validée n’a pas de référence / facture. Continuer malgré l’alerte d’audit ?"))return;
+ if(initial>0&&expMode.value!=="Espèces"&&!expRef.value.trim())return alert("Une référence est obligatoire pour une avance payée hors espèces.");
+ if(initial>0&&!requireTreasuryFunds(expMode.value,initial,expDate.value,"L’avance initiale fournisseur"))return;
+ const id=await nextUniqueAcademicId("expense",`DEP-${activeSchoolCode()}`);if(!id)return;
+ const program=normalizeOperationProgram(expService.value);
+ const x={schoolId:activeSchoolId(),academicYear:activeYear(),date:expDate.value,dueDate:expDueDate.value||expDate.value,id,createdOffline:isOfflineId(id),device:deviceName(),category:expCategory.value,beneficiary:expBeneficiary.value.trim(),label:expLabel.value.trim(),mode:expMode.value,totalAmount:total,amount:total,ref:expRef.value.trim(),program,service:program,serviceLabel:program,track:cleanTrack(expTrack.value),agent:currentUserLabel(),createdBy:currentUserLabel(),createdAt:new Date().toISOString(),status,paymentModelVersion:2,legacyFullyPaid:false,initialPaid:initial,initialPaidDate:initial>0?expDate.value:"",initialPaidMode:initial>0?expMode.value:"",initialPaidRef:initial>0?expRef.value.trim():"",settlements:[]};
+ db.expenses.unshift(x);
+ if(initial>0){
+   const p={id:makeUniqueId("REGFOUR"),schoolId:activeSchoolId(),academicYear:activeYear(),expenseId:id,date:expDate.value,amount:initial,mode:expMode.value,ref:expRef.value.trim(),obs:"Avance initiale à la création",status:"Validé",agent:currentUserLabel(),device:deviceName(),createdAt:new Date().toISOString()};
+   x.settlements.push({...p});db.expensePayments.unshift({...p});
+ }
+ logAction("Nouvelle dépense",`${x.id} - ${program} / ${x.track} - engagé ${fmt(total)} - payé ${fmt(initial)} - reste ${fmt(Math.max(0,total-initial))} - ${x.status}`);
+ saveDB();
+ expenseForm.reset();expService.value=GENERAL_PROGRAM;expTrack.value="";expDate.value=defaultManagementDate();expDueDate.value=defaultManagementDate();expInitialPaid.value=0;expAgent.value=currentUserLabel();if(can("validate"))expStatus.value="Validé";updateExpenseLiveSummary()
 });
 function updateExpensePaymentSelect(){if(!expensePaymentExpense)return;const old=expensePaymentExpense.value,rows=validExpenses().filter(x=>expenseRest(x)>0).sort((a,b)=>String(a.dueDate||a.date).localeCompare(String(b.dueDate||b.date)));expensePaymentExpense.innerHTML='<option value="">Choisir une dépense non soldée</option>'+rows.map(x=>`<option value="${esc(x.id)}">${esc(x.id)} — ${esc(x.beneficiary||x.label)} — reste ${fmt(expenseRest(x))}</option>`).join("");if(rows.some(x=>x.id===old))expensePaymentExpense.value=old}
-expensePaymentForm?.addEventListener("submit",e=>{e.preventDefault();if(!can("expenses"))return;const x=db.expenses.find(v=>v.id===expensePaymentExpense.value&&v.deleted!==true);if(!x||x.status!=="Validé")return alert("Sélectionnez une dépense validée.");const date=expensePaymentDate.value,amount=Math.max(0,Number(expensePaymentAmount.value||0)),rest=expenseRest(x),mode=expensePaymentMode.value;if(!requireManagementDate(date,"La date du règlement fournisseur")||!requireOpenPeriod(date,"Le règlement fournisseur"))return;if(amount<=0)return alert("Montant du règlement invalide.");if(amount>rest)return alert(`Le règlement dépasse le reste fournisseur de ${fmt(rest)}.`);if(mode!=="Espèces"&&!expensePaymentRef.value.trim())return alert("La référence de transaction est obligatoire hors espèces.");if(!requireTreasuryFunds(mode,amount,date,"Le règlement fournisseur"))return;const p={id:makeUniqueId("REGFOUR"),schoolId:activeSchoolId(),academicYear:activeYear(),expenseId:x.id,date,amount,mode,ref:expensePaymentRef.value.trim(),obs:expensePaymentObs.value.trim(),status:"Validé",agent:currentUserLabel(),device:deviceName(),createdAt:new Date().toISOString()};db.expensePayments.unshift(p);logAction("Règlement fournisseur",`${x.id} — ${fmt(amount)} — reste ${fmt(Math.max(0,rest-amount))}`);saveDB();expensePaymentForm.reset();expensePaymentDate.value=defaultManagementDate();expensePaymentMode.value="Espèces"});
-function cancelExpensePayment(id){const p=db.expensePayments.find(x=>x.id===id);if(!p||p.status==="Annulé")return;if(!can("cancel"))return alert("Annulation non autorisée.");if(!requireOpenPeriod(p.date,"L’annulation du règlement"))return;const reason=prompt("Motif obligatoire de l’annulation du règlement :");if(!reason?.trim())return;p.status="Annulé";p.cancelReason=reason.trim();p.cancelledAt=new Date().toISOString();p.cancelledBy=currentUserLabel();logAction("Annulation règlement fournisseur",`${id} — ${reason.trim()}`);saveDB()}
-function renderExpenses(){const pf=expProgramFilter?.value||"",arr=currentRecords(db.expenses).filter(x=>!pf||operationProgram(x)===pf).sort((a,b)=>String(b.date).localeCompare(String(a.date))),valid=arr.filter(x=>x.status==="Validé"),engaged=valid.reduce((a,x)=>a+expenseTotal(x),0),paid=valid.reduce((a,x)=>a+expensePaidTotal(x),0),rest=valid.reduce((a,x)=>a+expenseRest(x),0),open=valid.filter(x=>expenseRest(x)>0).length;if(expenseKpis)expenseKpis.innerHTML=[["Dépenses engagées",fmt(engaged)],["Déjà payé",fmt(paid)],["Reste fournisseurs",fmt(rest)],["Factures non soldées",open]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");expensesTable.innerHTML=`<thead><tr><th>Date</th><th>Échéance</th><th>N°</th><th>Programme</th><th>Filière</th><th>Catégorie</th><th>Fournisseur</th><th>Libellé</th><th class="money">Engagé</th><th class="money">Payé</th><th class="money">Reste</th><th>Situation</th><th>Statut</th><th>Sync</th><th>Action</th></tr></thead><tbody>${arr.length?arr.map(x=>{const paid=expensePaidTotal(x),reste=expenseRest(x),sett=expenseSettlementStatus(x),over=x.status==="Validé"&&reste>0&&String(x.dueDate||x.date)<today();return`<tr class="${over?"schedule-overdue":""}"><td>${x.date}</td><td>${x.dueDate||x.date}</td><td>${esc(x.id)}</td><td><b>${esc(operationProgram(x))}</b></td><td>${esc(operationTrack(x))}</td><td>${esc(x.category)}</td><td>${esc(x.beneficiary||"—")}</td><td>${esc(x.label)}</td><td class="money">${fmt(expenseTotal(x))}</td><td class="money">${fmt(paid)}</td><td class="money"><b>${fmt(reste)}</b></td><td><span class="status ${sett==="Soldée"?"valid":sett==="Partielle"?"pending":sett==="Non payée"?"rejected":statusClass(x.status)}">${esc(sett)}</span>${over?'<br><span class="small">Échéance dépassée</span>':''}</td><td><span class="status ${statusClass(x.status)}">${x.status}</span></td><td>${syncBadgeFor("expenses",x.id)}</td><td>${x.status==="Validé"&&reste>0?`<button class="btn btn-gold btn-sm" onclick="selectExpenseForPayment('${x.id}')">Payer / avance</button> `:""}${can("cancel")&&x.status!=="Annulé"?`<button class="btn btn-danger btn-sm" onclick="cancelExpense('${x.id}')">Annuler</button>`:""} ${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="founderDeleteOperation('expenses','${x.id}')">Supprimer</button>`:""}</td></tr>`}).join(""):`<tr><td colspan="15" class="empty">Aucune dépense</td></tr>`}</tbody>`;const pays=currentRecords(db.expensePayments).filter(x=>x.deleted!==true).sort((a,b)=>String(b.date).localeCompare(String(a.date)));if(expensePaymentsTable)expensePaymentsTable.innerHTML=`<thead><tr><th>Date</th><th>Dépense</th><th>Fournisseur</th><th>Mode</th><th class="money">Montant</th><th>Référence</th><th>Observation</th><th>Statut</th><th>Sync</th><th>Action</th></tr></thead><tbody>${pays.length?pays.map(p=>{const x=db.expenses.find(e=>e.id===p.expenseId);return`<tr><td>${p.date}</td><td>${esc(p.expenseId)}</td><td>${esc(x?.beneficiary||x?.label||"—")}</td><td>${esc(p.mode)}</td><td class="money"><b>${fmt(p.amount)}</b></td><td>${esc(p.ref||"")}</td><td>${esc(p.obs||"")}</td><td><span class="status ${p.status==="Annulé"?"cancelled":"valid"}">${esc(p.status)}</span></td><td>${syncBadgeFor("expensePayments",p.id)}</td><td>${p.status!=="Annulé"&&can("cancel")?`<button class="btn btn-danger btn-sm" onclick="cancelExpensePayment('${p.id}')">Annuler</button>`:""}</td></tr>`}).join(""):`<tr><td colspan="10" class="empty">Aucun règlement fournisseur distinct</td></tr>`}</tbody>`;updateExpensePaymentSelect()}
+expensePaymentForm?.addEventListener("submit",e=>{
+ e.preventDefault();if(!can("expenses"))return;
+ const x=db.expenses.find(v=>v.id===expensePaymentExpense.value&&v.deleted!==true);if(!x||x.status!=="Validé")return alert("Sélectionnez une dépense validée.");
+ const date=expensePaymentDate.value,amount=Math.max(0,Number(expensePaymentAmount.value||0)),rest=expenseRest(x),mode=expensePaymentMode.value;
+ if(!requireManagementDate(date,"La date du règlement fournisseur")||!requireOpenPeriod(date,"Le règlement fournisseur"))return;
+ if(amount<=0)return alert("Montant du règlement invalide.");
+ if(amount>rest)return alert(`Le règlement dépasse le reste fournisseur de ${fmt(rest)}.`);
+ if(mode!=="Espèces"&&!expensePaymentRef.value.trim())return alert("La référence de transaction est obligatoire hors espèces.");
+ if(!requireTreasuryFunds(mode,amount,date,"Le règlement fournisseur"))return;
+ const p={id:makeUniqueId("REGFOUR"),schoolId:activeSchoolId(),academicYear:activeYear(),expenseId:x.id,date,amount,mode,ref:expensePaymentRef.value.trim(),obs:expensePaymentObs.value.trim(),status:"Validé",agent:currentUserLabel(),device:deviceName(),createdAt:new Date().toISOString()};
+ x.settlements=Array.isArray(x.settlements)?x.settlements:[];x.settlements.unshift({...p});
+ db.expensePayments.unshift({...p});
+ x.paidMirror=Math.min(expenseTotal(x),expensePaidTotal(x));
+ x.lastSettlementAt=new Date().toISOString();
+ logAction("Règlement fournisseur",`${x.id} — ${fmt(amount)} — total payé ${fmt(expensePaidTotal(x))} — reste ${fmt(expenseRest(x))}`);
+ saveDB();expensePaymentForm.reset();expensePaymentDate.value=defaultManagementDate();expensePaymentMode.value="Espèces"
+});
+function findExpensePaymentById(id){
+ const direct=db.expensePayments.find(x=>String(x.id)===String(id));
+ if(direct)return {direct,expense:db.expenses.find(e=>String(e.id)===String(direct.expenseId)),embedded:null};
+ for(const expense of db.expenses){const embedded=(expense.settlements||[]).find(p=>String(p.id)===String(id));if(embedded)return {direct:null,expense,embedded}}
+ return null
+}
+function cancelExpensePayment(id){
+ const found=findExpensePaymentById(id),p=found?.direct||found?.embedded;if(!p||p.status==="Annulé")return;
+ if(!can("cancel"))return alert("Annulation non autorisée.");if(!requireOpenPeriod(p.date,"L’annulation du règlement"))return;
+ const reason=prompt("Motif obligatoire de l’annulation du règlement :");if(!reason?.trim())return;
+ const stamp={status:"Annulé",cancelReason:reason.trim(),cancelledAt:new Date().toISOString(),cancelledBy:currentUserLabel()};
+ if(found.direct)Object.assign(found.direct,stamp);
+ if(found.expense){const ep=(found.expense.settlements||[]).find(q=>String(q.id)===String(id));if(ep)Object.assign(ep,stamp);found.expense.paidMirror=expensePaidTotal(found.expense);found.expense.lastSettlementAt=new Date().toISOString()}
+ logAction("Annulation règlement fournisseur",`${id} — ${reason.trim()}`);saveDB()
+}
+function renderExpenses(){const pf=expProgramFilter?.value||"",arr=currentRecords(db.expenses).filter(x=>!pf||operationProgram(x)===pf).sort((a,b)=>String(b.date).localeCompare(String(a.date))),valid=arr.filter(x=>x.status==="Validé"),engaged=valid.reduce((a,x)=>a+expenseTotal(x),0),paid=valid.reduce((a,x)=>a+expensePaidTotal(x),0),rest=valid.reduce((a,x)=>a+expenseRest(x),0),open=valid.filter(x=>expenseRest(x)>0).length;if(expenseKpis)expenseKpis.innerHTML=[["Dépenses engagées",fmt(engaged)],["Déjà payé",fmt(paid)],["Reste fournisseurs",fmt(rest)],["Factures non soldées",open]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");expensesTable.innerHTML=`<thead><tr><th>Date</th><th>Échéance</th><th>N°</th><th>Programme</th><th>Filière</th><th>Catégorie</th><th>Fournisseur</th><th>Libellé</th><th class="money">Engagé</th><th class="money">Payé</th><th class="money">Reste</th><th>Situation</th><th>Statut</th><th>Sync</th><th>Action</th></tr></thead><tbody>${arr.length?arr.map(x=>{const paid=expensePaidTotal(x),reste=expenseRest(x),sett=expenseSettlementStatus(x),over=x.status==="Validé"&&reste>0&&String(x.dueDate||x.date)<today();return`<tr class="${over?"schedule-overdue":""}"><td>${x.date}</td><td>${x.dueDate||x.date}</td><td>${esc(x.id)}</td><td><b>${esc(operationProgram(x))}</b></td><td>${esc(operationTrack(x))}</td><td>${esc(x.category)}</td><td>${esc(x.beneficiary||"—")}</td><td>${esc(x.label)}</td><td class="money">${fmt(expenseTotal(x))}</td><td class="money">${fmt(paid)}</td><td class="money"><b>${fmt(reste)}</b></td><td><span class="status ${sett==="Soldée"?"valid":sett==="Partielle"?"pending":sett==="Non payée"?"rejected":statusClass(x.status)}">${esc(sett)}</span>${over?'<br><span class="small">Échéance dépassée</span>':''}</td><td><span class="status ${statusClass(x.status)}">${x.status}</span></td><td>${syncBadgeFor("expenses",x.id)}</td><td>${x.status==="Validé"&&reste>0?`<button class="btn btn-gold btn-sm" onclick="selectExpenseForPayment('${x.id}')">Payer / avance</button> `:""}${can("cancel")&&x.status!=="Annulé"?`<button class="btn btn-danger btn-sm" onclick="cancelExpense('${x.id}')">Annuler</button>`:""} ${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="founderDeleteOperation('expenses','${x.id}')">Supprimer</button>`:""}</td></tr>`}).join(""):`<tr><td colspan="15" class="empty">Aucune dépense</td></tr>`}</tbody>`;const pays=expensePaymentHistoryRows().sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.createdAt||"").localeCompare(String(a.createdAt||"")));if(expensePaymentsTable)expensePaymentsTable.innerHTML=`<thead><tr><th>Date</th><th>Dépense</th><th>Fournisseur</th><th>Mode</th><th class="money">Montant</th><th>Référence</th><th>Observation</th><th>Statut</th><th>Sync</th><th>Action</th></tr></thead><tbody>${pays.length?pays.map(p=>{const x=db.expenses.find(e=>e.id===p.expenseId);return`<tr><td>${p.date}</td><td>${esc(p.expenseId)}</td><td>${esc(x?.beneficiary||x?.label||"—")}</td><td>${esc(p.mode)}</td><td class="money"><b>${fmt(p.amount)}</b></td><td>${esc(p.ref||"")}</td><td>${esc(p.obs||"")}</td><td><span class="status ${p.status==="Annulé"?"cancelled":"valid"}">${esc(p.status)}</span></td><td>${p.embedded&&!(db.expensePayments||[]).some(q=>String(q.id)===String(p.id))?'<span class="sync-ok">✓ intégré</span>':syncBadgeFor("expensePayments",p.id)}</td><td>${p.status!=="Annulé"&&can("cancel")?`<button class="btn btn-danger btn-sm" onclick="cancelExpensePayment('${p.id}')">Annuler</button>`:""}</td></tr>`}).join(""):`<tr><td colspan="10" class="empty">Aucun règlement fournisseur distinct</td></tr>`}</tbody>`;updateExpensePaymentSelect()}
 function selectExpenseForPayment(id){updateExpensePaymentSelect();expensePaymentExpense.value=id;expensePaymentDate.value=defaultManagementDate();const x=db.expenses.find(v=>v.id===id);expensePaymentAmount.value=x?expenseRest(x):"";expensePaymentMode.value=x?.mode||"Espèces";expensePaymentRef.value="";expensePaymentObs.value="";expensePaymentExpense.scrollIntoView({behavior:"smooth",block:"center"})}
 function cancelExpense(id){const x=db.expenses.find(a=>a.id===id),r=prompt("Motif de l'annulation :");if(!x||!r?.trim())return;if(expensePaidTotal(x)>0&&!confirm(`Cette dépense a déjà ${fmt(expensePaidTotal(x))} de règlement(s). L'annulation exclura la charge et les règlements de la trésorerie. Continuer ?`))return;x.status="Annulé";x.cancelReason=r.trim();logAction("Annulation dépense",`${id} - ${r.trim()}`);saveDB()}
 
@@ -2860,7 +2951,7 @@ function exportCSV(kind){
  if(kind==="inventory_moves")rows=currentRecords(db.inventoryMoves).map(x=>{const i=db.inventory.find(a=>a.id===x.itemId);return{Annee:x.academicYear,Date:x.date,Article:i?.label||"",Type:x.type,Quantite:x.qty,Unite:i?.unit||"",Reference:x.ref||"",Observation:x.obs||"",Agent:x.agent||""}});
  if(kind==="payments")rows=currentRecords(db.payments).map(p=>{const st=studentByMat(p.student);return{Annee:p.academicYear,Date:p.date,Recu:p.receipt,Matricule:p.student,Etudiant:st?.name||"",Programme:st?.program||"",Filiere:studentTrackValue(st),Type:p.type,Mode:p.mode,Montant:p.amount,Reference:p.ref,Agent:p.agent,Statut:p.status,Motif_annulation:p.cancelReason||""}});
  if(kind==="transfers")rows=currentRecords(db.transfers).map(x=>({Annee:x.academicYear,Date:x.date,Numero:x.id,Depuis:x.from,Vers:x.to,Montant:x.amount,Reference:x.ref,Observation:x.obs,Agent:x.agent}));
- if(kind==="other")rows=currentRecords(db.other).map(x=>({...x,Programme:operationProgram(x),Filiere:operationTrack(x)}));if(kind==="expenses")rows=currentRecords(db.expenses).map(x=>({...x,Programme:operationProgram(x),Filiere:operationTrack(x),Montant_engage:expenseTotal(x),Montant_paye:expensePaidTotal(x),Reste_fournisseur:expenseRest(x),Situation:expenseSettlementStatus(x)}));if(kind==="expense_payments")rows=currentRecords(db.expensePayments).map(p=>{const x=db.expenses.find(e=>e.id===p.expenseId);return{...p,Fournisseur:x?.beneficiary||"",Libelle_depense:x?.label||"",Programme:x?operationProgram(x):"",Filiere:x?operationTrack(x):""}});if(kind==="journal")rows=journalRows();if(kind==="audit")rows=auditFilteredRows().map(x=>{const sc=schoolById(recordSchoolId(x));return{Ecole_code:sc?.code||"",Ecole:sc?.name||x.schoolName||"",Ville:sc?.city||"",...x}});
+ if(kind==="other")rows=currentRecords(db.other).map(x=>({...x,Programme:operationProgram(x),Filiere:operationTrack(x)}));if(kind==="expenses")rows=currentRecords(db.expenses).map(x=>({...x,Programme:operationProgram(x),Filiere:operationTrack(x),Montant_engage:expenseTotal(x),Montant_paye:expensePaidTotal(x),Reste_fournisseur:expenseRest(x),Situation:expenseSettlementStatus(x)}));if(kind==="expense_payments")rows=expensePaymentHistoryRows().map(p=>{const x=db.expenses.find(e=>e.id===p.expenseId);return{...p,Fournisseur:x?.beneficiary||"",Libelle_depense:x?.label||"",Programme:x?operationProgram(x):"",Filiere:x?operationTrack(x):""}});if(kind==="journal")rows=journalRows();if(kind==="audit")rows=auditFilteredRows().map(x=>{const sc=schoolById(recordSchoolId(x));return{Ecole_code:sc?.code||"",Ecole:sc?.name||x.schoolName||"",Ville:sc?.city||"",...x}});
  if(kind==="annual")rows=reportPeriods().map(m=>{const af=annualAssignmentFilter?.value||"",tf=annualTrackFilter?.value||"",x=monthlySummary(m,annualProgramFilter?.value||"",tf,af);return{Annee:activeYear(),Programme:annualProgramFilter?.value||"Tous",Affectation:assignmentLabelFromFilter(af),Filiere:tf||"Toutes",Periode:x.month,Effectif:x.students,Facture:x.billed,Paiements:x.pay,Autres_recettes:x.other,Depenses:x.exp,Resultat:x.net,Reste:x.rest,Echu:x.overdue}});
  if(kind==="programs")rows=programSummaryRows("",annualAssignmentFilter?.value||"").map(x=>({Annee:activeYear(),Programme:x.program,Affectation:assignmentLabelFromFilter(annualAssignmentFilter?.value||""),Effectif:x.students,Facture:x.billed,Paiements:x.paid,Autres_recettes:x.other,Depenses:x.expenses,Resultat:x.net,Reste_etudiants:x.rest}));if(kind==="assignments")rows=filiereAssignmentRows("",annualProgramFilter?.value||"").map(x=>({Annee:activeYear(),Programme:x.program,Filiere:x.track,Affectation:x.label,Effectif:x.students,Facture:x.billed,Paiements:x.paid,Reste:x.rest,Echu:x.overdue,Rames_recues:x.reams,Rames_attendues:x.students,Marqueurs_recus:x.markers,Marqueurs_attendus:x.students*3}));if(kind==="tracks"){const af=annualAssignmentFilter?.value||"";rows=filiereSummaryRows(annualProgramFilter?.value||"","",af).map(x=>({Annee:activeYear(),Programme:x.program,Affectation:assignmentLabelFromFilter(af),Filiere:x.track,Effectif:x.students,Facture:x.billed,Paiements:x.paid,Autres_recettes:x.other,Depenses_directes:x.expenses,Resultat_direct:x.net,Reste_etudiants:x.rest}))};if(kind==="supplies")rows=supplyFilteredStudents().map(s=>({Annee:s.academicYear,Matricule:s.matricule,Etudiant:s.name,Programme:s.program,Affectation:studentAssignmentLabel(s),Filiere:s.track||"",Rame_attendue:1,Rame_recue:s.reamReceived||0,Marqueurs_attendus:3,Marqueurs_recus:s.markersReceived||0,Date_remise:s.supplyDate||"",Observation:s.supplyObs||""}));
  if(kind==="arrears")rows=currentStudents().filter(s=>s.status==="Actif"&&overdueAmount(s)>0).sort((a,b)=>overdueAmount(b)-overdueAmount(a)).map(s=>({Annee:s.academicYear,Matricule:s.matricule,Etudiant:s.name,Telephone:s.phone,Programme:s.program,Affectation:studentAssignmentLabel(s),Filiere:s.track||"",Niveau:s.level,Montant_echu:overdueAmount(s),Reste_total:studentRest(s),Prochaine_echeance:nextDue(s)?.date||""}));
@@ -2965,7 +3056,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   function allowedWriteCollections(){
     if(isOwner())return new Set(Object.keys(CLOUD_COLLECTION_KEYS));
     const map={
-      'Comptable':['payments','other','expenses','closings','transfers','manualEntries','budgets','assets','periodLocks','inventory','inventoryMoves','payroll','audit'],
+      'Comptable':['payments','other','expenses','expensePayments','closings','transfers','manualEntries','budgets','assets','periodLocks','inventory','inventoryMoves','payroll','audit'],
       'RH':['staff','staffAttendance','staffLoans','payroll','audit'],
       'Caissier':['payments','closings','audit'],
       'Secrétariat':['students','attendance','audit'],
@@ -2976,7 +3067,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   function securePatch(base,current){
     const p=buildCloudPatch(base,current);
     if(isOwner())return p;
-    delete p.settings;delete p.counters;delete p.users;delete p.expensePayments;
+    delete p.settings;delete p.counters;delete p.users;
     const allowed=allowedWriteCollections();
     Object.keys(CLOUD_COLLECTION_KEYS).forEach(k=>{if(!allowed.has(k))delete p[k]});
     return p;
@@ -3007,7 +3098,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
       const j=await webApi('get_state',{},webToken()),old=deepClone(db);
       if(!j?.state)throw new Error('La base centrale EIAFC n’a pas été reçue. Les données locales restent inchangées.');
       const remote=normalizeDB(deepClone(j.state));
-      webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();localSessionBase=deepClone(db);cloudConnected=true;refreshAll();notifyBossChanges(old,db);
+      webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();localSessionBase=deepClone(db);cloudConnected=true;alignWebScopeToLoadedData();refreshAll();notifyBossChanges(old,db);
       if(interactive)showToast('<b>Données reçues</b><br>EIAFC Web est à jour.');return true;
     }catch(e){
       console.error('EIAFC Web pull',e);
@@ -3016,6 +3107,43 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
     }
   }
   function startWebPolling(){if(webTimer)clearInterval(webTimer);webTimer=setInterval(()=>securePull(false),15000)}
+
+  // Sur le portail Web, une ancienne donnée peut porter un identifiant d'école
+  // qui n'existe plus dans la liste actuelle. Pour l'affichage seulement, on la
+  // rattache à l'école par défaut au lieu de la masquer.
+  const legacyRecordSchoolIdWeb=recordSchoolId;
+  window.recordSchoolId=recordSchoolId=function(x){
+    const sid=String(x?.schoolId||'');
+    const active=(db?.settings?.schools||[]).filter(s=>s&&s.deleted!==true);
+    if(sid&&active.some(s=>String(s.id)===sid))return sid;
+    return defaultSchoolId();
+  };
+
+  function alignWebScopeToLoadedData(){
+    try{
+      const rows=(db?.students||[]).filter(s=>s&&s.deleted!==true);
+      if(!rows.length)return {students:0,schoolId:activeSchoolId(),year:activeYear()};
+      const schoolIds=new Set((db?.settings?.schools||[]).filter(s=>s&&s.deleted!==true).map(s=>String(s.id)));
+      const counts=new Map();
+      for(const s of rows){
+        let sid=String(s?.schoolId||'');
+        if(!sid||!schoolIds.has(sid))sid=String(defaultSchoolId());
+        let yr=String(s?.academicYear||'');
+        if(!YEAR_RE.test(yr))yr=String(db?.settings?.year||'2026-2027');
+        const k=sid+'||'+yr;
+        counts.set(k,(counts.get(k)||0)+1);
+      }
+      let best='',bestN=-1;
+      for(const [k,n] of counts){if(n>bestN){best=k;bestN=n}}
+      const [sid,yr]=best.split('||');
+      if(sid&&schoolIds.has(String(sid)))localStorage.setItem(ACTIVE_SCHOOL_KEY,String(sid));
+      if(YEAR_RE.test(String(yr)))localStorage.setItem(ACTIVE_YEAR_KEY,String(yr));
+      return {students:rows.length,schoolId:sid,year:yr,visible:currentStudents().length};
+    }catch(e){
+      console.warn('EIAFC Web scope auto',e);
+      return {students:(db?.students||[]).filter(s=>s&&s.deleted!==true).length,schoolId:'',year:''};
+    }
+  }
 
   window.login=login=async function(){
     const username=loginUsername.value.trim().toLowerCase(),password=loginPassword.value;
@@ -3032,7 +3160,9 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
       sessionStorage.setItem(WEB_TOKEN_KEY,j.session);sessionStorage.setItem(WEB_USER_KEY,JSON.stringify(j.user));sessionStorage.setItem(SESSION_KEY,j.user.username);
       webRevision=Number(full.revision||j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();
       currentUser={...j.user,active:true,deleted:false};loginPassword.value='';lanConnected=false;cloudConnected=true;localSessionBase=deepClone(db);
+      const scope=alignWebScopeToLoadedData();
       setUnifiedStatus('Cloud Web sécurisé','ok');refreshAll();enterApp();startWebPolling();
+      setTimeout(()=>showToast(`<b>Base EIAFC chargée</b><br>${scope.students} étudiant(s) reçus du Cloud — ${scope.visible??currentStudents().length} affiché(s) pour ${esc(scope.year||activeYear())}.`),250);
     }catch(e){alert(e?.message||String(e))}
     finally{if(btn){btn.disabled=false;btn.textContent=old||'Se connecter'}}
   };
@@ -3106,7 +3236,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   async function restoreWebSession(){
     const t=webToken(),u=webStoredUser();if(!t||!u)return false;
     try{
-      const j=await webApi('get_state',{},t);if(!j?.state)throw new Error('Base centrale EIAFC indisponible');const remote=normalizeDB(deepClone(j.state));webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();currentUser={...u,active:true,deleted:false};sessionStorage.setItem(SESSION_KEY,currentUser.username);cloudConnected=true;lanConnected=false;localSessionBase=deepClone(db);refreshAll();enterApp();startWebPolling();return true;
+      const j=await webApi('get_state',{},t);if(!j?.state)throw new Error('Base centrale EIAFC indisponible');const remote=normalizeDB(deepClone(j.state));webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();currentUser={...u,active:true,deleted:false};sessionStorage.setItem(SESSION_KEY,currentUser.username);cloudConnected=true;lanConnected=false;localSessionBase=deepClone(db);alignWebScopeToLoadedData();refreshAll();enterApp();startWebPolling();return true;
     }catch(e){console.warn('Restauration session Web',e);clearWebSession(true);return false}
   }
   async function initPublicWeb(){
