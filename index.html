@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de l’Université privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-03-expenses-v7">
+<meta name="eiafc-web-build" content="2026-09-03-v10-1-pedagogie">
 <meta name="author" content="Université privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -60,6 +60,32 @@ button,input,select,textarea{font:inherit}.hidden{display:none!important}
 .role-dashboard-head h3{font-size:20px}
 .quick-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .role-badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#edf5ff;color:#1e40af;font-weight:800;font-size:11px}
+
+.power-score{display:flex;align-items:center;gap:14px;padding:14px;border:1px solid #d9e1e8;border-radius:14px;background:#fbfdff}
+.power-score-ring{width:82px;height:82px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) calc(var(--score)*1%),#e9eef2 0)}
+.power-score-ring>div{width:62px;height:62px;border-radius:50%;background:white;display:grid;place-items:center;font-weight:900;font-size:20px;color:var(--navy);box-shadow:0 2px 10px rgba(18,48,74,.08)}
+.power-alert-list{display:grid;gap:8px}.power-alert{display:grid;grid-template-columns:95px 1fr auto;gap:10px;align-items:center;border:1px solid #e6ebef;border-radius:10px;padding:10px;background:white}
+.power-alert.critical{border-left:5px solid #b42318}.power-alert.high{border-left:5px solid #d97706}.power-alert.medium{border-left:5px solid #d4a62e}.power-alert.low{border-left:5px solid #2563eb}
+.power-severity{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+.power-search-results{display:grid;gap:7px;margin-top:10px}.power-search-row{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid #e5ebef;border-radius:9px;background:#fff}
+.power-search-row small{display:block;color:var(--muted);margin-top:2px}
+.power-forecast{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.power-forecast>div{padding:12px;border:1px solid #e4eaf0;border-radius:10px;background:#fafcfd}
+.power-forecast b{display:block;font-size:20px;color:var(--navy);margin-top:4px}
+.power-toolbar{display:flex;gap:8px;flex-wrap:wrap}
+
+.dashboard-privacy{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;border:1px solid #d9e1e8;background:#f8fbfd;margin-bottom:14px}
+.dashboard-privacy .shield{font-size:22px;line-height:1}
+.dashboard-privacy b{color:var(--navy)}
+.dashboard-privacy.private{background:#f4f8ff;border-color:#c9dbf4}
+.dashboard-privacy.finance{background:#fff9e8;border-color:#ead59b}
+.dashboard-privacy.cash{background:#f3fbf7;border-color:#bfe2ce}
+.sensitive-money.locked{filter:blur(5px);user-select:none;pointer-events:none}
+.role-scope-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.role-scope-card{background:white;border:1px solid #e4eaf0;border-radius:12px;padding:14px}
+.role-scope-card .v{font-size:24px;font-weight:900;color:var(--navy);margin-top:5px}
+@media(max-width:900px){.role-scope-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.role-scope-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.power-alert,.power-search-row{grid-template-columns:1fr}.power-forecast{grid-template-columns:1fr}.power-score{align-items:flex-start}}
 .activation-key{font-family:Consolas,monospace;font-size:12px;word-break:break-all;min-height:100px}
 .auto-code-box{border:2px solid var(--gold);background:#fffdf5;border-radius:14px;padding:16px}
 .auto-code-big{font-size:20px;letter-spacing:.08em;text-align:center;font-weight:900}
@@ -295,6 +321,9 @@ body{background:linear-gradient(180deg,#f5f8fb 0%,#eef3f7 100%)}
       <button class="nav-btn" data-view="students" data-perm="students">🎓 Étudiants</button>
        <button class="nav-btn" data-view="classes" data-perm="students">📋 Listes de classe</button>
       <button class="nav-btn" data-view="attendance" data-perm="attendance">🕘 Présence étudiants</button>
+      <button class="nav-btn" data-view="academic" data-perm="academic">🎓 Pédagogie & Notes</button>
+      <button class="nav-btn" data-view="timetable" data-perm="timetable">🗓 Emploi du temps</button>
+      <button class="nav-btn" data-view="discipline" data-perm="discipline">🛡 Vie scolaire & Discipline</button>
       <button class="nav-btn" data-view="inventory" data-perm="inventory">📦 Stock & inventaire</button>
       <button class="nav-btn" data-view="staffpayroll" data-perm="staff">👔 Personnel & Paie</button>
       <button class="nav-btn" data-view="payments" data-perm="payments">💳 Paiements</button>
@@ -322,14 +351,51 @@ body{background:linear-gradient(180deg,#f5f8fb 0%,#eef3f7 100%)}
     <section id="dashboard" class="view active">
       <div class="production-hero">
         <div><span class="prod-eyebrow">CENTRE DE PILOTAGE EIAFC</span><h2>Une vision claire de l’école, en temps réel.</h2><p>Suivez les inscriptions, encaissements, dépenses, caisse, dettes fournisseurs, paie, stock et alertes depuis un seul espace sécurisé.</p></div>
-        <div class="prod-hero-badge"><b>V9.3</b><span>Cloud 24/7</span></div>
+        <div class="prod-hero-badge"><b>V10.1</b><span>ERP SCOLAIRE • Pédagogie • Cloud 24/7</span></div>
       </div>
       <div class="card role-dashboard-head" id="roleDashboardHeader" style="margin-bottom:16px">
         <div class="section-title"><h3 id="roleDashboardTitle">Tableau de bord</h3><span class="role-badge" id="roleDashboardBadge">Rôle</span></div>
         <div id="roleDashboardIntro" class="small"></div>
         <div id="roleQuickActions" class="quick-actions"></div>
       </div>
+      <div id="dashboardPrivacyNotice" class="dashboard-privacy private">
+        <div class="shield">🛡️</div>
+        <div><b>Tableau de bord sécurisé par rôle</b><div class="small" id="dashboardPrivacyText">Les informations visibles dépendent de votre fonction.</div></div>
+      </div>
       <div class="grid kpis" id="kpiGrid"></div>
+      <div class="card" id="powerCenterCard" style="margin-top:16px">
+        <div class="section-title">
+          <div><h3>⚡ EIAFC Intelligence 360°</h3><span class="small">Contrôle automatique • prévisions • anomalies • recherche globale</span></div>
+          <div class="power-toolbar">
+            <button class="btn btn-light btn-sm" type="button" onclick="renderPowerCenter()">Actualiser</button>
+            <button class="btn btn-light btn-sm" type="button" onclick="exportPowerAudit()">Exporter diagnostic</button>
+            <button class="btn btn-light btn-sm" type="button" onclick="syncNow()">Synchroniser</button>
+            <button class="btn btn-light btn-sm" type="button" onclick="forceLatestWebVersion()">Dernière version</button>
+            <button class="btn btn-gold btn-sm" type="button" data-owner-only="true" onclick="exportBackup()">Sauvegarde JSON</button>
+          </div>
+        </div>
+        <div class="grid two-col">
+          <div>
+            <div id="powerHealthBox"></div>
+            <div class="grid kpis" id="powerHealthKpis" style="margin-top:12px"></div>
+          </div>
+          <div class="card" style="box-shadow:none">
+            <div class="section-title"><h3>📈 Prévision trésorerie — 30 jours</h3><span class="small">Projection indicative</span></div>
+            <div id="powerForecast" class="power-forecast"></div>
+          </div>
+        </div>
+        <div class="grid two-col" style="margin-top:16px">
+          <div class="card" style="box-shadow:none">
+            <div class="section-title"><h3>🛡 Contrôles automatiques</h3><span class="small" id="powerAuditCount">0 alerte</span></div>
+            <div id="powerAuditList" class="power-alert-list"></div>
+          </div>
+          <div class="card" style="box-shadow:none">
+            <div class="section-title"><h3>🔎 Recherche globale</h3><span class="small">Étudiants • paiements • dépenses • personnel • stock</span></div>
+            <input id="powerGlobalSearch" placeholder="Nom, matricule, téléphone, reçu, fournisseur, référence..." oninput="renderPowerSearch()" style="width:100%;padding:11px;border:1px solid #cfd9e2;border-radius:9px">
+            <div id="powerSearchResults" class="power-search-results"><div class="empty">Saisissez au moins 2 caractères.</div></div>
+          </div>
+        </div>
+      </div>
       <div class="grid two-col" style="margin-top:16px">
         <div class="card"><div class="section-title"><h3>Trésorerie par canal</h3></div><div id="channelBalances"></div></div>
         <div class="card"><div class="section-title"><h3>Recouvrement & alertes</h3></div><div id="recoveryBox"></div></div>
@@ -433,6 +499,89 @@ body{background:linear-gradient(180deg,#f5f8fb 0%,#eef3f7 100%)}
         <div class="grid kpis" id="attendanceKpis" style="margin-top:16px"></div>
         <div class="table-wrap" style="margin-top:12px"><table id="attendanceTable"></table></div>
       </div>
+    </section>
+
+    
+    <section id="academic" class="view">
+      <div class="card" id="subjectStructureCard">
+        <div class="section-title"><h3>🎓 Matières & affectations enseignants</h3><span class="small">Direction des études</span></div>
+        <form id="subjectForm" class="form-grid">
+          <div class="field"><label>Code matière</label><input id="subjectCode" placeholder="Ex. COMPTA1" required></div>
+          <div class="field span-2"><label>Intitulé matière</label><input id="subjectName" required></div>
+          <div class="field"><label>Coefficient</label><input id="subjectCoefficient" type="number" min="0.1" step="0.1" value="1"></div>
+          <div class="field"><label>Programme</label><select id="subjectProgram"><option>Formation qualifiante</option><option>BTS 1</option><option>BTS 2</option><option>Licence</option><option>Master</option></select></div>
+          <div class="field"><label>Filière / classe</label><input id="subjectTrack" list="operationTrackList" required></div>
+          <div class="field"><label>Semestre</label><select id="subjectSemester"><option>Semestre 1</option><option>Semestre 2</option></select></div>
+          <div class="field"><label>Enseignant</label><select id="subjectTeacher"></select></div>
+          <div class="field span-4"><button class="btn btn-primary" type="submit">Ajouter / affecter la matière</button></div>
+        </form>
+      </div>
+
+      <div class="grid two-col" style="margin-top:16px">
+        <div class="card">
+          <div class="section-title"><h3>📝 Saisie d’une note</h3><span class="small">Enseignant / Direction des études</span></div>
+          <form id="gradeForm" class="form-grid">
+            <div class="field span-2"><label>Matière</label><select id="gradeSubject" required onchange="updateGradeStudents()"></select></div>
+            <div class="field span-2"><label>Étudiant</label><select id="gradeStudent" required></select></div>
+            <div class="field"><label>Date</label><input type="date" id="gradeDate" required></div>
+            <div class="field"><label>Période</label><select id="gradeTerm"><option>Semestre 1</option><option>Semestre 2</option></select></div>
+            <div class="field"><label>Évaluation</label><select id="gradeType"><option>Interrogation</option><option>Devoir</option><option>Examen</option><option>Projet</option><option>Oral</option></select></div>
+            <div class="field"><label>Note</label><input id="gradeScore" type="number" min="0" step="0.25" required></div>
+            <div class="field"><label>Barème</label><input id="gradeMax" type="number" min="1" value="20" required></div>
+            <div class="field"><label>Coefficient</label><input id="gradeCoefficient" type="number" min="0.1" step="0.1" value="1"></div>
+            <div class="field span-4"><button class="btn btn-primary" type="submit">Enregistrer la note</button></div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="section-title"><h3>📖 Cahier de texte numérique</h3><span class="small">Cours réellement effectué</span></div>
+          <form id="lessonLogForm" class="form-grid">
+            <div class="field"><label>Date</label><input type="date" id="lessonDate" required></div>
+            <div class="field span-2"><label>Matière</label><select id="lessonSubject" required></select></div>
+            <div class="field"><label>Durée (h)</label><input id="lessonHours" type="number" min="0.25" step="0.25" value="2"></div>
+            <div class="field span-4"><label>Leçon / chapitre traité</label><textarea id="lessonTopic" rows="2" required></textarea></div>
+            <div class="field span-4"><label>Travail à faire / devoir</label><textarea id="lessonHomework" rows="2"></textarea></div>
+            <div class="field span-4"><button class="btn btn-primary" type="submit">Valider le cahier de texte</button></div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px"><div class="section-title"><h3>Matières & enseignants</h3><button class="btn btn-light btn-sm" onclick="exportAcademicCSV('subjects')">Exporter</button></div><div class="table-wrap"><table id="subjectsTable"></table></div></div>
+      <div class="card" style="margin-top:16px"><div class="section-title"><h3>Notes & moyennes</h3><button class="btn btn-light btn-sm" onclick="exportAcademicCSV('grades')">Exporter</button></div><div class="grid kpis" id="gradeKpis" style="margin-bottom:12px"></div><div class="table-wrap"><table id="gradesTable"></table></div></div>
+      <div class="card" style="margin-top:16px"><div class="section-title"><h3>Cahier de texte</h3></div><div class="table-wrap"><table id="lessonLogsTable"></table></div></div>
+    </section>
+
+    <section id="timetable" class="view">
+      <div class="card" id="timetableEditCard">
+        <div class="section-title"><h3>🗓 Emploi du temps</h3><span class="small">Détection conflits enseignant / salle / classe</span></div>
+        <form id="timetableForm" class="form-grid">
+          <div class="field"><label>Jour</label><select id="ttDay"><option>Lundi</option><option>Mardi</option><option>Mercredi</option><option>Jeudi</option><option>Vendredi</option><option>Samedi</option></select></div>
+          <div class="field"><label>Début</label><input type="time" id="ttStart" value="08:00" required></div>
+          <div class="field"><label>Fin</label><input type="time" id="ttEnd" value="10:00" required></div>
+          <div class="field"><label>Salle</label><input id="ttRoom" placeholder="Ex. Salle 2" required></div>
+          <div class="field span-2"><label>Matière</label><select id="ttSubject" required></select></div>
+          <div class="field span-2"><label>Enseignant</label><select id="ttTeacher" required></select></div>
+          <div class="field span-4"><button class="btn btn-primary" type="submit">Ajouter au planning</button></div>
+        </form>
+      </div>
+      <div class="card" style="margin-top:16px"><div class="section-title"><h3>Planning hebdomadaire</h3><button class="btn btn-light btn-sm" onclick="exportAcademicCSV('timetable')">Exporter</button></div><div class="table-wrap"><table id="timetableTable"></table></div></div>
+    </section>
+
+    <section id="discipline" class="view">
+      <div class="card" id="disciplineEditCard">
+        <div class="section-title"><h3>🛡 Vie scolaire & Discipline</h3><span class="small">Éducateur / Directeur des études</span></div>
+        <form id="disciplineForm" class="form-grid">
+          <div class="field"><label>Date</label><input type="date" id="discDate" required></div>
+          <div class="field span-2"><label>Étudiant</label><select id="discStudent" required></select></div>
+          <div class="field"><label>Type</label><select id="discType"><option>Observation</option><option>Retard répété</option><option>Absence répétée</option><option>Indiscipline</option><option>Violence</option><option>Fraude</option><option>Félicitation</option><option>Autre</option></select></div>
+          <div class="field"><label>Niveau</label><select id="discSeverity"><option>Faible</option><option>Moyen</option><option>Élevé</option><option>Critique</option></select></div>
+          <div class="field"><label>Statut</label><select id="discStatus"><option>Ouvert</option><option>En suivi</option><option>Clôturé</option></select></div>
+          <div class="field span-2"><label>Décision / mesure prise</label><input id="discAction" placeholder="Ex. avertissement, convocation parent..."></div>
+          <div class="field span-4"><label>Description</label><textarea id="discDetails" rows="3" required></textarea></div>
+          <div class="field span-4"><button class="btn btn-primary" type="submit">Enregistrer le suivi</button></div>
+        </form>
+      </div>
+      <div class="card" style="margin-top:16px"><div class="section-title"><h3>Registre de vie scolaire</h3><button class="btn btn-light btn-sm" onclick="exportAcademicCSV('discipline')">Exporter</button></div><div class="grid kpis" id="disciplineKpis" style="margin-bottom:12px"></div><div class="table-wrap"><table id="disciplineTable"></table></div></div>
     </section>
 
     <section id="inventory" class="view">
@@ -882,14 +1031,14 @@ body{background:linear-gradient(180deg,#f5f8fb 0%,#eef3f7 100%)}
             <div class="field span-2"><label>Nom complet</label><input id="userFullname" required></div>
             <div class="field"><label>Nom d'utilisateur</label><input id="userUsername" required></div>
             <div class="field"><label>E-mail personnel</label><input id="userEmail" type="email" required autocomplete="email" placeholder="nom@exemple.com"><div class="small">Adresse personnelle et unique de cet utilisateur. Elle sert aux invitations et à la récupération de son accès.</div></div>
-            <div class="field"><label>Rôle</label><select id="userRole"><option>Comptable</option><option>RH</option><option>Caissier</option><option>Secrétariat</option><option>Secrétariat &amp; Caisse</option></select></div>
+            <div class="field"><label>Rôle</label><select id="userRole"><option>Comptable</option><option>Directeur des études</option><option>Éducateur</option><option>Enseignant</option><option>RH</option><option>Caissier</option><option>Secrétariat</option><option>Secrétariat &amp; Caisse</option></select></div>
             <div class="field"><label>Périmètre</label><select id="userScope" disabled><option value="active">École active uniquement</option></select></div>
             <div class="field span-2"><label>Mot de passe provisoire</label><input id="userPassword" type="password" minlength="6" required></div>
             <div class="field span-2"><label>Invitation</label><label class="check-item"><input id="userSendInvite" type="checkbox" checked> Envoyer l’e-mail d’installation après création</label></div>
             <div class="field span-4"><button class="btn btn-primary" type="submit">Créer l'utilisateur</button><div id="userInviteStatus" class="small" style="margin-top:8px"></div></div>
           </form>
         </div>
-        <div class="card"><div class="section-title"><h3>Droits par rôle</h3></div><div class="small"><b>Fondateur / Propriétaire :</b> seul compte avec accès complet aux paramètres, utilisateurs, sauvegardes, réseau, taux de paie et suppressions sécurisées.<br><br><b>Comptable :</b> finances, paie, validations, rapports, audit, stock et clôtures.<br><br><b>RH :</b> dossiers du personnel, présence, avances/prêts, préparation de la paie et bulletins.<br><br><b>Caissier :</b> étudiants en lecture, paiements, reçus et caisse.<br><br><b>Secrétariat :</b> inscriptions, dossiers étudiants, listes de classe et présence étudiants uniquement. <b>Aucun montant, paiement, échéancier, caisse, rapport financier, personnel, stock général, audit ou paramètre.</b><br><br><b>Secrétariat &amp; Caisse :</b> inscriptions, dossiers étudiants et présence + paiements, reçus, échéancier, fiche financière étudiant, caisse et clôture. Son tableau de bord combine automatiquement les indicateurs administratifs et de caisse. <b>Aucun accès aux dépenses, autres recettes, comptabilité générale, rapports financiers, personnel/paie, audit, utilisateurs ou paramètres.</b> <br><br><b>Périmètre :</b> tous les comptes non-Fondateur sont strictement rattachés à <b>une seule école</b>. Pour affecter un utilisateur à une autre école, le Fondateur ouvre l’école concernée puis utilise « Affecter ici ». Le rôle peut être modifié directement dans la colonne « Rôle », par exemple de « Secrétariat » vers « Secrétariat & Caisse ».</div></div>
+        <div class="card"><div class="section-title"><h3>Droits par rôle</h3></div><div class="small"><b>Fondateur / Propriétaire :</b> seul compte avec accès complet aux paramètres, utilisateurs, sauvegardes, réseau, taux de paie et suppressions sécurisées.<br><br><b>Comptable :</b> finances, paie, validations, rapports, audit, stock et clôtures.<br><br><b>Directeur des études :</b> pilotage pédagogique, matières, classes, emploi du temps, enseignants, notes, cahier de texte, présences et discipline. Aucun accès aux montants financiers.<br><br><b>Éducateur :</b> vie scolaire, présences, retards, absences, discipline, suivi des étudiants et consultation de l’emploi du temps. Aucun montant financier.<br><br><b>Enseignant :</b> ses matières, ses classes, notes, cahier de texte, présence et emploi du temps. Aucun montant financier.<br><br><b>RH :</b> dossiers du personnel, présence, avances/prêts, préparation de la paie et bulletins.<br><br><b>Caissier :</b> étudiants en lecture, paiements, reçus et caisse.<br><br><b>Secrétariat :</b> inscriptions, dossiers étudiants, listes de classe et présence étudiants uniquement. <b>Aucun montant, paiement, échéancier, caisse, rapport financier, personnel, stock général, audit ou paramètre.</b><br><br><b>Secrétariat &amp; Caisse :</b> inscriptions, dossiers étudiants et présence + paiements, reçus, échéancier, fiche financière étudiant, caisse et clôture. Son tableau de bord combine automatiquement les indicateurs administratifs et de caisse. <b>Aucun accès aux dépenses, autres recettes, comptabilité générale, rapports financiers, personnel/paie, audit, utilisateurs ou paramètres.</b> <br><br><b>Périmètre :</b> tous les comptes non-Fondateur sont strictement rattachés à <b>une seule école</b>. Pour affecter un utilisateur à une autre école, le Fondateur ouvre l’école concernée puis utilise « Affecter ici ». Le rôle peut être modifié directement dans la colonne « Rôle », par exemple de « Secrétariat » vers « Secrétariat & Caisse ».</div></div>
       </div>
       <div class="card" style="margin-top:16px"><div class="section-title"><h3>Utilisateurs & identités</h3><div class="toolbar"><button class="btn btn-light btn-sm" type="button" onclick="flushIdentityQueue(true)">Synchroniser les identités</button></div></div><div id="userIdentityQuality" class="info" style="margin-bottom:12px"></div><div class="table-wrap"><table id="usersTable"></table></div></div>
     </section>
@@ -1063,7 +1212,7 @@ body{background:linear-gradient(180deg,#f5f8fb 0%,#eef3f7 100%)}
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="9.3.1";
+const APP_VERSION="10.1.0";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -1108,7 +1257,7 @@ const fmt=n=>moneyFmt.format(Number(n||0))+" FCFA";
 const today=()=>new Date().toISOString().slice(0,10);
 const ym=d=>(d||"").slice(0,7);
 const modes=["Espèces","Wave","MTN Mobile Money","Banque","Orange Money","Chèque","Autre"];
-const roles=["Fondateur","Comptable","RH","Caissier","Secrétariat","Secrétariat & Caisse"];
+const roles=["Fondateur","Comptable","Directeur des études","Éducateur","Enseignant","RH","Caissier","Secrétariat","Secrétariat & Caisse"];
 const MAIL_FUNCTION="eiafc-notify";
 const INSTALL_INVITE_FUNCTION="eiafc-install-invite";
 const EIAFC_PUBLIC_APP_URL="https://opypgilifxnrwqmpsnzp.supabase.co/functions/v1/eiafc-web";
@@ -1205,7 +1354,7 @@ function reportingPrograms(){const legacy=currentStudents?.().some?.(s=>s.progra
 function defaultDB(){return{
  settings:{school:"",defaultSchoolId:"",schools:[],ownerUsername:"",year:"2026-2027",schemaVersion:7.8,years:["2026-2027"],notifications:{enabled:true,daysBefore:3,overdueRepeatDays:7,sendStudent:true,sendGuardian:true,senderName:"EIAFC",appUrl:EIAFC_PUBLIC_APP_URL},identityQueue:[],openings:{},schoolOpenings:{},supplyValues:{ream:0,marker:0},schoolSupplyValues:{},trackCatalog:{},schoolTrackCatalogs:{},schoolPayrollSettings:{},lastBackupAt:""},
  counters:{student:0,payment:0,other:0,expense:0,closing:0},
- students:[],payments:[],other:[],expenses:[],expensePayments:[],closings:[],transfers:[],manualEntries:[],budgets:[],assets:[],periodLocks:[],attendance:[],inventory:[],inventoryMoves:[],staff:[],staffAttendance:[],staffLoans:[],payroll:[],users:[],audit:[]
+ students:[],payments:[],other:[],expenses:[],expensePayments:[],closings:[],transfers:[],manualEntries:[],budgets:[],assets:[],periodLocks:[],attendance:[],subjects:[],timetable:[],grades:[],discipline:[],lessonLogs:[],inventory:[],inventoryMoves:[],staff:[],staffAttendance:[],staffLoans:[],payroll:[],users:[],audit:[]
 }}
 // V8.2.1 démarre sur une base vierge indépendante. Aucune ancienne donnée locale n'est reprise.
 function initializeV7Storage(){
@@ -1229,7 +1378,7 @@ function normalizeDB(x){
  d.settings.supplyValues={ream:0,marker:0,...(xs.supplyValues||{})};d.settings.schoolSupplyValues={...(xs.schoolSupplyValues||{})};if(defSid&&!d.settings.schoolSupplyValues[defSid])d.settings.schoolSupplyValues[defSid]={...d.settings.supplyValues};
  d.settings.trackCatalog={...(xs.trackCatalog||{})};d.settings.schoolTrackCatalogs={...(xs.schoolTrackCatalogs||{})};if(defSid&&!d.settings.schoolTrackCatalogs[defSid])d.settings.schoolTrackCatalogs[defSid]={...d.settings.trackCatalog};d.settings.schoolPayrollSettings={...(xs.schoolPayrollSettings||{})};
  const years=[...(xs.years||[]),d.settings.year];
- d.counters={...d.counters,...(x.counters||{})};d.students=x.students||[];d.payments=x.payments||[];d.other=x.other||[];d.expenses=x.expenses||[];d.expensePayments=x.expensePayments||[];d.closings=x.closings||[];d.transfers=x.transfers||[];d.manualEntries=x.manualEntries||[];d.budgets=x.budgets||[];d.assets=x.assets||[];d.periodLocks=x.periodLocks||[];d.attendance=x.attendance||[];d.inventory=x.inventory||[];d.inventoryMoves=x.inventoryMoves||[];d.staff=x.staff||[];d.staffAttendance=x.staffAttendance||[];d.staffLoans=x.staffLoans||[];d.payroll=x.payroll||[];d.users=x.users||[];d.audit=x.audit||[];
+ d.counters={...d.counters,...(x.counters||{})};d.students=x.students||[];d.payments=x.payments||[];d.other=x.other||[];d.expenses=x.expenses||[];d.expensePayments=x.expensePayments||[];d.closings=x.closings||[];d.transfers=x.transfers||[];d.manualEntries=x.manualEntries||[];d.budgets=x.budgets||[];d.assets=x.assets||[];d.periodLocks=x.periodLocks||[];d.attendance=x.attendance||[];d.subjects=x.subjects||[];d.timetable=x.timetable||[];d.grades=x.grades||[];d.discipline=x.discipline||[];d.lessonLogs=x.lessonLogs||[];d.inventory=x.inventory||[];d.inventoryMoves=x.inventoryMoves||[];d.staff=x.staff||[];d.staffAttendance=x.staffAttendance||[];d.staffLoans=x.staffLoans||[];d.payroll=x.payroll||[];d.users=x.users||[];d.audit=x.audit||[];
  d.students=d.students.map(s=>{const tr=normalizeTrackName(s.track),raw=String(s.admissionStatus||s.affectationStatus||"").trim(),admissionStatus=(raw==="Affecté État"||raw==="Affecté de l’État")?"Affecté État":raw==="Non affecté"?"Non affecté":"À préciser";return{...s,schoolId:s.schoolId||defSid,academicYear:s.academicYear||d.settings.year,program:normalizeStudentProgram(s.program,s.level),admissionStatus,trackAssigned:!!tr,track:tr,installments:Number(s.installments||9),firstDue:s.firstDue||s.date,discount:Number(s.discount||0),discountReason:s.discountReason||"",reamReceived:Math.max(0,Math.min(1,Number(s.reamReceived||0))),markersReceived:Math.max(0,Math.min(3,Number(s.markersReceived||0))),supplyDate:s.supplyDate||"",supplyObs:s.supplyObs||"",birthDate:s.birthDate||"",birthPlace:s.birthPlace||"",email:s.email||"",address:s.address||"",guardianName:s.guardianName||"",guardianPhone:s.guardianPhone||"",guardianEmail:s.guardianEmail||"",identityRef:s.identityRef||"",docs:{birth:!!s.docs?.birth,id:!!s.docs?.id,diploma:!!s.docs?.diploma,photos:!!s.docs?.photos}}});
  d.users=d.users.map(u=>({...u,email:u.deleted===true?"":normalizeEmail(u.email),inviteStatus:u.inviteStatus||"",authUserId:u.deleted===true?"":String(u.authUserId||"")}));
  const schoolFromStudent=mat=>d.students.find(s=>s.matricule===mat)?.schoolId||defSid;
@@ -1245,6 +1394,11 @@ function normalizeDB(x){
  d.assets=d.assets.map(v=>({...v,schoolId:v.schoolId||defSid,academicYear:v.academicYear||d.settings.year,status:v.status||"Actif",track:String(v.track||COMMON_TRACK).trim()||COMMON_TRACK}));
  d.periodLocks=d.periodLocks.map(v=>({...v,schoolId:v.schoolId||defSid,academicYear:v.academicYear||d.settings.year}));
  d.attendance=d.attendance.map(v=>({...v,schoolId:v.schoolId||schoolFromStudent(v.student),academicYear:v.academicYear||studentYearFromMat(v.student)||d.settings.year,status:v.status||"Présent"}));
+ d.subjects=d.subjects.map(v=>({...v,id:v.id||makeUniqueId("MAT"),schoolId:v.schoolId||defSid,academicYear:v.academicYear||d.settings.year,program:normalizeOperationProgram(v.program||GENERAL_PROGRAM),track:cleanTrack(v.track),name:String(v.name||"").trim(),code:String(v.code||"").trim(),coefficient:Math.max(.1,Number(v.coefficient||1)),semester:String(v.semester||"Semestre 1"),teacherUsername:String(v.teacherUsername||"").toLowerCase(),active:v.active!==false}));
+ d.timetable=d.timetable.map(v=>({...v,id:v.id||makeUniqueId("EDT"),schoolId:v.schoolId||defSid,academicYear:v.academicYear||d.settings.year,program:normalizeOperationProgram(v.program||GENERAL_PROGRAM),track:cleanTrack(v.track),day:v.day||"Lundi",start:v.start||"08:00",end:v.end||"10:00",room:String(v.room||"").trim(),subjectId:String(v.subjectId||""),teacherUsername:String(v.teacherUsername||"").toLowerCase(),active:v.active!==false}));
+ d.grades=d.grades.map(v=>({...v,id:v.id||makeUniqueId("NOTE"),schoolId:v.schoolId||defSid,academicYear:v.academicYear||d.settings.year,student:String(v.student||""),subjectId:String(v.subjectId||""),term:v.term||"Semestre 1",type:v.type||"Devoir",score:Math.max(0,Number(v.score||0)),maxScore:Math.max(1,Number(v.maxScore||20)),coefficient:Math.max(.1,Number(v.coefficient||1)),date:v.date||today(),teacherUsername:String(v.teacherUsername||"").toLowerCase()}));
+ d.discipline=d.discipline.map(v=>({...v,id:v.id||makeUniqueId("DISC"),schoolId:v.schoolId||defSid,academicYear:v.academicYear||d.settings.year,date:v.date||today(),student:String(v.student||""),type:v.type||"Observation",severity:v.severity||"Faible",status:v.status||"Ouvert",details:String(v.details||""),action:String(v.action||""),educator:String(v.educator||"")}));
+ d.lessonLogs=d.lessonLogs.map(v=>({...v,id:v.id||makeUniqueId("CDT"),schoolId:v.schoolId||defSid,academicYear:v.academicYear||d.settings.year,date:v.date||today(),subjectId:String(v.subjectId||""),program:normalizeOperationProgram(v.program||GENERAL_PROGRAM),track:cleanTrack(v.track),teacherUsername:String(v.teacherUsername||"").toLowerCase(),topic:String(v.topic||""),homework:String(v.homework||""),hours:Math.max(.25,Number(v.hours||1))}));
  d.inventory=d.inventory.map(v=>({...v,schoolId:v.schoolId||defSid,academicYear:v.academicYear||d.settings.year,active:v.active!==false,minStock:Math.max(0,Number(v.minStock||0)),unit:v.unit||"Unité",sku:String(v.sku||""),location:String(v.location||""),defaultUnitCost:Math.max(0,Number(v.defaultUnitCost||0))}));
  d.inventoryMoves=d.inventoryMoves.map(v=>({...v,schoolId:v.schoolId||defSid,academicYear:v.academicYear||d.settings.year,qty:Math.max(0,Number(v.qty||0)),type:v.type==="Sortie"?"Sortie":"Entrée",unitCost:Math.max(0,Number(v.unitCost||0)),party:String(v.party||"")}));
  d.staff=d.staff.map(v=>({...v,schoolId:v.schoolId||defSid,status:v.status||"Actif",baseSalary:Math.max(0,Number(v.baseSalary||0)),transport:Math.max(0,Number(v.transport||0)),housing:Math.max(0,Number(v.housing||0)),functionAllowance:Math.max(0,Number(v.functionAllowance||0)),responsibility:Math.max(0,Number(v.responsibility||0)),otherFixed:Math.max(0,Number(v.otherFixed||0)),workDays:Math.max(1,Number(v.workDays||26)),hoursDay:Math.max(1,Number(v.hoursDay||8)),startTime:v.startTime||"08:00",payMode:v.payMode||"Banque"}));
@@ -1439,7 +1593,7 @@ function queueNetworkPush(){
  networkPushChain=networkPushChain.then(()=>smartNetworkPush()).catch(e=>{console.error(e);capturePendingPatch();setUnifiedStatus("Hors réseau — saisie locale","bad")})
 }
 let cloudClient=null,cloudBase=null,cloudRevision=0,cloudTimer=null,cloudPushChain=Promise.resolve(),cloudConnected=false,cloudConnecting=false;
-const CLOUD_COLLECTION_KEYS={students:"matricule",payments:"receipt",other:"receipt",expenses:"id",expensePayments:"id",closings:"id",transfers:"id",manualEntries:"id",budgets:"id",assets:"id",periodLocks:"id",attendance:"id",inventory:"id",inventoryMoves:"id",staff:"matricule",staffAttendance:"id",staffLoans:"id",payroll:"id",users:"username",audit:"eventId"};
+const CLOUD_COLLECTION_KEYS={students:"matricule",payments:"receipt",other:"receipt",expenses:"id",expensePayments:"id",closings:"id",transfers:"id",manualEntries:"id",budgets:"id",assets:"id",periodLocks:"id",attendance:"id",subjects:"id",timetable:"id",grades:"id",discipline:"id",lessonLogs:"id",inventory:"id",inventoryMoves:"id",staff:"matricule",staffAttendance:"id",staffLoans:"id",payroll:"id",users:"username",audit:"eventId"};
 const deepClone=v=>JSON.parse(JSON.stringify(v));
 function loadCloudConfig(){try{return JSON.parse(localStorage.getItem(CLOUD_KEY)||"null")}catch(e){return null}}
 function cloudConfigured(){const c=loadCloudConfig();return !!(c?.url&&c?.key&&c?.workspace&&c?.secret)}
@@ -1710,10 +1864,13 @@ function disconnectCloud(){if(currentUser&&!requireOwner("la déconnexion Cloud"
 function isOwner(u=currentUser){return !!u&&u.deleted!==true&&u.active!==false&&String(u.username||"")===String(db?.settings?.ownerUsername||"")}
 function requireOwner(action="cette action"){if(isOwner())return true;alert(`Accès refusé : seul le Fondateur / propriétaire peut effectuer ${action}.`);return false}
 function permissions(role){
- const all=["dashboard","students","attendance","inventory","staff","payroll","payments","schedule","studentFinance","other","expenses","cash","closing","journal","accounting","reports","audit","users","settings","validate","cancel","discount","transfer"];
+ const all=["dashboard","students","attendance","academic","timetable","discipline","inventory","staff","payroll","payments","schedule","studentFinance","other","expenses","cash","closing","journal","accounting","reports","audit","users","settings","validate","cancel","discount","transfer"];
  const map={
   "Fondateur":all,
   "Comptable":["dashboard","students","inventory","staff","payroll","payments","schedule","studentFinance","other","expenses","cash","closing","journal","accounting","reports","audit","validate","cancel","discount","transfer"],
+  "Directeur des études":["dashboard","students","attendance","academic","timetable","discipline"],
+  "Éducateur":["dashboard","students","attendance","timetable","discipline"],
+  "Enseignant":["dashboard","students","attendance","academic","timetable"],
   "RH":["dashboard","staff","payroll"],
   "Caissier":["dashboard","students","payments","schedule","studentFinance","cash","closing"],
   "Secrétariat":["dashboard","students","attendance"],
@@ -2046,7 +2203,7 @@ function showSignupForm(){
 async function createAccountFromPortal(){
  if(!db.users.length)return alert("Initialisez d'abord le logiciel avec le compte Fondateur.");
  const fullname=signupFullname.value.trim(),username=signupUsername.value.trim().toLowerCase(),email=normalizeEmail(signupEmail.value),pwd=signupPassword.value,role=signupRole.value,sid=signupSchool.value,ownerName=signupOwnerUsername.value.trim().toLowerCase(),ownerPwd=signupOwnerPassword.value;
- const allowed=["Comptable","RH","Caissier","Secrétariat","Secrétariat & Caisse"];
+ const allowed=["Comptable","Directeur des études","Éducateur","Enseignant","RH","Caissier","Secrétariat","Secrétariat & Caisse"];
  if(!fullname||!username||!validEmail(email)||pwd.length<6)return alert("Nom complet, utilisateur, e-mail personnel valide et mot de passe d’au moins 6 caractères sont obligatoires.");
  if(!allowed.includes(role))return alert("Rôle non autorisé.");
  if(!schoolsActive().some(s=>s.id===sid))return alert("École invalide.");
@@ -2140,15 +2297,58 @@ function goToView(view){
  if(!can(b.dataset.perm))return alert("Votre rôle ne permet pas cet accès.");
  b.click()
 }
+
+function roleMoneyPolicy(role=roleName()){
+ const map={
+  "Fondateur":{global:true,cash:true,payroll:true,studentFinance:true,label:"Accès financier complet"},
+  "Comptable":{global:true,cash:true,payroll:true,studentFinance:true,label:"Accès financier comptable"},
+  "Caissier":{global:false,cash:true,payroll:false,studentFinance:true,label:"Accès limité aux opérations de caisse"},
+  "Secrétariat & Caisse":{global:false,cash:true,payroll:false,studentFinance:true,label:"Administration + caisse opérationnelle"},
+  "RH":{global:false,cash:false,payroll:true,studentFinance:false,label:"Accès RH / paie uniquement"},
+  "Directeur des études":{global:false,cash:false,payroll:false,studentFinance:false,label:"Pilotage pédagogique sans données financières"},
+  "Éducateur":{global:false,cash:false,payroll:false,studentFinance:false,label:"Vie scolaire sans données financières"},
+  "Enseignant":{global:false,cash:false,payroll:false,studentFinance:false,label:"Espace enseignant sans données financières"},
+  "Secrétariat":{global:false,cash:false,payroll:false,studentFinance:false,label:"Aucun montant financier"}
+ };
+ return map[role]||{global:false,cash:false,payroll:false,studentFinance:false,label:"Accès limité"}
+}
+function canSeeGlobalMoney(){return !!roleMoneyPolicy().global}
+function canSeeCashMoney(){return !!roleMoneyPolicy().cash}
+function canSeePayrollMoney(){return !!roleMoneyPolicy().payroll}
+function canSeeStudentFinance(){return !!roleMoneyPolicy().studentFinance}
+function dashboardMoneyOrHidden(value,scope="global"){
+ const ok=scope==="cash"?canSeeCashMoney():scope==="payroll"?canSeePayrollMoney():scope==="student"?canSeeStudentFinance():canSeeGlobalMoney();
+ return ok?fmt(Number(value||0)):"🔒 Masqué"
+}
+function renderDashboardPrivacyNotice(){
+ if(!dashboardPrivacyNotice||!dashboardPrivacyText)return;
+ const role=roleName(),p=roleMoneyPolicy(role);
+ dashboardPrivacyNotice.className="dashboard-privacy "+(p.global?"finance":p.cash?"cash":"private");
+ const detail={
+  "Fondateur":"Vous voyez le pilotage complet de toutes les informations autorisées : finances, trésorerie, paie, audit et réseau.",
+  "Comptable":"Vous voyez les informations comptables et financières nécessaires à votre fonction. Les fonctions Fondateur restent protégées.",
+  "Caissier":"Vous voyez uniquement les montants nécessaires aux encaissements et à la caisse. Les résultats, dépenses globales, salaires et données de direction sont masqués.",
+  "Secrétariat & Caisse":"Vous voyez les dossiers étudiants et la caisse opérationnelle. Les résultats globaux, dépenses et salaires sont masqués.",
+  "RH":"Vous voyez le personnel et la paie dans votre module. Le chiffre d’affaires, la trésorerie, les dépenses et les résultats de l’école sont masqués.",
+  "Directeur des études":"Vous pilotez la pédagogie, les matières, notes, emplois du temps et enseignants. Aucun montant financier n’est affiché.",
+  "Éducateur":"Vous gérez la vie scolaire, les présences, retards, absences et discipline. Aucun montant financier n’est affiché.",
+  "Enseignant":"Vous gérez vos matières, vos notes, votre cahier de texte, les présences et votre emploi du temps. Aucun montant financier n’est affiché.",
+  "Secrétariat":"Aucun montant financier n’est affiché sur votre tableau de bord. Vous voyez uniquement les informations administratives et pédagogiques.",
+ }[role]||"Les informations visibles sont limitées à votre fonction.";
+ dashboardPrivacyText.textContent=`${p.label}. ${detail}`
+}
 function renderRoleDashboardHeader(){
  if(!roleDashboardTitle)return;
  const role=roleName(),school=schoolLabel(),defs={
   "Fondateur":{title:"👑 Tableau de bord Fondateur",intro:`Pilotage global de ${school} : gestion, finances, utilisateurs, audit et contrôle du réseau.`,actions:[["Rapports","reports"],["Audit","audit"],["Utilisateurs","users"],["Paramètres","settings"]]},
   "Comptable":{title:"🧮 Tableau de bord Comptable",intro:`Suivi financier et comptable de ${school} : encaissements, dépenses, trésorerie, validations et rapports.`,actions:[["Paiements","payments"],["Dépenses","expenses"],["Comptabilité","accounting"],["Rapports","reports"]]},
-  "RH":{title:"👔 Tableau de bord RH",intro:`Gestion du personnel de ${school} : dossiers, présence, avances, paie et bulletins.`,actions:[["Personnel & Paie","staffpayroll"]]},
-  "Caissier":{title:"💳 Tableau de bord Caissier",intro:`Encaissements et tenue de caisse de ${school} : paiements, échéances et clôture.`,actions:[["Paiements","payments"],["Échéancier","schedule"],["Caisse","cash"],["Clôture","closing"]]},
+  "Directeur des études":{title:"📚 Tableau de bord Directeur des études",intro:`Pilotage pédagogique de ${school} : matières, enseignants, notes, emplois du temps, assiduité et discipline. Aucun montant financier.`,actions:[["Pédagogie & Notes","academic"],["Emploi du temps","timetable"],["Présence","attendance"],["Discipline","discipline"]]},
+  "Éducateur":{title:"🛡 Tableau de bord Éducateur",intro:`Vie scolaire de ${school} : présence, retards, absences, discipline et suivi quotidien des étudiants. Aucun montant financier.`,actions:[["Présence","attendance"],["Discipline","discipline"],["Emploi du temps","timetable"],["Étudiants","students"]]},
+  "Enseignant":{title:"👨‍🏫 Tableau de bord Enseignant",intro:`Espace pédagogique de ${school} : vos matières, notes, cahier de texte, présence et emploi du temps. Aucun montant financier.`,actions:[["Pédagogie & Notes","academic"],["Emploi du temps","timetable"],["Présence","attendance"]]},
+  "RH":{title:"👔 Tableau de bord RH",intro:`Gestion du personnel de ${school} : dossiers, présence, contrats et paie. Les finances globales de l’école sont masquées.`,actions:[["Personnel & Paie","staffpayroll"]]},
+  "Caissier":{title:"💳 Tableau de bord Caissier",intro:`Encaissements et tenue de caisse de ${school}. Seuls les montants opérationnels nécessaires à la caisse sont visibles.`,actions:[["Paiements","payments"],["Échéancier","schedule"],["Caisse","cash"],["Clôture","closing"]]},
   "Secrétariat":{title:"🎓 Tableau de bord Secrétariat",intro:`Gestion administrative de ${school} : inscriptions, dossiers, classes et présence des étudiants. Aucun accès financier.`,actions:[["Étudiants","students"],["Listes de classe","classes"],["Présence","attendance"]]},
-  "Secrétariat & Caisse":{title:"🏫 Tableau de bord Secrétariat & Caisse",intro:`Administration des étudiants et encaissements de ${school} : dossiers, paiements, échéancier, caisse et clôture.`,actions:[["Étudiants","students"],["Paiements","payments"],["Caisse","cash"],["Clôture","closing"]]}
+  "Secrétariat & Caisse":{title:"🏫 Tableau de bord Secrétariat & Caisse",intro:`Administration des étudiants et caisse de ${school}. Les montants de direction, dépenses et résultats restent masqués.`,actions:[["Étudiants","students"],["Paiements","payments"],["Caisse","cash"],["Clôture","closing"]]}
  },d=defs[role]||defs["Secrétariat"];
  roleDashboardTitle.textContent=d.title;roleDashboardBadge.textContent=role;roleDashboardIntro.textContent=d.intro;
  roleQuickActions.innerHTML=d.actions.filter(([,v])=>{const b=document.querySelector(`.nav-btn[data-view="${v}"]`);return b&&can(b.dataset.perm)}).map(([label,v])=>`<button class="btn btn-light btn-sm" type="button" onclick="goToView('${v}')">${esc(label)}</button>`).join("")
@@ -2182,6 +2382,9 @@ function applyRoleSensitiveVisibility(){
  const visible={
   "Fondateur":["channel","recovery","today","closing","control","agents","network","arrears","programs","assignments","monthly"],
   "Comptable":["channel","recovery","today","closing","control","arrears","programs","monthly"],
+  "Directeur des études":["assignments"],
+  "Éducateur":[],
+  "Enseignant":[],
   "RH":[],
   "Caissier":["channel","recovery","today","closing","arrears"],
   "Secrétariat":["assignments"],
@@ -2194,7 +2397,9 @@ function applyRoleSensitiveVisibility(){
  const staffAttendanceCard=document.getElementById("staffAttendanceForm")?.closest(".card");if(staffAttendanceCard)staffAttendanceCard.classList.toggle("hidden",!canEditStaff());
  const staffLoanCard=document.getElementById("staffLoanForm")?.closest(".card");if(staffLoanCard)staffLoanCard.classList.toggle("hidden",!canManageStaffLoans());
  if(payrollStatus){if(role==="RH")payrollStatus.innerHTML='<option>Brouillon</option>';else payrollStatus.innerHTML='<option>Brouillon</option><option>Validé</option><option>Payé</option>'}
- if(networkOverviewCard)networkOverviewCard.classList.toggle("hidden",role!=="Fondateur"||accessibleSchools().length<2)
+ if(networkOverviewCard)networkOverviewCard.classList.toggle("hidden",role!=="Fondateur"||accessibleSchools().length<2);
+ if(powerCenterCard)powerCenterCard.classList.toggle("hidden",!["Fondateur","Comptable"].includes(role));
+ renderDashboardPrivacyNotice()
 }
 
 function applyPermissions(){
@@ -2275,7 +2480,7 @@ function nextDue(st){return studentSchedule(st).find(x=>x.rest>0)||null}
 
 function setDefaults(){
  const md=defaultManagementDate();
- [["studentDate",md],["payDate",md],["otherDate",md],["expDate",md],["closingDate",md],["transferDate",md],["manualDate",md],["assetDate",md],["expensePaymentDate",md],["expDueDate",md]].forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.value=val});applyYearDefaults();
+ [["studentDate",md],["payDate",md],["otherDate",md],["expDate",md],["closingDate",md],["transferDate",md],["manualDate",md],["assetDate",md],["expensePaymentDate",md],["expDueDate",md],["gradeDate",md],["lessonDate",md],["discDate",md]].forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.value=val});applyYearDefaults();
 }
 function applyYearDefaults(){const b=academicBounds(),mb=managementBounds(),periods=reportPeriods();if(studentFirstDue)studentFirstDue.value=b.firstDue;if(cashFrom)cashFrom.value=mb.start;if(cashTo)cashTo.value=mb.end;const cur=today()<b.start?"PRE":ym(today());if(reportMonth){const old=reportMonth.value;reportMonth.innerHTML=periods.map(p=>`<option value="${p}">${reportPeriodLabel(p)}</option>`).join("");reportMonth.value=periods.includes(old)?old:(periods.includes(cur)?cur:periods[0])}if(accMonth){const old=accMonth.value;accMonth.innerHTML='<option value="">Année complète</option>'+periods.map(p=>`<option value="${p}">${reportPeriodLabel(p)}</option>`).join("");if(old)accMonth.value=old}if(budgetMonth){const old=budgetMonth.value;budgetMonth.innerHTML=periods.map(p=>`<option value="${p}">${reportPeriodLabel(p)}</option>`).join("");budgetMonth.value=periods.includes(old)?old:(periods.includes(cur)?cur:periods[0])}}
 function refreshYearSelector(){if(!yearSwitcher)return;const years=availableYears();yearSwitcher.innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join("");yearSwitcher.value=activeYear()}
@@ -2354,7 +2559,7 @@ function refreshAll(){
  if(can("dashboard"))renderDashboard();
  if(isOwner()||roleName()==="Comptable")renderManagementCenter();else{if(managementAlerts)managementAlerts.innerHTML="";if(agentActivity)agentActivity.innerHTML="";if(!["Caissier","Secrétariat & Caisse"].includes(roleName())&&topArrearsTable)topArrearsTable.innerHTML=""}
  if(can("students")){renderStudents();renderSupplies();renderClasses()}
- if(can("attendance"))renderAttendance();if(can("inventory"))renderInventory();if(can("staff")){renderStaff();renderStaffAttendance();renderStaffLoans();renderPayroll()}
+ if(can("attendance"))renderAttendance();if(can("academic"))renderAcademic();if(can("timetable"))renderTimetable();if(can("discipline"))renderDiscipline();if(can("inventory"))renderInventory();if(can("staff")){renderStaff();renderStaffAttendance();renderStaffLoans();renderPayroll()}
  if(can("payments")){updateStudentSelect();renderPayments()}if(can("schedule")){renderSchedule();renderReminderCenter();}if(can("other"))renderOther();if(can("expenses"))renderExpenses();if(can("cash")){renderCash();renderTransfers()}if(can("closing")){renderClosings();updateClosingPreview()}if(can("journal"))renderJournal();if(can("accounting")){updateAccountingTrackOptions();renderAccounting()}if(can("reports")){updateReportAssignmentControls();updateAnnualAssignmentControls();renderReports();renderAnnualBalance()}if(can("audit"))renderAudit();
  if(isOwner()){renderUsers();renderSchools();loadSettings();loadNotificationSettings();renderTrackCatalog();payrollSettingsLoad();renderDataQuality();populateRemoteKeySchools();populateCopyAppSchools()}else{if(usersTable)usersTable.innerHTML="";if(schoolsTable)schoolsTable.innerHTML="";if(trackCatalogTable)trackCatalogTable.innerHTML="";if(dataQualityBox)dataQualityBox.innerHTML=""}
  updateOfflineQueueUI();forceAllowedView();if(currentUser){if(payAgent)payAgent.value=currentUserLabel();if(otherAgent)otherAgent.value=currentUserLabel();if(expAgent)expAgent.value=currentUserLabel();if(closingAgent)closingAgent.value=currentUserLabel();if(attendanceAgent)attendanceAgent.value=currentUserLabel()}
@@ -2406,10 +2611,158 @@ function filiereSummaryRows(program="",month="",assignment=""){const keys=new Se
 function recordsForSchoolYear(arr,sid,y=activeYear()){return (arr||[]).filter(x=>x.deleted!==true&&recordSchoolId(x)===sid&&recordYear(x)===y)}
 function networkSchoolSummary(sid){const y=activeYear(),sts=recordsForSchoolYear(db.students,sid,y),pays=recordsForSchoolYear(db.payments,sid,y).filter(x=>x.status==="Validé"),others=recordsForSchoolYear(db.other,sid,y).filter(x=>x.status==="Validé"),expenses=recordsForSchoolYear(db.expenses,sid,y).filter(x=>x.status==="Validé"),debt={};pays.filter(p=>DEBT_PAYMENT_TYPES.has(p.type)).forEach(p=>debt[p.student]=(debt[p.student]||0)+Number(p.amount||0));const billed=sts.reduce((a,s)=>a+studentDue(s),0),paid=pays.reduce((a,x)=>a+Number(x.amount||0),0),other=others.reduce((a,x)=>a+Number(x.amount||0),0),exp=expenses.reduce((a,x)=>a+expenseTotal(x),0),rest=sts.reduce((a,s)=>a+Math.max(0,studentDue(s)-Number(debt[s.matricule]||0)),0),assigned=sts.filter(studentIsAssigned).length,unassigned=sts.filter(studentIsNonAssigned).length;return{students:sts.length,assigned,unassigned,billed,paid,other,expenses:exp,net:paid+other-exp,rest}}
 function renderNetworkOverview(){if(!networkSchoolsTable)return;const list=accessibleSchools(),rows=list.map(s=>({school:s,...networkSchoolSummary(s.id)})),tot=rows.reduce((a,x)=>({students:a.students+x.students,assigned:a.assigned+x.assigned,unassigned:a.unassigned+x.unassigned,billed:a.billed+x.billed,paid:a.paid+x.paid,other:a.other+x.other,expenses:a.expenses+x.expenses,net:a.net+x.net,rest:a.rest+x.rest}),{students:0,assigned:0,unassigned:0,billed:0,paid:0,other:0,expenses:0,net:0,rest:0});if(networkYearLabel)networkYearLabel.textContent=activeYear();networkOverviewCard?.classList.toggle("hidden",list.length<2);networkSchoolsTable.innerHTML=`<thead><tr><th>École</th><th>Ville</th><th>Effectif</th><th>Affectés</th><th>Non affectés</th><th class="money">Facturé</th><th class="money">Paiements</th><th class="money">Autres recettes</th><th class="money">Dépenses</th><th class="money">Flux net</th><th class="money">Reste étudiant</th><th>Action</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.school.code)} — ${esc(x.school.name)}</b></td><td>${esc(x.school.city||"")}</td><td>${x.students}</td><td>${x.assigned}</td><td>${x.unassigned}</td><td class="money">${fmt(x.billed)}</td><td class="money">${fmt(x.paid)}</td><td class="money">${fmt(x.other)}</td><td class="money">${fmt(x.expenses)}</td><td class="money"><b>${fmt(x.net)}</b></td><td class="money">${fmt(x.rest)}</td><td><button class="btn btn-light btn-sm" onclick="switchSchool('${x.school.id}')">Ouvrir</button></td></tr>`).join("")}${rows.length>1?`<tr><td colspan="2"><b>TOTAL RÉSEAU</b></td><td><b>${tot.students}</b></td><td>${tot.assigned}</td><td>${tot.unassigned}</td><td class="money"><b>${fmt(tot.billed)}</b></td><td class="money"><b>${fmt(tot.paid)}</b></td><td class="money"><b>${fmt(tot.other)}</b></td><td class="money"><b>${fmt(tot.expenses)}</b></td><td class="money"><b>${fmt(tot.net)}</b></td><td class="money"><b>${fmt(tot.rest)}</b></td><td></td></tr>`:""}</tbody>`}
+
+function powerAuditRows(){
+ const rows=[],sts=currentStudents().filter(s=>s.deleted!==true),active=sts.filter(s=>s.status==="Actif");
+ const push=(severity,area,label,count=0,amount=0,view="dashboard",details="")=>{if(Number(count||0)>0||Number(amount||0)>0)rows.push({severity,area,label,count:Number(count||0),amount:Number(amount||0),view,details})};
+
+ const missingPhone=active.filter(s=>!String(s.phone||"").trim());
+ push("high","Étudiants","Étudiants actifs sans téléphone",missingPhone.length,0,"students","Contact étudiant manquant");
+
+ const missingTrack=active.filter(s=>!String(s.track||"").trim()||studentTrackValue(s)===STUDENT_UNASSIGNED_TRACK);
+ push("high","Étudiants","Filière non renseignée",missingTrack.length,0,"students","Dossier académique à compléter");
+
+ const incomplete=active.filter(s=>!studentAdminComplete(s));
+ push("medium","Dossiers","Dossiers administratifs incomplets",incomplete.length,0,"students","Pièces administratives manquantes");
+
+ const overdue=active.filter(s=>overdueAmount(s)>0),overAmt=overdue.reduce((a,s)=>a+overdueAmount(s),0);
+ push("critical","Recouvrement","Étudiants avec échéances impayées",overdue.length,overAmt,"schedule","Relance prioritaire");
+
+ const pendingPay=currentRecords(db.payments).filter(p=>p.status==="En attente");
+ push("high","Paiements","Paiements en attente de validation",pendingPay.length,pendingPay.reduce((a,p)=>a+Number(p.amount||0),0),"payments","Validation nécessaire");
+
+ const noRefPay=currentRecords(db.payments).filter(p=>p.status==="Validé"&&treasuryChannel(p.mode)!=="Espèces"&&!String(p.ref||"").trim());
+ push("high","Audit","Paiements validés hors espèces sans référence",noRefPay.length,noRefPay.reduce((a,p)=>a+Number(p.amount||0),0),"payments","Traçabilité bancaire/mobile money");
+
+ const expValid=currentRecords(db.expenses).filter(x=>x.status==="Validé");
+ const overdueSup=expValid.filter(x=>expenseRest(x)>0&&x.dueDate&&x.dueDate<today()),overdueSupAmt=overdueSup.reduce((a,x)=>a+expenseRest(x),0);
+ push("critical","Fournisseurs","Dettes fournisseurs échues",overdueSup.length,overdueSupAmt,"expenses","Règlements fournisseurs en retard");
+
+ const noDue=expValid.filter(x=>expenseRest(x)>0&&!x.dueDate);
+ push("medium","Fournisseurs","Dépenses non soldées sans échéance",noDue.length,noDue.reduce((a,x)=>a+expenseRest(x),0),"expenses","Ajouter une date d’échéance");
+
+ const b=balances(),neg=Object.entries(b).filter(([,v])=>Number(v)<0);
+ push("critical","Trésorerie","Canaux de trésorerie négatifs",neg.length,Math.abs(neg.reduce((a,[,v])=>a+Math.min(0,Number(v)),0)),"cash",neg.map(([k,v])=>`${k}: ${fmt(v)}`).join(" • "));
+
+ const low=currentRecords(db.inventory).filter(i=>i.active!==false&&inventoryStock(i.id)<=Number(i.minStock||0));
+ push("medium","Stock","Articles au seuil de réapprovisionnement",low.length,0,"inventory","Stock faible ou nul");
+
+ const staff=staffForSchool().filter(s=>s.status==="Actif");
+ const staffNoSalary=staff.filter(s=>Number(s.baseSalary||0)<=0);
+ push("high","Personnel","Personnel actif sans salaire de base",staffNoSalary.length,0,"staffpayroll","Paramétrage paie incomplet");
+
+ const expNoSupplier=expValid.filter(x=>!String(x.beneficiary||"").trim());
+ push("low","Dépenses","Dépenses validées sans fournisseur/bénéficiaire",expNoSupplier.length,expNoSupplier.reduce((a,x)=>a+expenseTotal(x),0),"expenses","Améliorer la traçabilité");
+
+ return rows;
+}
+
+function powerHealthScore(rows=powerAuditRows()){
+ const weights={critical:12,high:6,medium:3,low:1};
+ const penalty=rows.reduce((a,r)=>a+(weights[r.severity]||1)*Math.max(1,Math.min(5,r.count||1)),0);
+ return Math.max(0,Math.min(100,100-penalty));
+}
+
+function powerForecastData(){
+ const now=today(),end=addDays(now,30),sts=currentStudents().filter(s=>s.status==="Actif");
+ let expected=0;
+ sts.forEach(s=>studentSchedule(s).forEach(x=>{if(x.rest>0&&x.date>=now&&x.date<=end)expected+=Number(x.rest||0)}));
+ const overdueStudents=sts.reduce((a,s)=>a+overdueAmount(s,now),0);
+
+ const ex=currentRecords(db.expenses).filter(x=>x.status==="Validé"&&expenseRest(x)>0);
+ const supplierNext=ex.filter(x=>x.dueDate&&x.dueDate>=now&&x.dueDate<=end).reduce((a,x)=>a+expenseRest(x),0);
+ const supplierOverdue=ex.filter(x=>x.dueDate&&x.dueDate<now).reduce((a,x)=>a+expenseRest(x),0);
+
+ const month=ym(now);
+ const payrollDue=currentRecords(db.payroll).filter(x=>x.month===month&&x.status!=="Payé"&&x.status!=="Annulé").reduce((a,x)=>a+Number(x.net||0),0);
+ const cash=Object.values(balances()).reduce((a,v)=>a+Number(v||0),0);
+ return {cash,expected,overdueStudents,supplierNext,supplierOverdue,payrollDue,projected:cash+expected-supplierNext-payrollDue,end};
+}
+
+function renderPowerCenter(){
+ if(!powerHealthBox)return;
+ if(!["Fondateur","Comptable"].includes(roleName())){
+  if(powerCenterCard)powerCenterCard.classList.add("hidden");
+  return
+ }
+ const audit=powerAuditRows(),score=powerHealthScore(audit),critical=audit.filter(x=>x.severity==="critical").length,high=audit.filter(x=>x.severity==="high").length;
+ const label=score>=90?"Excellent":score>=75?"Bon":score>=55?"À surveiller":"Critique";
+ powerHealthBox.innerHTML=`<div class="power-score"><div class="power-score-ring" style="--score:${score}"><div>${score}</div></div><div><div class="small">SCORE DE SANTÉ EIAFC</div><h3 style="margin:4px 0;color:var(--navy)">${label}</h3><div class="small">${audit.length} contrôle(s) actif(s) • ${critical} critique(s) • ${high} important(s)</div><div class="small" style="margin-top:5px">Version ${APP_VERSION} • ${schoolLabel()} • ${activeYear()}</div></div></div>`;
+
+ const active=currentStudents().filter(s=>s.status==="Actif"),recovery=active.length?Math.round(100*active.reduce((a,s)=>a+studentDebtPaid(s.matricule),0)/Math.max(1,active.reduce((a,s)=>a+studentDue(s),0))):100;
+ const supplierDebt=currentRecords(db.expenses).filter(x=>x.status==="Validé").reduce((a,x)=>a+expenseRest(x),0);
+ const stockAlerts=currentRecords(db.inventory).filter(i=>i.active!==false&&inventoryStock(i.id)<=Number(i.minStock||0)).length;
+ powerHealthKpis.innerHTML=[
+  ["Recouvrement",recovery+"%","scolarité encaissée"],
+  ["Dette fournisseurs",fmt(supplierDebt),"reste à payer"],
+  ["Alertes stock",stockAlerts,"article(s)"],
+  ["Sync",cloudConnected?"OK":"À vérifier",cloudConnected?"Cloud connecté":"Cloud non confirmé"]
+ ].map(x=>`<div class="card kpi" style="box-shadow:none"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
+
+ const f=powerForecastData();
+ powerForecast.innerHTML=[
+  ["Trésorerie actuelle",fmt(f.cash)],
+  ["Encaissements attendus",fmt(f.expected)],
+  ["Fournisseurs à payer",fmt(f.supplierNext)],
+  ["Paie non réglée du mois",fmt(f.payrollDue)],
+  ["Projection à 30 jours",fmt(f.projected)],
+  ["Impayés déjà échus",fmt(f.overdueStudents)]
+ ].map(x=>`<div><span class="small">${x[0]}</span><b>${x[1]}</b></div>`).join("");
+
+ powerAuditCount.textContent=`${audit.length} alerte${audit.length>1?"s":""}`;
+ powerAuditList.innerHTML=audit.length?audit.slice(0,12).map(r=>`<div class="power-alert ${r.severity}"><span class="power-severity">${r.severity==="critical"?"CRITIQUE":r.severity==="high"?"IMPORTANT":r.severity==="medium"?"MOYEN":"INFO"}</span><div><b>${esc(r.label)}</b><div class="small">${esc(r.area)}${r.details?" — "+esc(r.details):""}${r.amount?` — ${fmt(r.amount)}`:""}</div></div><button class="btn btn-light btn-sm" type="button" onclick="goToView('${r.view}')">${r.count||"Voir"}</button></div>`).join(""):`<div class="ok notice"><b>✅ Aucun contrôle bloquant détecté.</b></div>`;
+ renderPowerSearch();
+}
+
+function powerSearchRows(q){
+ const key=textKey(q),out=[];if(key.length<2)return out;
+ const has=(...v)=>textKey(v.filter(Boolean).join(" ")).includes(key);
+ currentStudents().forEach(s=>{if(has(s.matricule,s.name,s.phone,s.email,s.track,s.level)){out.push({type:"Étudiant",title:`${s.name} — ${s.matricule}`,sub:`${s.program} • ${studentAssignmentLabel(s)} • Reste ${fmt(studentRest(s))}`,view:"students"})}});
+ currentRecords(db.payments).forEach(p=>{const s=studentByMat(p.student);if(has(p.receipt,p.ref,p.student,s?.name,p.mode,p.type)){out.push({type:"Paiement",title:`${p.receipt||p.id} — ${fmt(p.amount)}`,sub:`${s?.name||p.student} • ${p.mode} • ${p.status}`,view:"payments"})}});
+ currentRecords(db.expenses).forEach(x=>{if(has(x.id,x.beneficiary,x.label,x.ref,x.category)){out.push({type:"Dépense",title:`${x.beneficiary||"Fournisseur"} — ${fmt(expenseTotal(x))}`,sub:`${x.label||x.id} • Reste ${fmt(expenseRest(x))} • ${expenseSettlementStatus(x)}`,view:"expenses"})}});
+ staffForSchool().forEach(s=>{if(has(s.matricule,s.name,s.phone,s.job,s.department)){out.push({type:"Personnel",title:`${s.name} — ${s.matricule}`,sub:`${s.job||"Fonction non définie"} • ${s.status}`,view:"staffpayroll"})}});
+ currentRecords(db.inventory).filter(i=>i.active!==false).forEach(i=>{if(has(i.id,i.label,i.category,i.sku)){out.push({type:"Stock",title:i.label,sub:`Stock ${inventoryStock(i.id)} ${i.unit||""} • seuil ${i.minStock||0}`,view:"inventory"})}});
+ return out.slice(0,20)
+}
+function renderPowerSearch(){
+ if(!powerSearchResults||!powerGlobalSearch)return;
+ const rows=powerSearchRows(powerGlobalSearch.value);
+ if(textKey(powerGlobalSearch.value).length<2){powerSearchResults.innerHTML='<div class="empty">Saisissez au moins 2 caractères.</div>';return}
+ powerSearchResults.innerHTML=rows.length?rows.map(r=>`<div class="power-search-row"><span class="role-badge">${esc(r.type)}</span><div><b>${esc(r.title)}</b><small>${esc(r.sub)}</small></div><button class="btn btn-light btn-sm" type="button" onclick="goToView('${r.view}')">Ouvrir</button></div>`).join(""):'<div class="empty">Aucun résultat.</div>'
+}
+function exportPowerAudit(){
+ const rows=powerAuditRows();if(!rows.length)return alert("Aucune anomalie à exporter.");
+ const headers=["Niveau","Domaine","Controle","Nombre","Montant","Details","Ecole","Annee"],q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
+ const csv="\ufeff"+headers.map(q).join(";")+"\n"+rows.map(r=>[r.severity,r.area,r.label,r.count,r.amount,r.details,schoolLabel(),activeYear()].map(q).join(";")).join("\n");
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`EIAFC_${activeSchoolCode()}_DIAGNOSTIC_360_${today()}.csv`;a.click();URL.revokeObjectURL(a.href)
+}
+async function forceLatestWebVersion(){
+ if(!confirm("Recharger la toute dernière version EIAFC ?\n\nLes données Cloud ne seront pas supprimées. Les caches de cette application seront seulement rafraîchis."))return;
+ try{
+  if("serviceWorker" in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()))}
+  if("caches" in window){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}
+ }catch(e){console.warn("Nettoyage cache",e)}
+ const u=new URL(location.href);u.searchParams.set("_eiafc_refresh",Date.now());location.replace(u.toString())
+}
+
 function renderDashboard(){
  renderRoleDashboardHeader();
+ renderDashboardPrivacyNotice();
  renderPoleDashboard();
  const sts=currentStudents(),assignedCount=sts.filter(studentIsAssigned).length,unassignedCount=sts.filter(studentIsNonAssigned).length,unspecifiedCount=sts.filter(x=>studentAdmissionStatus(x)==="À préciser").length;
+ if(roleName()==="Directeur des études"){
+  const active=sts.filter(s=>s.status==="Actif").length,subjects=currentSubjects(),teachers=teacherUsers(),slots=currentRecords(db.timetable).filter(x=>x.active!==false),grades=currentRecords(db.grades),disc=currentRecords(db.discipline),openDisc=disc.filter(x=>x.status!=="Clôturé").length,att=currentRecords(db.attendance),attPresent=att.filter(x=>["Présent","Retard"].includes(x.status)).length,rate=att.length?100*attPresent/att.length:0,logs=currentRecords(db.lessonLogs);
+  kpiGrid.innerHTML=[["Étudiants actifs",active,"effectif"],["Matières",subjects.length,"configurées"],["Enseignants",teachers.length,"comptes actifs"],["Créneaux EDT",slots.length,"planifiés"],["Notes saisies",grades.length,"évaluations"],["Assiduité",rate.toFixed(1)+"%","présence"],["Discipline ouverte",openDisc,"dossier(s)"],["Cahier de texte",logs.length,"séance(s)"]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
+  if(dashboardAssignments){const rows=PROGRAMS.map(p=>{const a=sts.filter(s=>s.program===p);return{p,total:a.length,assigned:a.filter(studentIsAssigned).length,unassigned:a.filter(studentIsNonAssigned).length}});dashboardAssignments.innerHTML=`<thead><tr><th>Programme</th><th>Effectif</th><th>Affectés</th><th>Non affectés</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.p)}</td><td>${x.total}</td><td>${x.assigned}</td><td>${x.unassigned}</td></tr>`).join("")}</tbody>`}return
+ }
+ if(roleName()==="Éducateur"){
+  const active=sts.filter(s=>s.status==="Actif").length,todayAtt=currentRecords(db.attendance).filter(x=>x.date===today()),abs=todayAtt.filter(x=>x.status==="Absent").length,late=todayAtt.filter(x=>x.status==="Retard").length,just=todayAtt.filter(x=>x.status==="Absence justifiée").length,disc=currentRecords(db.discipline),open=disc.filter(x=>x.status!=="Clôturé").length,critical=disc.filter(x=>x.status!=="Clôturé"&&x.severity==="Critique").length;
+  kpiGrid.innerHTML=[["Étudiants actifs",active,"à suivre"],["Présences aujourd’hui",todayAtt.length,"saisies"],["Absences",abs,"aujourd’hui"],["Retards",late,"aujourd’hui"],["Absences justifiées",just,"aujourd’hui"],["Discipline ouverte",open,"dossier(s)"],["Cas critiques",critical,"priorité"],["Événements vie scolaire",disc.length,"année"]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");return
+ }
+ if(roleName()==="Enseignant"){
+  const subs=currentTeacherSubjects(),slots=currentRecords(db.timetable).filter(x=>x.active!==false&&x.teacherUsername===currentUser.username),grades=currentRecords(db.grades).filter(x=>x.teacherUsername===currentUser.username),logs=currentRecords(db.lessonLogs).filter(x=>x.teacherUsername===currentUser.username),students=new Set(subs.flatMap(s=>academicStudentsForSubject(s).map(st=>st.matricule))),days=["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"],todaySlots=slots.filter(x=>x.day===days[new Date().getDay()]),monthGrades=grades.filter(g=>ym(g.date)===ym(today()));
+  kpiGrid.innerHTML=[["Mes matières",subs.length,"affectées"],["Mes étudiants",students.size,"dans mes classes"],["Cours planifiés",slots.length,"semaine"],["Cours aujourd’hui",todaySlots.length,"créneau(x)"],["Notes du mois",monthGrades.length,"saisies"],["Total notes",grades.length,"année"],["Cahier de texte",logs.length,"séance(s)"],["Heures réalisées",logs.reduce((a,l)=>a+Number(l.hours||0),0).toFixed(1)+" h","déclarées"]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");return
+ }
  if(roleName()==="Secrétariat"){
   const active=sts.filter(s=>s.status==="Actif").length,incomplete=sts.filter(s=>!studentAdminComplete(s)).length,attToday=currentRecords(db.attendance).filter(x=>x.date===today()).length,missingSupplies=sts.filter(s=>Number(s.reamReceived||0)<1||Number(s.markersReceived||0)<3).length;
   kpiGrid.innerHTML=[["Étudiants",sts.length,"dans votre école"],["Actifs",active,"étudiants"],["Affectés de l’État",assignedCount,"étudiants"],["Non affectés",unassignedCount,"étudiants"],["Dossiers incomplets",incomplete,"à compléter"],["Présences aujourd’hui",attToday,"saisies"],["Fournitures incomplètes",missingSupplies,"dossiers"]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
@@ -2417,28 +2770,40 @@ function renderDashboard(){
  }
  if(roleName()==="Secrétariat & Caisse"){
   const active=sts.filter(s=>s.status==="Actif").length,incomplete=sts.filter(s=>!studentAdminComplete(s)).length,attToday=currentRecords(db.attendance).filter(x=>x.date===today()).length;
-  const tp=validPayments().filter(x=>x.date===today()).reduce((a,x)=>a+Number(x.amount||0),0),pending=currentRecords(db.payments).filter(p=>p.status==="En attente").reduce((a,p)=>a+Number(p.amount||0),0),rest=sts.reduce((a,s)=>a+studentRest(s),0),over=sts.reduce((a,s)=>a+overdueAmount(s),0),bal=balances(),billed=sts.reduce((a,s)=>a+studentDue(s),0);
-  kpiGrid.innerHTML=[["Étudiants",sts.length,"dans votre école"],["Actifs",active,"étudiants"],["Dossiers incomplets",incomplete,"à compléter"],["Présences aujourd’hui",attToday,"saisies"],["Paiements du jour",fmt(tp),"validés"],["Paiements en attente",fmt(pending),"à contrôler"],["Reste à recouvrer",fmt(rest),"étudiants"],["Échu",fmt(over),"à relancer"]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
-  channelBalances.innerHTML=[["Espèces",bal["Espèces"]],["Wave",bal["Wave"]],["MTN Mobile Money",bal["MTN Mobile Money"]],["Orange Money",bal["Orange Money"]],["Banque",bal["Banque"]]].map(([k,v])=>`<div style="margin:12px 0"><div class="flex" style="justify-content:space-between"><b>${k}</b><span>${fmt(v)}</span></div></div>`).join("");
-  const rate=billed?Math.min(100,(billed-rest)/billed*100):0;recoveryBox.innerHTML=`<div class="kpi"><div class="value">${rate.toFixed(1)}%</div><div class="sub">Taux de recouvrement</div></div><div class="bar" style="margin-top:15px"><span style="width:${rate}%"></span></div><p class="small">${fmt(rest)} restent à recouvrer, dont <b>${fmt(over)}</b> déjà échus.</p>`;
-  todayActivity.innerHTML=`<div><span>Paiements étudiants aujourd’hui</span><b>${fmt(tp)}</b></div><div><span>Paiements en attente</span><b>${fmt(pending)}</b></div><div><span>Présences saisies aujourd’hui</span><b>${attToday}</b></div>`;
-  const lc=[...currentRecords(db.closings)].sort((a,b)=>b.date.localeCompare(a.date))[0];lastClosing.innerHTML=lc?`<div><span>Date</span><b>${lc.date}</b></div><div><span>Théorique</span><b>${fmt(lc.theoretical)}</b></div><div><span>Compté</span><b>${fmt(lc.actual)}</b></div><div><span>Écart</span><b>${fmt(lc.difference)}</b></div>`:`<div class="empty">Aucune clôture enregistrée</div>`;
-  const top=sts.filter(s=>overdueAmount(s)>0).sort((a,b)=>overdueAmount(b)-overdueAmount(a)).slice(0,10);topArrearsTable.innerHTML=`<thead><tr><th>Étudiant</th><th>Téléphone</th><th class="money">Échu</th><th class="money">Reste</th><th>Prochaine échéance</th></tr></thead><tbody>${top.length?top.map(st=>{const n=nextDue(st);return`<tr><td><b>${esc(st.name)}</b><br><span class="small">${esc(st.matricule)}</span></td><td>${esc(st.phone||"—")}</td><td class="money"><b>${fmt(overdueAmount(st))}</b></td><td class="money">${fmt(studentRest(st))}</td><td>${n?`${n.date} — ${fmt(n.rest)}`:"—"}</td></tr>`}).join(""):`<tr><td colspan="5" class="empty">Aucun impayé échu</td></tr>`}</tbody>`;
+  const todayPays=validPayments().filter(x=>x.date===today()),pendingRows=currentRecords(db.payments).filter(p=>p.status==="En attente"),overdueStudents=sts.filter(s=>overdueAmount(s)>0),lc=[...currentRecords(db.closings)].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const tp=todayPays.reduce((a,x)=>a+Number(x.amount||0),0),bal=balances();
+  kpiGrid.innerHTML=[
+   ["Étudiants",sts.length,"dans votre école"],["Actifs",active,"étudiants"],["Dossiers incomplets",incomplete,"à compléter"],["Présences aujourd’hui",attToday,"saisies"],
+   ["Paiements du jour",todayPays.length,"opération(s)"],["En attente",pendingRows.length,"paiement(s)"],["Étudiants en retard",overdueStudents.length,"à relancer"],["Dernière clôture",lc?.date||"Aucune","caisse"]
+  ].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
+  channelBalances.innerHTML=[["Espèces",bal["Espèces"]],["Wave",bal["Wave"]],["MTN Mobile Money",bal["MTN Mobile Money"]],["Orange Money",bal["Orange Money"]],["Banque",bal["Banque"]]].map(([k,v])=>`<div style="margin:12px 0"><div class="flex" style="justify-content:space-between"><b>${k}</b><span>${dashboardMoneyOrHidden(v,"cash")}</span></div></div>`).join("");
+  recoveryBox.innerHTML=`<div class="kpi"><div class="value">${overdueStudents.length}</div><div class="sub">Étudiant(s) avec retard de paiement</div></div><p class="small">Le montant global du reste à recouvrer est réservé au Fondateur et au Comptable.</p>`;
+  todayActivity.innerHTML=`<div><span>Paiements enregistrés aujourd’hui</span><b>${todayPays.length}</b></div><div><span>Montant encaissé aujourd’hui</span><b>${dashboardMoneyOrHidden(tp,"cash")}</b></div><div><span>Paiements en attente</span><b>${pendingRows.length}</b></div><div><span>Présences saisies</span><b>${attToday}</b></div>`;
+  lastClosing.innerHTML=lc?`<div><span>Date</span><b>${lc.date}</b></div><div><span>État</span><b>${Number(lc.difference||0)===0?"Équilibrée":"Écart à contrôler"}</b></div><div><span>Responsable</span><b>${esc(lc.agent||"—")}</b></div>`:`<div class="empty">Aucune clôture enregistrée</div>`;
+  const top=overdueStudents.sort((a,b)=>overdueAmount(b)-overdueAmount(a)).slice(0,10);topArrearsTable.innerHTML=`<thead><tr><th>Étudiant</th><th>Téléphone</th><th>Situation</th><th>Prochaine échéance</th></tr></thead><tbody>${top.length?top.map(st=>{const n=nextDue(st);return`<tr><td><b>${esc(st.name)}</b><br><span class="small">${esc(st.matricule)}</span></td><td>${esc(st.phone||"—")}</td><td><span class="status pending">À relancer</span></td><td>${n?n.date:"—"}</td></tr>`}).join(""):`<tr><td colspan="4" class="empty">Aucun impayé échu</td></tr>`}</tbody>`;
   return
  }
  if(roleName()==="Caissier"){
-  const tp=validPayments().filter(x=>x.date===today()).reduce((a,x)=>a+Number(x.amount||0),0),pending=currentRecords(db.payments).filter(p=>p.status==="En attente").reduce((a,p)=>a+Number(p.amount||0),0),rest=sts.reduce((a,s)=>a+studentRest(s),0),over=sts.reduce((a,s)=>a+overdueAmount(s),0),bal=balances(),billed=sts.reduce((a,s)=>a+studentDue(s),0),payCount=validPayments().filter(x=>x.date===today()).length;
-  kpiGrid.innerHTML=[["Encaissements du jour",fmt(tp),`${payCount} paiement(s)`],["Paiements en attente",fmt(pending),"à contrôler"],["Reste à recouvrer",fmt(rest),"étudiants"],["Échu",fmt(over),"à relancer"],["Solde espèces",fmt(bal["Espèces"]),"caisse"],["Solde Wave",fmt(bal["Wave"]),"mobile money"],["Solde MTN",fmt(bal["MTN Mobile Money"]),"mobile money"],["Solde Orange",fmt(bal["Orange Money"]),"mobile money"]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
-  channelBalances.innerHTML=[["Espèces",bal["Espèces"]],["Wave",bal["Wave"]],["MTN Mobile Money",bal["MTN Mobile Money"]],["Orange Money",bal["Orange Money"]],["Banque",bal["Banque"]]].map(([k,v])=>`<div style="margin:12px 0"><div class="flex" style="justify-content:space-between"><b>${k}</b><span>${fmt(v)}</span></div></div>`).join("");
-  const rate=billed?Math.min(100,(billed-rest)/billed*100):0;recoveryBox.innerHTML=`<div class="kpi"><div class="value">${rate.toFixed(1)}%</div><div class="sub">Taux de recouvrement</div></div><div class="bar" style="margin-top:15px"><span style="width:${rate}%"></span></div><p class="small">${fmt(rest)} restent à recouvrer, dont <b>${fmt(over)}</b> déjà échus.</p>`;
-  todayActivity.innerHTML=`<div><span>Paiements validés aujourd’hui</span><b>${fmt(tp)}</b></div><div><span>Nombre de paiements</span><b>${payCount}</b></div><div><span>En attente de validation</span><b>${fmt(pending)}</b></div>`;
-  const lc=[...currentRecords(db.closings)].sort((a,b)=>b.date.localeCompare(a.date))[0];lastClosing.innerHTML=lc?`<div><span>Date</span><b>${lc.date}</b></div><div><span>Théorique</span><b>${fmt(lc.theoretical)}</b></div><div><span>Compté</span><b>${fmt(lc.actual)}</b></div><div><span>Écart</span><b>${fmt(lc.difference)}</b></div>`:`<div class="empty">Aucune clôture enregistrée</div>`;
-  const top=sts.filter(s=>overdueAmount(s)>0).sort((a,b)=>overdueAmount(b)-overdueAmount(a)).slice(0,10);topArrearsTable.innerHTML=`<thead><tr><th>Étudiant</th><th>Téléphone</th><th class="money">Échu</th><th class="money">Reste</th><th>Prochaine échéance</th></tr></thead><tbody>${top.length?top.map(st=>{const n=nextDue(st);return`<tr><td><b>${esc(st.name)}</b><br><span class="small">${esc(st.matricule)}</span></td><td>${esc(st.phone||"—")}</td><td class="money"><b>${fmt(overdueAmount(st))}</b></td><td class="money">${fmt(studentRest(st))}</td><td>${n?`${n.date} — ${fmt(n.rest)}`:"—"}</td></tr>`}).join(""):`<tr><td colspan="5" class="empty">Aucun impayé échu</td></tr>`}</tbody>`;
+  const todayPays=validPayments().filter(x=>x.date===today()),pendingRows=currentRecords(db.payments).filter(p=>p.status==="En attente"),overdueStudents=sts.filter(s=>overdueAmount(s)>0),bal=balances(),payCount=todayPays.length,tp=todayPays.reduce((a,x)=>a+Number(x.amount||0),0);
+  const lc=[...currentRecords(db.closings)].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  kpiGrid.innerHTML=[
+   ["Paiements du jour",payCount,"opération(s)"],["Encaissement du jour",dashboardMoneyOrHidden(tp,"cash"),"opérationnel"],["Paiements en attente",pendingRows.length,"à contrôler"],["Étudiants en retard",overdueStudents.length,"à relancer"],
+   ["Solde espèces",dashboardMoneyOrHidden(bal["Espèces"],"cash"),"caisse"],["Solde Wave",dashboardMoneyOrHidden(bal["Wave"],"cash"),"opérationnel"],["Solde MTN",dashboardMoneyOrHidden(bal["MTN Mobile Money"],"cash"),"opérationnel"],["Solde Orange",dashboardMoneyOrHidden(bal["Orange Money"],"cash"),"opérationnel"]
+  ].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
+  channelBalances.innerHTML=[["Espèces",bal["Espèces"]],["Wave",bal["Wave"]],["MTN Mobile Money",bal["MTN Mobile Money"]],["Orange Money",bal["Orange Money"]],["Banque",bal["Banque"]]].map(([k,v])=>`<div style="margin:12px 0"><div class="flex" style="justify-content:space-between"><b>${k}</b><span>${dashboardMoneyOrHidden(v,"cash")}</span></div></div>`).join("");
+  recoveryBox.innerHTML=`<div class="kpi"><div class="value">${overdueStudents.length}</div><div class="sub">Étudiant(s) à relancer</div></div><p class="small">Les montants globaux de scolarité, dépenses et résultat sont masqués pour le rôle Caissier.</p>`;
+  todayActivity.innerHTML=`<div><span>Nombre de paiements validés</span><b>${payCount}</b></div><div><span>Encaissement opérationnel</span><b>${dashboardMoneyOrHidden(tp,"cash")}</b></div><div><span>En attente de validation</span><b>${pendingRows.length}</b></div>`;
+  lastClosing.innerHTML=lc?`<div><span>Date</span><b>${lc.date}</b></div><div><span>État</span><b>${Number(lc.difference||0)===0?"Équilibrée":"Écart à contrôler"}</b></div><div><span>Responsable</span><b>${esc(lc.agent||"—")}</b></div>`:`<div class="empty">Aucune clôture enregistrée</div>`;
+  const top=overdueStudents.sort((a,b)=>overdueAmount(b)-overdueAmount(a)).slice(0,10);topArrearsTable.innerHTML=`<thead><tr><th>Étudiant</th><th>Téléphone</th><th>Situation</th><th>Prochaine échéance</th></tr></thead><tbody>${top.length?top.map(st=>{const n=nextDue(st);return`<tr><td><b>${esc(st.name)}</b><br><span class="small">${esc(st.matricule)}</span></td><td>${esc(st.phone||"—")}</td><td><span class="status pending">À relancer</span></td><td>${n?n.date:"—"}</td></tr>`}).join(""):`<tr><td colspan="4" class="empty">Aucun impayé échu</td></tr>`}</tbody>`;
   return
  }
  if(roleName()==="RH"){
-  const staff=staffForSchool(),activeStaff=staff.filter(s=>s.status==="Actif").length,month=ym(today()),att=currentRecords(db.staffAttendance).filter(x=>ym(x.date)===month),abs=att.filter(x=>x.status==="Absent").length,late=att.filter(x=>x.status==="Retard").length,pays=currentRecords(db.payroll).filter(x=>x.month===month&&x.status!=="Annulé"),net=pays.filter(x=>x.status==="Payé").reduce((a,x)=>a+Number(x.net||0),0),draft=pays.filter(x=>x.status==="Brouillon").length,contracts=staff.filter(x=>x.contractEnd&&x.contractEnd>=today()&&x.contractEnd<=addDays(today(),60)).length;
-  kpiGrid.innerHTML=[["Personnel",staff.length,"dans votre école"],["Personnel actif",activeStaff,"actifs"],["Absences du mois",abs,"non justifiées"],["Retards du mois",late,"enregistrés"],["Paies du mois",pays.length,"bulletins"],["Net déjà payé",fmt(net),"ce mois"],["Paies brouillon",draft,"à préparer"],["Contrats ≤ 60 jours",contracts,"à surveiller"]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");return
+  const staff=staffForSchool(),activeStaff=staff.filter(s=>s.status==="Actif").length,month=ym(today()),att=currentRecords(db.staffAttendance).filter(x=>ym(x.date)===month),abs=att.filter(x=>x.status==="Absent").length,late=att.filter(x=>x.status==="Retard").length,pays=currentRecords(db.payroll).filter(x=>x.month===month&&x.status!=="Annulé"),paidCount=pays.filter(x=>x.status==="Payé").length,draft=pays.filter(x=>x.status==="Brouillon").length,validated=pays.filter(x=>x.status==="Validé").length,contracts=staff.filter(x=>x.contractEnd&&x.contractEnd>=today()&&x.contractEnd<=addDays(today(),60)).length;
+  kpiGrid.innerHTML=[
+   ["Personnel",staff.length,"dans votre école"],["Personnel actif",activeStaff,"actifs"],["Absences du mois",abs,"enregistrées"],["Retards du mois",late,"enregistrés"],
+   ["Bulletins du mois",pays.length,"préparés"],["Paies réglées",paidCount,"bulletin(s)"],["Paies à valider",draft+validated,"dossier(s)"],["Contrats ≤ 60 jours",contracts,"à surveiller"]
+  ].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
+  return
  }
  if(roleName()==="Comptable"){
   const totalDue=sts.reduce((a,s)=>a+studentDue(s),0),paid=validPayments().reduce((a,p)=>a+Number(p.amount||0),0),rest=sts.reduce((a,s)=>a+studentRest(s),0),exp=validExpenses().reduce((a,x)=>a+Number(x.amount||0),0),oth=validOther().reduce((a,x)=>a+Number(x.amount||0),0),pending=currentRecords(db.payments).filter(p=>p.status==="En attente").reduce((a,p)=>a+Number(p.amount||0),0),over=sts.reduce((a,s)=>a+overdueAmount(s),0),net=paid+oth-exp,bal=balances(),month=ym(today()),monthData=monthlySummary(month);
@@ -2463,7 +2828,7 @@ function renderDashboard(){
  lastClosing.innerHTML=lc?`<div><span>Date</span><b>${lc.date}</b></div><div><span>Théorique</span><b>${fmt(lc.theoretical)}</b></div><div><span>Compté</span><b>${fmt(lc.actual)}</b></div><div><span>Écart</span><b style="color:${Number(lc.difference)===0?'var(--green)':'var(--red)'}">${fmt(lc.difference)}</b></div><div><span>Responsable</span><b>${esc(lc.agent)}</b></div>`:`<div class="empty">Aucune clôture enregistrée</div>`;
  const progRows=programSummaryRows();dashboardPrograms.innerHTML=`<thead><tr><th>Programme</th><th>Effectif</th><th class="money">Facturé</th><th class="money">Paiements</th><th class="money">Autres recettes</th><th class="money">Dépenses</th><th class="money">Solde opérations</th><th class="money">Reste étudiants</th></tr></thead><tbody>${progRows.map(x=>`<tr><td><b>${esc(x.program)}</b></td><td>${x.students}</td><td class="money">${fmt(x.billed)}</td><td class="money">${fmt(x.paid)}</td><td class="money">${fmt(x.other)}</td><td class="money">${fmt(x.expenses)}</td><td class="money"><b>${fmt(x.net)}</b></td><td class="money">${fmt(x.rest)}</td></tr>`).join("")}</tbody>`;
  const assignRows=PROGRAMS.map(p=>{const a=sts.filter(s=>s.program===p),assigned=a.filter(studentIsAssigned).length,unassigned=a.filter(studentIsNonAssigned).length,unspecified=a.filter(s=>studentAdmissionStatus(s)==="À préciser").length;return{p,total:a.length,assigned,unassigned,unspecified}});if(dashboardAssignments)dashboardAssignments.innerHTML=`<thead><tr><th>Programme</th><th>Effectif</th><th>Affectés de l’État</th><th>Non affectés</th><th>À préciser</th></tr></thead><tbody>${assignRows.map(x=>`<tr><td><b>${esc(x.p)}</b></td><td>${x.total}</td><td><span class="status valid">${x.assigned}</span></td><td><span class="status pending">${x.unassigned}</span></td><td><span class="status ${x.unspecified?"rejected":"valid"}">${x.unspecified}</span></td></tr>`).join("")}</tbody>`;
- dashboardMonthly.innerHTML=`<thead><tr><th>Période</th><th class="money">Paiements</th><th class="money">Autres recettes</th><th class="money">Dépenses</th><th class="money">Flux net</th></tr></thead><tbody>${reportPeriods().map(m=>monthlySummary(m)).map(x=>`<tr><td>${x.month}</td><td class="money">${fmt(x.pay)}</td><td class="money">${fmt(x.other)}</td><td class="money">${fmt(x.exp)}</td><td class="money"><b>${fmt(x.net)}</b></td></tr>`).join("")}</tbody>`;renderNetworkOverview()
+ dashboardMonthly.innerHTML=`<thead><tr><th>Période</th><th class="money">Paiements</th><th class="money">Autres recettes</th><th class="money">Dépenses</th><th class="money">Flux net</th></tr></thead><tbody>${reportPeriods().map(m=>monthlySummary(m)).map(x=>`<tr><td>${x.month}</td><td class="money">${fmt(x.pay)}</td><td class="money">${fmt(x.other)}</td><td class="money">${fmt(x.exp)}</td><td class="money"><b>${fmt(x.net)}</b></td></tr>`).join("")}</tbody>`;renderPowerCenter();renderNetworkOverview()
 }
 function renderManagementCenter(){
  if(!document.getElementById("managementAlerts"))return;const sts=currentStudents().filter(s=>s.status==="Actif"),overdue=sts.filter(s=>overdueAmount(s)>0),overAmt=overdue.reduce((a,s)=>a+overdueAmount(s),0),pendingPays=currentRecords(db.payments).filter(p=>p.status==="En attente"),pendingOther=currentRecords(db.other).filter(x=>x.status==="En attente"),pendingExp=currentRecords(db.expenses).filter(x=>x.status==="En attente"),pendingOps=[...pendingPays,...pendingOther,...pendingExp],pendingAmt=pendingOps.reduce((a,p)=>a+Number(p.amount||0),0),unspecified=sts.filter(s=>studentAdmissionStatus(s)==="À préciser"),incomplete=sts.filter(s=>!studentAdminComplete(s)),attMonth=ym(today()),attToday=currentRecords(db.attendance).filter(x=>x.date===today()).length,lowStock=currentRecords(db.inventory).filter(x=>x.active!==false&&inventoryStock(x.id)<=Number(x.minStock||0)).length,syncN=pendingChangesCount(),todayClose=currentRecords(db.closings).some(x=>x.date===today()),closeLabel=!dateInManagementYear(today())?"Hors période de gestion":todayClose?"✅ Effectuée":"⚠ Non effectuée",bal=balances(),negative=Object.entries(bal).filter(([k,v])=>Number(v)<0),lastBackup=db.settings.lastBackupAt?new Date(db.settings.lastBackupAt):null,backupLabel=lastBackup?`${Math.floor((Date.now()-lastBackup.getTime())/86400000)} jour(s) — ${lastBackup.toLocaleDateString("fr-FR")}`:"⚠ Jamais exportée",network=lanConnected?`Réseau local connecté${navigator.onLine===false?" — Internet coupé":""}`:cloudConnected?"Cloud distant connecté":lanConfigured()?"Serveur local à reconnecter":cloudConfigured()?"Cloud à reconnecter":"Mode local isolé";
@@ -2535,6 +2900,57 @@ function editAttendance(id){const x=db.attendance.find(a=>a.id===id&&a.deleted!=
 function attendanceFiltered(){const m=attendanceMonth?.value||"",p=attendanceProgram?.value||"",t=attendanceTrack?.value||"",sf=attendanceStatusFilter?.value||"",q=textKey(attendanceSearch?.value||"");return currentRecords(db.attendance).filter(x=>{const st=studentByMat(x.student);return(!m||ym(x.date)===m)&&(!p||st?.program===p)&&(!t||studentTrackValue(st)===t)&&(!sf||x.status===sf)&&(!q||textKey([x.student,st?.name,st?.phone,x.obs].join(" ")).includes(q))}).sort((a,b)=>String(b.date).localeCompare(String(a.date)))}
 function renderAttendance(){if(!attendanceTable)return;updateAttendanceStudentSelect();updateAttendanceTrackOptions();const arr=attendanceFiltered(),present=arr.filter(x=>x.status==="Présent").length,late=arr.filter(x=>x.status==="Retard").length,absent=arr.filter(x=>x.status==="Absent").length,just=arr.filter(x=>x.status==="Absence justifiée").length,rate=arr.length?((present+late)/arr.length*100):0;attendanceKpis.innerHTML=[["Séances saisies",arr.length],["Présences",present],["Retards",late],["Absences",absent],["Absences justifiées",just],["Taux d’assiduité",rate.toFixed(1)+"%"]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");attendanceTable.innerHTML=`<thead><tr><th>Date</th><th>Matricule</th><th>Étudiant</th><th>Programme</th><th>Filière</th><th>Statut</th><th>Arrivée</th><th>Observation</th><th>Agent</th><th>Sync</th><th>Actions</th></tr></thead><tbody>${arr.length?arr.map(x=>{const st=studentByMat(x.student),cl=x.status==="Présent"?"valid":x.status==="Retard"?"pending":"rejected";return`<tr><td>${x.date}</td><td>${esc(x.student)}</td><td><b>${esc(st?.name||"Étudiant introuvable")}</b></td><td>${esc(st?.program||"")}</td><td>${esc(st?.track||"")}</td><td><span class="status ${cl}">${esc(x.status)}</span></td><td>${esc(x.arrival||"—")}</td><td>${esc(x.obs||"")}</td><td>${esc(x.agent||"")}</td><td>${syncBadgeFor("attendance",x.id)}</td><td>${can("attendance")?`<button class="btn btn-light btn-sm" onclick="editAttendance('${x.id}')">Modifier</button>`:""} ${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="founderDeleteOperation('attendance','${x.id}')">Supprimer</button>`:""}</td></tr>`}).join(""):`<tr><td colspan="11" class="empty">Aucune présence pour ces filtres</td></tr>`}</tbody>`}
 
+
+function teacherUsers(){return (db.users||[]).filter(u=>u.deleted!==true&&u.active!==false&&u.role==="Enseignant"&&userCanAccessSchool(activeSchoolId(),u))}
+function currentSubjects(){return currentRecords(db.subjects).filter(x=>x.active!==false)}
+function subjectById(id){return (db.subjects||[]).find(x=>String(x.id)===String(id))||null}
+function teacherLabel(username){const u=(db.users||[]).find(x=>String(x.username)===String(username));return u?.fullname||username||"Non affecté"}
+function academicTeacherCanUse(subject){const r=roleName();return isOwner()||r==="Directeur des études"||(r==="Enseignant"&&String(subject?.teacherUsername||"")===String(currentUser?.username||""))}
+function currentTeacherSubjects(){const arr=currentSubjects();return roleName()==="Enseignant"?arr.filter(s=>String(s.teacherUsername)===String(currentUser?.username)):arr}
+function academicStudentsForSubject(subject){if(!subject)return[];return currentStudents().filter(s=>s.status==="Actif"&&s.program===subject.program&&(cleanTrack(s.track)===cleanTrack(subject.track)||cleanTrack(subject.track)===COMMON_TRACK))}
+function updateAcademicSelects(){
+ const teachers=teacherUsers(),subjects=currentTeacherSubjects(),teacherOpts='<option value="">— Non affecté —</option>'+teachers.map(u=>`<option value="${esc(u.username)}">${esc(u.fullname||u.username)}</option>`).join("");
+ if(subjectTeacher)subjectTeacher.innerHTML=teacherOpts;if(ttTeacher)ttTeacher.innerHTML=teachers.map(u=>`<option value="${esc(u.username)}">${esc(u.fullname||u.username)}</option>`).join("");
+ const subjOpts='<option value="">— Choisir —</option>'+subjects.map(s=>`<option value="${esc(s.id)}">${esc(s.code)} — ${esc(s.name)} — ${esc(s.track)}</option>`).join("");
+ if(gradeSubject)gradeSubject.innerHTML=subjOpts;if(lessonSubject)lessonSubject.innerHTML=subjOpts;
+ if(ttSubject)ttSubject.innerHTML='<option value="">— Choisir —</option>'+currentSubjects().map(s=>`<option value="${esc(s.id)}">${esc(s.code)} — ${esc(s.name)} — ${esc(s.track)}</option>`).join("");
+ updateGradeStudents()
+}
+function updateGradeStudents(){if(!gradeStudent)return;const s=subjectById(gradeSubject?.value),rows=academicStudentsForSubject(s);gradeStudent.innerHTML='<option value="">— Choisir étudiant —</option>'+rows.map(st=>`<option value="${esc(st.matricule)}">${esc(st.name)} — ${esc(st.matricule)}</option>`).join("")}
+function gradeNormalized(g){return Number(g.maxScore||20)>0?(Number(g.score||0)/Number(g.maxScore||20))*20:0}
+function studentSubjectAverage(student,subjectId,term=""){const rows=currentRecords(db.grades).filter(g=>g.student===student&&g.subjectId===subjectId&&(!term||g.term===term)),den=rows.reduce((a,g)=>a+Number(g.coefficient||1),0);return den?rows.reduce((a,g)=>a+gradeNormalized(g)*Number(g.coefficient||1),0)/den:null}
+function renderAcademic(){
+ if(!subjectsTable)return;updateAcademicSelects();const role=roleName(),canStructure=isOwner()||role==="Directeur des études";
+ if(subjectStructureCard)subjectStructureCard.classList.toggle("hidden",!canStructure);
+ const subs=currentTeacherSubjects();
+ subjectsTable.innerHTML=`<thead><tr><th>Code</th><th>Matière</th><th>Programme</th><th>Filière</th><th>Semestre</th><th>Coef.</th><th>Enseignant</th><th>Effectif</th><th>Sync</th></tr></thead><tbody>${subs.length?subs.map(s=>`<tr><td><b>${esc(s.code)}</b></td><td>${esc(s.name)}</td><td>${esc(s.program)}</td><td>${esc(s.track)}</td><td>${esc(s.semester)}</td><td>${s.coefficient}</td><td>${esc(teacherLabel(s.teacherUsername))}</td><td>${academicStudentsForSubject(s).length}</td><td>${syncBadgeFor("subjects",s.id)}</td></tr>`).join(""):`<tr><td colspan="9" class="empty">Aucune matière configurée</td></tr>`}</tbody>`;
+ const gs=currentRecords(db.grades).filter(g=>{const s=subjectById(g.subjectId);return s&&academicTeacherCanUse(s)}).sort((a,b)=>String(b.date).localeCompare(String(a.date))),avg=gs.length?gs.reduce((a,g)=>a+gradeNormalized(g),0)/gs.length:0,below=gs.filter(g=>gradeNormalized(g)<10).length;
+ gradeKpis.innerHTML=[["Notes saisies",gs.length],["Moyenne brute",avg.toFixed(2)+"/20"],["Notes < 10",below],["Matières",subs.length]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");
+ gradesTable.innerHTML=`<thead><tr><th>Date</th><th>Étudiant</th><th>Matière</th><th>Période</th><th>Évaluation</th><th>Note</th><th>/20</th><th>Enseignant</th><th>Sync</th></tr></thead><tbody>${gs.length?gs.map(g=>{const st=studentByMat(g.student),s=subjectById(g.subjectId);return`<tr><td>${g.date}</td><td><b>${esc(st?.name||g.student)}</b><br><span class="small">${esc(g.student)}</span></td><td>${esc(s?.name||g.subjectId)}</td><td>${esc(g.term)}</td><td>${esc(g.type)}</td><td>${g.score}/${g.maxScore}</td><td><b>${gradeNormalized(g).toFixed(2)}</b></td><td>${esc(teacherLabel(g.teacherUsername))}</td><td>${syncBadgeFor("grades",g.id)}</td></tr>`}).join(""):`<tr><td colspan="9" class="empty">Aucune note enregistrée</td></tr>`}</tbody>`;
+ const logs=currentRecords(db.lessonLogs).filter(l=>{const s=subjectById(l.subjectId);return s&&academicTeacherCanUse(s)}).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ lessonLogsTable.innerHTML=`<thead><tr><th>Date</th><th>Matière</th><th>Classe</th><th>Leçon traitée</th><th>Travail à faire</th><th>Durée</th><th>Enseignant</th><th>Sync</th></tr></thead><tbody>${logs.length?logs.map(l=>{const s=subjectById(l.subjectId);return`<tr><td>${l.date}</td><td>${esc(s?.name||l.subjectId)}</td><td>${esc(l.program)} — ${esc(l.track)}</td><td>${esc(l.topic)}</td><td>${esc(l.homework||"—")}</td><td>${l.hours} h</td><td>${esc(teacherLabel(l.teacherUsername))}</td><td>${syncBadgeFor("lessonLogs",l.id)}</td></tr>`}).join(""):`<tr><td colspan="8" class="empty">Cahier de texte vide</td></tr>`}</tbody>`
+}
+function timeOverlap(a1,a2,b1,b2){return a1<b2&&b1<a2}
+function timetableConflict(candidate,ignoreId=""){return currentRecords(db.timetable).filter(x=>x.active!==false&&x.id!==ignoreId&&x.day===candidate.day&&timeOverlap(candidate.start,candidate.end,x.start,x.end)).find(x=>x.room===candidate.room||x.teacherUsername===candidate.teacherUsername||(x.program===candidate.program&&cleanTrack(x.track)===cleanTrack(candidate.track)))}
+function renderTimetable(){
+ if(!timetableTable)return;updateAcademicSelects();const canEdit=isOwner()||roleName()==="Directeur des études";if(timetableEditCard)timetableEditCard.classList.toggle("hidden",!canEdit);
+ let rows=currentRecords(db.timetable).filter(x=>x.active!==false);if(roleName()==="Enseignant")rows=rows.filter(x=>x.teacherUsername===currentUser.username);
+ const order={Lundi:1,Mardi:2,Mercredi:3,Jeudi:4,Vendredi:5,Samedi:6};rows.sort((a,b)=>(order[a.day]||9)-(order[b.day]||9)||a.start.localeCompare(b.start));
+ timetableTable.innerHTML=`<thead><tr><th>Jour</th><th>Heure</th><th>Matière</th><th>Classe</th><th>Enseignant</th><th>Salle</th><th>Sync</th></tr></thead><tbody>${rows.length?rows.map(x=>{const s=subjectById(x.subjectId);return`<tr><td><b>${x.day}</b></td><td>${x.start}–${x.end}</td><td>${esc(s?.name||x.subjectId)}</td><td>${esc(x.program)} — ${esc(x.track)}</td><td>${esc(teacherLabel(x.teacherUsername))}</td><td>${esc(x.room)}</td><td>${syncBadgeFor("timetable",x.id)}</td></tr>`}).join(""):`<tr><td colspan="7" class="empty">Emploi du temps vide</td></tr>`}</tbody>`
+}
+function updateDisciplineStudents(){if(discStudent)discStudent.innerHTML='<option value="">— Choisir étudiant —</option>'+currentStudents().filter(s=>s.status==="Actif").map(s=>`<option value="${esc(s.matricule)}">${esc(s.name)} — ${esc(s.matricule)}</option>`).join("")}
+function renderDiscipline(){
+ if(!disciplineTable)return;updateDisciplineStudents();const canEdit=isOwner()||["Directeur des études","Éducateur"].includes(roleName());if(disciplineEditCard)disciplineEditCard.classList.toggle("hidden",!canEdit);
+ const rows=currentRecords(db.discipline).sort((a,b)=>String(b.date).localeCompare(String(a.date))),open=rows.filter(x=>x.status!=="Clôturé").length,critical=rows.filter(x=>x.severity==="Critique"&&x.status!=="Clôturé").length,positive=rows.filter(x=>x.type==="Félicitation").length;
+ disciplineKpis.innerHTML=[["Événements",rows.length],["Dossiers ouverts",open],["Critiques",critical],["Félicitations",positive]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");
+ disciplineTable.innerHTML=`<thead><tr><th>Date</th><th>Étudiant</th><th>Type</th><th>Niveau</th><th>Description</th><th>Décision</th><th>Statut</th><th>Agent</th><th>Sync</th></tr></thead><tbody>${rows.length?rows.map(x=>{const st=studentByMat(x.student),cl=x.severity==="Critique"?"rejected":x.severity==="Élevé"?"pending":"valid";return`<tr><td>${x.date}</td><td><b>${esc(st?.name||x.student)}</b><br><span class="small">${esc(x.student)}</span></td><td>${esc(x.type)}</td><td><span class="status ${cl}">${esc(x.severity)}</span></td><td>${esc(x.details)}</td><td>${esc(x.action||"—")}</td><td>${esc(x.status)}</td><td>${esc(x.educator||"")}</td><td>${syncBadgeFor("discipline",x.id)}</td></tr>`}).join(""):`<tr><td colspan="9" class="empty">Aucun événement de vie scolaire</td></tr>`}</tbody>`
+}
+subjectForm?.addEventListener("submit",e=>{e.preventDefault();if(!(isOwner()||roleName()==="Directeur des études"))return alert("Seule la Direction des études peut structurer les matières.");const code=subjectCode.value.trim().toUpperCase(),name=subjectName.value.trim(),program=subjectProgram.value,track=cleanTrack(subjectTrack.value);if(!code||!name||!track)return;db.subjects.unshift({id:makeUniqueId("MAT"),schoolId:activeSchoolId(),academicYear:activeYear(),code,name,program,track,semester:subjectSemester.value,coefficient:Number(subjectCoefficient.value||1),teacherUsername:subjectTeacher.value,active:true,createdAt:new Date().toISOString(),createdBy:currentUserLabel()});logAction("Matière pédagogique",`${code} — ${name} — ${program}/${track}`);saveDB();subjectForm.reset();subjectCoefficient.value=1});
+gradeForm?.addEventListener("submit",e=>{e.preventDefault();const s=subjectById(gradeSubject.value);if(!s||!academicTeacherCanUse(s))return alert("Vous n’êtes pas autorisé à noter cette matière.");const max=Math.max(1,Number(gradeMax.value||20)),score=Math.max(0,Number(gradeScore.value||0));if(score>max)return alert("La note ne peut pas dépasser le barème.");db.grades.unshift({id:makeUniqueId("NOTE"),schoolId:activeSchoolId(),academicYear:activeYear(),student:gradeStudent.value,subjectId:s.id,date:gradeDate.value,term:gradeTerm.value,type:gradeType.value,score,maxScore:max,coefficient:Number(gradeCoefficient.value||1),teacherUsername:currentUser.username,createdAt:new Date().toISOString()});logAction("Saisie note",`${gradeStudent.value} — ${s.code} — ${score}/${max}`);saveDB();gradeScore.value=""});
+lessonLogForm?.addEventListener("submit",e=>{e.preventDefault();const s=subjectById(lessonSubject.value);if(!s||!academicTeacherCanUse(s))return alert("Vous n’êtes pas autorisé à renseigner cette matière.");db.lessonLogs.unshift({id:makeUniqueId("CDT"),schoolId:activeSchoolId(),academicYear:activeYear(),date:lessonDate.value,subjectId:s.id,program:s.program,track:s.track,teacherUsername:currentUser.username,topic:lessonTopic.value.trim(),homework:lessonHomework.value.trim(),hours:Number(lessonHours.value||1),createdAt:new Date().toISOString()});logAction("Cahier de texte",`${s.code} — ${lessonDate.value}`);saveDB();lessonTopic.value="";lessonHomework.value=""});
+timetableForm?.addEventListener("submit",e=>{e.preventDefault();if(!(isOwner()||roleName()==="Directeur des études"))return alert("Seule la Direction des études peut modifier l’emploi du temps.");const s=subjectById(ttSubject.value);if(!s)return alert("Choisissez une matière.");const x={id:makeUniqueId("EDT"),schoolId:activeSchoolId(),academicYear:activeYear(),day:ttDay.value,start:ttStart.value,end:ttEnd.value,room:ttRoom.value.trim(),subjectId:s.id,teacherUsername:ttTeacher.value,program:s.program,track:s.track,active:true,createdAt:new Date().toISOString()};if(x.end<=x.start)return alert("L’heure de fin doit être après l’heure de début.");const c=timetableConflict(x);if(c){const cs=subjectById(c.subjectId);return alert(`Conflit détecté avec ${cs?.name||"un autre cours"} (${c.day} ${c.start}-${c.end}, salle ${c.room}).`)}db.timetable.unshift(x);logAction("Emploi du temps",`${s.code} — ${x.day} ${x.start}-${x.end}`);saveDB()});
+disciplineForm?.addEventListener("submit",e=>{e.preventDefault();if(!(isOwner()||["Directeur des études","Éducateur"].includes(roleName())))return alert("Accès réservé à la vie scolaire.");db.discipline.unshift({id:makeUniqueId("DISC"),schoolId:activeSchoolId(),academicYear:activeYear(),date:discDate.value,student:discStudent.value,type:discType.value,severity:discSeverity.value,status:discStatus.value,action:discAction.value.trim(),details:discDetails.value.trim(),educator:currentUserLabel(),createdAt:new Date().toISOString()});logAction("Vie scolaire",`${discStudent.value} — ${discType.value} — ${discSeverity.value}`);saveDB();discDetails.value="";discAction.value=""});
+function exportAcademicCSV(kind){const map={subjects:currentSubjects(),timetable:currentRecords(db.timetable),grades:currentRecords(db.grades),discipline:currentRecords(db.discipline),lessonLogs:currentRecords(db.lessonLogs)},rows=map[kind]||[];if(!rows.length)return alert("Aucune donnée à exporter.");const headers=[...new Set(rows.flatMap(r=>Object.keys(r)))],q=v=>`"${String(v??"").replace(/"/g,'""')}"`,csv="\ufeff"+headers.map(q).join(";")+"\n"+rows.map(r=>headers.map(h=>q(r[h])).join(";")).join("\n"),a=document.createElement("a"),blob=new Blob([csv],{type:"text/csv;charset=utf-8"});a.href=URL.createObjectURL(blob);a.download=`EIAFC_${kind}_${activeSchoolCode()}_${today()}.csv`;a.click();URL.revokeObjectURL(a.href)}
 function inventoryPosition(itemId){const item=db.inventory.find(i=>i.id===itemId)||{},moves=currentRecords(db.inventoryMoves).filter(x=>x.itemId===itemId&&x.deleted!==true).sort((a,b)=>String(a.date).localeCompare(String(b.date))||String(a.createdAt||"").localeCompare(String(b.createdAt||"")));let qty=0,value=0,entries=0,exits=0;for(const x of moves){const q=Math.max(0,Number(x.qty||0));if(x.type==="Entrée"){const cost=Math.max(0,Number(x.unitCost||item.defaultUnitCost||0));qty+=q;value+=q*cost;entries+=q}else{const avg=qty>0?value/qty:0,take=Math.min(q,qty);qty-=q;value=Math.max(0,value-take*avg);exits+=q}}return{qty:Number(qty.toFixed(4)),value:Math.max(0,value),avgCost:qty>0?Math.max(0,value/qty):Math.max(0,Number(item.defaultUnitCost||0)),entries,exits}}
 function inventoryItems(){return currentRecords(db.inventory).filter(x=>x.active!==false)}
 function inventoryStock(itemId){return inventoryPosition(itemId).qty}
@@ -2771,11 +3187,11 @@ userForm.addEventListener("submit",async e=>{
  e.preventDefault();if(!requireOwner("la gestion des utilisateurs"))return;const username=userUsername.value.trim().toLowerCase(),email=normalizeEmail(userEmail.value),fullname=userFullname.value.trim();if(db.users.some(u=>String(u.username||"").toLowerCase()===username))return alert("Ce nom d’utilisateur a déjà été utilisé et reste réservé pour l’audit.");if(!validEmail(email))return alert("Saisissez un e-mail personnel valide.");const conflict=userEmailConflict(email);if(conflict)return alert(`Cet e-mail personnel est déjà utilisé par ${conflict.fullname||conflict.username}.`);
  const role=userRole.value;if(role==="Fondateur")return alert("Un seul compte Fondateur / propriétaire est autorisé.");const allSchools=false,schoolIds=[activeSchoolId()];const nu={username,fullname,email,role,passwordHash:await makePasswordHash(userPassword.value),active:true,allSchools,schoolIds,inviteStatus:"À envoyer",created:new Date().toISOString(),createdBy:currentUserLabel()};db.users.push(nu);queueIdentityJob({type:"sync",username,email,fullname,role,schoolId:schoolIds[0]});logAction("Création utilisateur",`${username} - ${role} - école ${activeSchoolCode()}`);saveDB();const sendInvite=!!userSendInvite.checked;userForm.reset();userSendInvite.checked=true;if(sendInvite){await flushIdentityQueue(false);await sendUserInviteEmail(username)}else await flushIdentityQueue(false)
 });
-function renderUsers(){if(!usersTable)return;if(!isOwner()){usersTable.innerHTML="";return;}const arr=db.users.filter(u=>u.deleted!==true),active=arr.filter(u=>u.active!==false),withoutEmail=active.filter(u=>!validEmail(u.email)),seen={},dups=[];active.forEach(u=>{const e=normalizeEmail(u.email);if(!e)return;if(seen[e])dups.push(e);else seen[e]=u.username});const q=(db.settings.identityQueue||[]).length;if(userIdentityQuality)userIdentityQuality.innerHTML=`<b>Contrôle identités :</b> ${active.length} compte(s) actif(s) — ${withoutEmail.length} sans e-mail valide — ${[...new Set(dups)].length} doublon(s) e-mail — ${q} opération(s) Cloud en attente.${withoutEmail.length||dups.length?'<br><span style="color:#9b1c1c"><b>À corriger :</b> chaque utilisateur actif doit avoir une adresse personnelle unique.</span>':''}`;usersTable.innerHTML=`<thead><tr><th>Nom complet</th><th>Utilisateur</th><th>E-mail personnel</th><th>Rôle</th><th>Périmètre écoles</th><th>Invitation</th><th>Statut</th><th>Actions</th></tr></thead><tbody>${arr.map(u=>{const scope=isOwner(u)||u.allSchools?"Toutes les écoles":(u.schoolIds||[]).map(id=>schoolById(id)?.code||id).join(", ")||"Aucune école";const inv=u.inviteStatus||"—";return`<tr><td>${esc(u.fullname)}</td><td>${esc(u.username)}</td><td>${esc(u.email||"—")}</td><td>${isOwner(u)?"Fondateur / Propriétaire":`<select onchange="changeUserRole('${u.username}',this.value)"><option ${u.role==="Comptable"?"selected":""}>Comptable</option><option ${u.role==="RH"?"selected":""}>RH</option><option ${u.role==="Caissier"?"selected":""}>Caissier</option><option ${u.role==="Secrétariat"?"selected":""}>Secrétariat</option><option ${u.role==="Secrétariat & Caisse"?"selected":""}>Secrétariat &amp; Caisse</option></select>`}</td><td><span class="scope-pill">${esc(scope)}</span></td><td><span class="invite-state ${/envoy/i.test(inv)?"invite-sent":/erreur/i.test(inv)?"invite-error":"invite-pending"}">${esc(inv)}</span></td><td>${u.active===false?'<span class="status rejected">Désactivé</span>':'<span class="status valid">Actif</span>'}</td><td>${can("users")&&u.username!==currentUser?.username?`<button class="btn btn-light btn-sm" onclick="assignUserToActiveSchool('${u.username}')">Affecter ici</button> <button class="btn btn-light btn-sm" onclick="toggleUser('${u.username}')">${u.active===false?"Activer":"Désactiver"}</button> <button class="btn btn-light btn-sm" onclick="resetUserPassword('${u.username}')">Mot de passe</button> <button class="btn btn-light btn-sm" onclick="changeUserEmail('${u.username}')">E-mail</button> ${u.email?`<button class="btn btn-gold btn-sm" onclick="sendUserInviteEmail('${u.username}')">E-mail installation</button>`:""} ${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="deleteUser('${u.username}')">Supprimer</button>`:""}`:""}</td></tr>`}).join("")}</tbody>`}
+function renderUsers(){if(!usersTable)return;if(!isOwner()){usersTable.innerHTML="";return;}const arr=db.users.filter(u=>u.deleted!==true),active=arr.filter(u=>u.active!==false),withoutEmail=active.filter(u=>!validEmail(u.email)),seen={},dups=[];active.forEach(u=>{const e=normalizeEmail(u.email);if(!e)return;if(seen[e])dups.push(e);else seen[e]=u.username});const q=(db.settings.identityQueue||[]).length;if(userIdentityQuality)userIdentityQuality.innerHTML=`<b>Contrôle identités :</b> ${active.length} compte(s) actif(s) — ${withoutEmail.length} sans e-mail valide — ${[...new Set(dups)].length} doublon(s) e-mail — ${q} opération(s) Cloud en attente.${withoutEmail.length||dups.length?'<br><span style="color:#9b1c1c"><b>À corriger :</b> chaque utilisateur actif doit avoir une adresse personnelle unique.</span>':''}`;usersTable.innerHTML=`<thead><tr><th>Nom complet</th><th>Utilisateur</th><th>E-mail personnel</th><th>Rôle</th><th>Périmètre écoles</th><th>Invitation</th><th>Statut</th><th>Actions</th></tr></thead><tbody>${arr.map(u=>{const scope=isOwner(u)||u.allSchools?"Toutes les écoles":(u.schoolIds||[]).map(id=>schoolById(id)?.code||id).join(", ")||"Aucune école";const inv=u.inviteStatus||"—";return`<tr><td>${esc(u.fullname)}</td><td>${esc(u.username)}</td><td>${esc(u.email||"—")}</td><td>${isOwner(u)?"Fondateur / Propriétaire":`<select onchange="changeUserRole('${u.username}',this.value)"><option ${u.role==="Comptable"?"selected":""}>Comptable</option><option ${u.role==="Directeur des études"?"selected":""}>Directeur des études</option><option ${u.role==="Éducateur"?"selected":""}>Éducateur</option><option ${u.role==="Enseignant"?"selected":""}>Enseignant</option><option ${u.role==="RH"?"selected":""}>RH</option><option ${u.role==="Caissier"?"selected":""}>Caissier</option><option ${u.role==="Secrétariat"?"selected":""}>Secrétariat</option><option ${u.role==="Secrétariat & Caisse"?"selected":""}>Secrétariat &amp; Caisse</option></select>`}</td><td><span class="scope-pill">${esc(scope)}</span></td><td><span class="invite-state ${/envoy/i.test(inv)?"invite-sent":/erreur/i.test(inv)?"invite-error":"invite-pending"}">${esc(inv)}</span></td><td>${u.active===false?'<span class="status rejected">Désactivé</span>':'<span class="status valid">Actif</span>'}</td><td>${can("users")&&u.username!==currentUser?.username?`<button class="btn btn-light btn-sm" onclick="assignUserToActiveSchool('${u.username}')">Affecter ici</button> <button class="btn btn-light btn-sm" onclick="toggleUser('${u.username}')">${u.active===false?"Activer":"Désactiver"}</button> <button class="btn btn-light btn-sm" onclick="resetUserPassword('${u.username}')">Mot de passe</button> <button class="btn btn-light btn-sm" onclick="changeUserEmail('${u.username}')">E-mail</button> ${u.email?`<button class="btn btn-gold btn-sm" onclick="sendUserInviteEmail('${u.username}')">E-mail installation</button>`:""} ${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="deleteUser('${u.username}')">Supprimer</button>`:""}`:""}</td></tr>`}).join("")}</tbody>`}
 
 function changeUserRole(username,newRole){
  if(!requireOwner("la modification du rôle d’un utilisateur"))return;
- const allowed=["Comptable","RH","Caissier","Secrétariat","Secrétariat & Caisse"],u=db.users.find(x=>x.username===username&&x.deleted!==true);
+ const allowed=["Comptable","Directeur des études","Éducateur","Enseignant","RH","Caissier","Secrétariat","Secrétariat & Caisse"],u=db.users.find(x=>x.username===username&&x.deleted!==true);
  if(!u||isOwner(u)||!allowed.includes(newRole))return;
  const old=u.role;if(old===newRole)return;
  if(!confirm(`Changer le rôle de ${u.fullname||u.username} : ${old} → ${newRole} ?`)){renderUsers();return}
@@ -3057,6 +3473,9 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
     if(isOwner())return new Set(Object.keys(CLOUD_COLLECTION_KEYS));
     const map={
       'Comptable':['payments','other','expenses','expensePayments','closings','transfers','manualEntries','budgets','assets','periodLocks','inventory','inventoryMoves','payroll','audit'],
+      'Directeur des études':['subjects','timetable','grades','discipline','lessonLogs','attendance','audit'],
+      'Éducateur':['attendance','discipline','audit'],
+      'Enseignant':['grades','lessonLogs','attendance','audit'],
       'RH':['staff','staffAttendance','staffLoans','payroll','audit'],
       'Caissier':['payments','closings','audit'],
       'Secrétariat':['students','attendance','audit'],
@@ -3097,7 +3516,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
       if(Number(r.revision||0)<=webRevision){cloudConnected=true;if(interactive)showToast('<b>EIAFC Web</b><br>Les données sont déjà à jour.');return true}
       const j=await webApi('get_state',{},webToken()),old=deepClone(db);
       if(!j?.state)throw new Error('La base centrale EIAFC n’a pas été reçue. Les données locales restent inchangées.');
-      const remote=normalizeDB(deepClone(j.state));
+      const remote=normalizeDB(sanitizeRemoteStateForRole(deepClone(j.state),currentUser));
       webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();localSessionBase=deepClone(db);cloudConnected=true;alignWebScopeToLoadedData();refreshAll();notifyBossChanges(old,db);
       if(interactive)showToast('<b>Données reçues</b><br>EIAFC Web est à jour.');return true;
     }catch(e){
@@ -3119,6 +3538,14 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
     return defaultSchoolId();
   };
 
+  function sanitizeRemoteStateForRole(raw,user){
+    const s=deepClone(raw||{}),role=String(user?.role||"");
+    if(["Fondateur","Comptable"].includes(role))return s;
+    if(role==="RH"){["payments","other","expenses","expensePayments","closings","transfers","manualEntries","budgets"].forEach(k=>s[k]=[]);return s}
+    if(["Caissier","Secrétariat & Caisse"].includes(role)){["other","expenses","expensePayments","transfers","manualEntries","budgets","assets","payroll","staffLoans"].forEach(k=>s[k]=[]);return s}
+    ["payments","other","expenses","expensePayments","closings","transfers","manualEntries","budgets","assets","payroll","staffLoans"].forEach(k=>s[k]=[]);
+    return s
+  }
   function alignWebScopeToLoadedData(){
     try{
       const rows=(db?.students||[]).filter(s=>s&&s.deleted!==true);
@@ -3156,7 +3583,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
       if(btn)btn.textContent='Chargement des données…';
       const full=await webApi('get_state',{},j.session);
       if(!full?.state)throw new Error('La base centrale EIAFC n’a pas été reçue. Aucune base vide ne sera ouverte.');
-      const remote=normalizeDB(deepClone(full.state));
+      const remote=normalizeDB(sanitizeRemoteStateForRole(deepClone(full.state),j.user));
       sessionStorage.setItem(WEB_TOKEN_KEY,j.session);sessionStorage.setItem(WEB_USER_KEY,JSON.stringify(j.user));sessionStorage.setItem(SESSION_KEY,j.user.username);
       webRevision=Number(full.revision||j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();
       currentUser={...j.user,active:true,deleted:false};loginPassword.value='';lanConnected=false;cloudConnected=true;localSessionBase=deepClone(db);
@@ -3236,7 +3663,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   async function restoreWebSession(){
     const t=webToken(),u=webStoredUser();if(!t||!u)return false;
     try{
-      const j=await webApi('get_state',{},t);if(!j?.state)throw new Error('Base centrale EIAFC indisponible');const remote=normalizeDB(deepClone(j.state));webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();currentUser={...u,active:true,deleted:false};sessionStorage.setItem(SESSION_KEY,currentUser.username);cloudConnected=true;lanConnected=false;localSessionBase=deepClone(db);alignWebScopeToLoadedData();refreshAll();enterApp();startWebPolling();return true;
+      const j=await webApi('get_state',{},t);if(!j?.state)throw new Error('Base centrale EIAFC indisponible');const remote=normalizeDB(sanitizeRemoteStateForRole(deepClone(j.state),u));webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();currentUser={...u,active:true,deleted:false};sessionStorage.setItem(SESSION_KEY,currentUser.username);cloudConnected=true;lanConnected=false;localSessionBase=deepClone(db);alignWebScopeToLoadedData();refreshAll();enterApp();startWebPolling();return true;
     }catch(e){console.warn('Restauration session Web',e);clearWebSession(true);return false}
   }
   async function initPublicWeb(){
@@ -3270,7 +3697,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   });
 
   // Marque visuellement l'environnement de production web pour faciliter l'audit.
-  document.documentElement.setAttribute('data-eiafc-version','9.2.0');
+  document.documentElement.setAttribute('data-eiafc-version','10.1.0');
   // Sécurité connexion : 5 échecs => blocage local de 15 minutes sur ce poste.
   try {
     const originalLogin = window.login;
