@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de l’Université privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-04-v11-0-1-signup-scroll">
+<meta name="eiafc-web-build" content="2026-09-04-v11-0-2-student-edit-visibility">
 <meta name="author" content="Université privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -701,6 +701,74 @@ body[data-role-theme="secretariat"] .production-hero{
   }
 }
 
+
+/* EIAFC V11.0.2 — Liste étudiants et accès Modifier */
+.student-table-wrap{
+  position:relative;
+  width:100%;
+  max-width:100%;
+  overflow-x:auto !important;
+  overflow-y:visible;
+  scrollbar-gutter:stable both-edges;
+  -webkit-overflow-scrolling:touch;
+}
+.student-table-wrap::-webkit-scrollbar{height:12px}
+.student-table-wrap::-webkit-scrollbar-track{background:#eef3f6;border-radius:999px}
+.student-table-wrap::-webkit-scrollbar-thumb{
+  background:#9fb3c1;
+  border:2px solid #eef3f6;
+  border-radius:999px;
+}
+#studentsTable{
+  min-width:1550px;
+}
+#studentsTable th:last-child,
+#studentsTable td:last-child{
+  position:sticky;
+  right:0;
+  z-index:4;
+  min-width:175px;
+  width:175px;
+  background:#fff !important;
+  box-shadow:-10px 0 18px rgba(18,48,74,.08);
+}
+#studentsTable th:last-child{
+  z-index:7;
+  background:#e8f0f5 !important;
+}
+#studentsTable td:last-child .btn{
+  display:block;
+  width:100%;
+  margin:3px 0;
+  white-space:nowrap;
+}
+#studentForm{
+  scroll-margin-top:118px;
+}
+#studentForm.student-edit-focus{
+  outline:3px solid rgba(212,166,46,.30);
+  outline-offset:10px;
+  border-radius:12px;
+  transition:outline-color .8s ease;
+}
+.student-edit-banner{
+  display:none;
+  margin:0 0 14px;
+  padding:11px 13px;
+  border-radius:11px;
+  border:1px solid #d9c36c;
+  background:linear-gradient(135deg,#fff7d8,#fffdf5);
+  color:#624c00;
+  font-size:13px;
+  font-weight:700;
+}
+.student-edit-banner.show{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+@media(max-width:760px){
+  #studentsTable{min-width:1320px}
+  #studentsTable th:last-child,
+  #studentsTable td:last-child{min-width:150px;width:150px}
+}
+
 </style>
 </head>
 <body>
@@ -872,7 +940,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.0.1 • GOUVERNANCE • ACADÉMIQUE • FINANCE • CLOUD</span></div>
+    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.0.2 • GOUVERNANCE • ACADÉMIQUE • FINANCE • CLOUD</span></div>
     <div class="user-mini"><b id="currentUserName">Non connecté</b><span id="currentUserRole"></span><br><button class="btn btn-light btn-sm" onclick="logout()">Déconnexion</button></div>
     <div class="nav">
       <button class="nav-btn active" data-view="dashboard" data-perm="dashboard">📊 Tableau de bord</button>
@@ -991,6 +1059,10 @@ body[data-role-theme="secretariat"] .production-hero{
     <section id="students" class="view">
       <div class="card">
         <div class="section-title"><h3>Inscription / mise à jour étudiant</h3><button class="btn btn-light" onclick="clearStudentForm()">Nouvelle fiche</button></div>
+        <div id="studentEditBanner" class="student-edit-banner">
+          <span id="studentEditBannerText">✏️ Modification d’un dossier étudiant</span>
+          <button type="button" class="btn btn-light btn-sm" onclick="clearStudentForm()">Annuler la modification</button>
+        </div>
         <form id="studentForm" class="form-grid">
           <input type="hidden" id="studentEditId">
           <div class="field span-2"><label>Nom & Prénoms</label><input id="studentName" required></div>
@@ -1028,7 +1100,8 @@ body[data-role-theme="secretariat"] .production-hero{
       </div>
       <div class="card" style="margin-top:16px">
         <div class="section-title"><h3>Registre étudiants</h3><div class="toolbar"><input id="studentSearch" placeholder="Rechercher nom, matricule, téléphone..." oninput="renderStudents()"><select id="studentProgramFilter" onchange="renderStudents()"><option value="">Tous programmes</option><option>Formation qualifiante</option><option>BTS 1</option><option>BTS 2</option><option>Licence</option><option>Master</option><option value="BTS à classer">⚠ BTS à classer</option></select><select id="studentAssignmentFilter" onchange="renderStudents()"><option value="">Tous statuts d’affectation</option><option value="assigned">Affectés de l’État</option><option value="unassigned">Non affectés</option><option value="unspecified">⚠ À préciser</option></select><button class="btn btn-light btn-sm" onclick="exportCSV('students')">Exporter CSV</button></div></div>
-        <div class="table-wrap"><table id="studentsTable"></table></div>
+        <div class="small" style="margin:6px 0 8px;color:#536473"><b>Astuce :</b> le bouton <b>Modifier / Documents</b> reste maintenant visible à droite du tableau.</div>
+        <div class="table-wrap student-table-wrap"><table id="studentsTable"></table></div>
       </div>
       <div class="card" style="margin-top:16px">
         <div class="section-title"><h3>📦 Rames & marqueurs remis par les étudiants</h3><div class="toolbar"><select id="supplyProgramFilter" onchange="renderSupplies()"><option value="">Tous programmes</option><option>Formation qualifiante</option><option>BTS 1</option><option>BTS 2</option><option>Licence</option><option>Master</option></select><select id="supplyTrackFilter" onchange="renderSupplies()"><option value="">Toutes filières</option></select><select id="supplyAssignmentFilter" onchange="renderSupplies()"><option value="">Tous statuts d’affectation</option><option value="assigned">Affectés de l’État</option><option value="unassigned">Non affectés</option><option value="unspecified">⚠ À préciser</option></select><select id="supplyStatusFilter" onchange="renderSupplies()"><option value="">Tous</option><option value="missing">Fournitures manquantes</option><option value="complete">Complet</option></select><button class="btn btn-light btn-sm" onclick="exportCSV('supplies')">Exporter bilan fournitures</button></div></div>
@@ -1852,7 +1925,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.0.1";
+const APP_VERSION="11.0.2";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -3585,8 +3658,18 @@ studentForm.addEventListener("submit",async e=>{
  else{obj.createdAt=new Date().toISOString();obj.createdBy=currentUserLabel();obj.matricule=await nextUniqueAcademicId("student",`EIAFC-${activeSchoolCode()}`);if(!obj.matricule)return;obj.createdOffline=isOfflineId(obj.matricule);obj.device=deviceName();db.students.push(obj);logAction("Inscription étudiant",`${obj.matricule} - ${obj.name}`)}
  saveDB();clearStudentForm()
 });
-function clearStudentForm(){studentEditId.value="";studentForm.reset();studentBirthDate.value="";studentBirthPlace.value="";studentEmail.value="";studentAddress.value="";studentGuardianName.value="";studentGuardianPhone.value="";studentGuardianEmail.value="";studentIdentityRef.value="";studentDocBirth.checked=false;studentDocId.checked=false;studentDocDiploma.checked=false;studentDocPhotos.checked=false;studentProgram.value="Formation qualifiante";studentTrackAssigned.value="Non affecté";studentTrack.value="";updateStudentTrackState();studentDate.value=defaultManagementDate();studentFirstDue.value=academicBounds().firstDue;studentRegFee.value=0;studentTuition.value=0;studentInstallments.value=9;studentDiscount.value=0;studentReamReceived.value=0;studentMarkersReceived.value=0;studentSupplyDate.value="";studentSupplyObs.value="";renderStudentDigitalDocs()}
-function editStudent(mat){if(!canEditStudents())return alert("Votre rôle est en lecture seule sur les dossiers étudiants.");const s=studentByMat(mat);if(!s)return;studentEditId.value=s.matricule;studentName.value=s.name;studentSex.value=s.sex;studentPhone.value=s.phone;studentBirthDate.value=s.birthDate||"";studentBirthPlace.value=s.birthPlace||"";studentEmail.value=s.email||"";studentAddress.value=s.address||"";studentGuardianName.value=s.guardianName||"";studentGuardianPhone.value=s.guardianPhone||"";studentGuardianEmail.value=s.guardianEmail||"";studentIdentityRef.value=s.identityRef||"";studentDocBirth.checked=!!s.docs?.birth;studentDocId.checked=!!s.docs?.id;studentDocDiploma.checked=!!s.docs?.diploma;studentDocPhotos.checked=!!s.docs?.photos;studentProgram.value=s.program;studentTrackAssigned.value=studentAdmissionStatus(s);studentTrack.value=s.track||"";updateStudentTrackState();studentTrack.value=s.track||"";studentLevel.value=s.level;studentDate.value=s.date;studentRegFee.value=s.regFee;studentTuition.value=s.tuition;studentInstallments.value=s.installments||9;studentFirstDue.value=s.firstDue||s.date;studentDiscount.value=s.discount||0;studentDiscountReason.value=s.discountReason||"";studentReamReceived.value=Number(s.reamReceived||0);studentMarkersReceived.value=Number(s.markersReceived||0);studentSupplyDate.value=s.supplyDate||"";studentSupplyObs.value=s.supplyObs||"";studentStatus.value=s.status;renderStudentDigitalDocs();document.querySelector('[data-view="students"]').click();window.scrollTo({top:0,behavior:"smooth"})}
+function clearStudentForm(){if(studentEditBanner)studentEditBanner.classList.remove("show");studentEditId.value="";studentForm.reset();studentBirthDate.value="";studentBirthPlace.value="";studentEmail.value="";studentAddress.value="";studentGuardianName.value="";studentGuardianPhone.value="";studentGuardianEmail.value="";studentIdentityRef.value="";studentDocBirth.checked=false;studentDocId.checked=false;studentDocDiploma.checked=false;studentDocPhotos.checked=false;studentProgram.value="Formation qualifiante";studentTrackAssigned.value="Non affecté";studentTrack.value="";updateStudentTrackState();studentDate.value=defaultManagementDate();studentFirstDue.value=academicBounds().firstDue;studentRegFee.value=0;studentTuition.value=0;studentInstallments.value=9;studentDiscount.value=0;studentReamReceived.value=0;studentMarkersReceived.value=0;studentSupplyDate.value="";studentSupplyObs.value="";renderStudentDigitalDocs()}
+function editStudent(mat){if(!canEditStudents())return alert("Votre rôle est en lecture seule sur les dossiers étudiants.");const s=studentByMat(mat);if(!s)return;studentEditId.value=s.matricule;studentName.value=s.name;studentSex.value=s.sex;studentPhone.value=s.phone;studentBirthDate.value=s.birthDate||"";studentBirthPlace.value=s.birthPlace||"";studentEmail.value=s.email||"";studentAddress.value=s.address||"";studentGuardianName.value=s.guardianName||"";studentGuardianPhone.value=s.guardianPhone||"";studentGuardianEmail.value=s.guardianEmail||"";studentIdentityRef.value=s.identityRef||"";studentDocBirth.checked=!!s.docs?.birth;studentDocId.checked=!!s.docs?.id;studentDocDiploma.checked=!!s.docs?.diploma;studentDocPhotos.checked=!!s.docs?.photos;studentProgram.value=s.program;studentTrackAssigned.value=studentAdmissionStatus(s);studentTrack.value=s.track||"";updateStudentTrackState();studentTrack.value=s.track||"";studentLevel.value=s.level;studentDate.value=s.date;studentRegFee.value=s.regFee;studentTuition.value=s.tuition;studentInstallments.value=s.installments||9;studentFirstDue.value=s.firstDue||s.date;studentDiscount.value=s.discount||0;studentDiscountReason.value=s.discountReason||"";studentReamReceived.value=Number(s.reamReceived||0);studentMarkersReceived.value=Number(s.markersReceived||0);studentSupplyDate.value=s.supplyDate||"";studentSupplyObs.value=s.supplyObs||"";studentStatus.value=s.status;renderStudentDigitalDocs();document.querySelector('[data-view="students"]').click();
+ if(studentEditBanner&&studentEditBannerText){
+   studentEditBannerText.textContent=`✏️ Modification : ${s.name} — ${s.matricule}`;
+   studentEditBanner.classList.add("show")
+ }
+ requestAnimationFrame(()=>{
+   studentForm?.scrollIntoView({behavior:"smooth",block:"start"});
+   studentForm?.classList.add("student-edit-focus");
+   setTimeout(()=>studentForm?.classList.remove("student-edit-focus"),1800)
+ })
+}
 function archiveStudent(mat){if(!canEditStudents())return alert("Votre rôle est en lecture seule sur les dossiers étudiants.");const s=studentByMat(mat);if(!s)return;if(confirm(`Archiver ${s.name} ?`)){s.status="Archivé";logAction("Archivage étudiant",`${mat} - ${s.name}`);saveDB()}}
 function studentDocsCount(s){const d=s?.docs||{},k=new Set(studentDigitalFiles(s).map(x=>x.kind));return [d.birth||k.has("birth"),d.id||k.has("id"),d.diploma||k.has("diploma"),d.photos||k.has("photos")].filter(Boolean).length}
 function studentAttendanceStats(mat){const a=currentRecords(db.attendance).filter(x=>x.student===mat),present=a.filter(x=>x.status==="Présent"||x.status==="Retard").length;return{total:a.length,present,rate:a.length?present/a.length*100:0}}
