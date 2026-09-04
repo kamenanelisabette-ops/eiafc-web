@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de l’Université privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-04-v11-0-2-student-edit-visibility">
+<meta name="eiafc-web-build" content="2026-09-04-v11-1-final-cloud-portal">
 <meta name="author" content="Université privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -769,6 +769,43 @@ body[data-role-theme="secretariat"] .production-hero{
   #studentsTable td:last-child{min-width:150px;width:150px}
 }
 
+
+/* EIAFC V11.1 — Portail étudiant & finalisation Cloud */
+.student-entry-btn{grid-column:1/-1!important}
+.student-entry-btn span{display:block;font-size:10px;opacity:.75;margin-top:2px}
+.student-portal-shell{
+  position:fixed;inset:0;z-index:9998;
+  background:
+    radial-gradient(circle at 90% -10%,rgba(31,110,154,.12),transparent 30%),
+    #f4f7fb;
+  overflow:auto;
+}
+.student-portal-top{
+  position:sticky;top:0;z-index:5;
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:18px 28px;
+  background:linear-gradient(135deg,#082238,#104d70);
+  color:white;
+  box-shadow:0 10px 28px rgba(8,34,56,.18);
+}
+.student-portal-top h2{margin:3px 0 0;color:white}
+.student-portal-brand{font-size:10px;letter-spacing:.16em;font-weight:900;color:#f1d16d}
+.student-portal-body{max-width:1240px;margin:0 auto;padding:24px}
+.student-portal-body .card{background:#fff!important}
+.student-portal-finance-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.student-portal-finance-grid>div{padding:12px;border:1px solid #e2eaf0;border-radius:12px;background:#f8fbfd}
+.student-portal-finance-grid span{display:block;font-size:10px;color:#768491;font-weight:800}
+.student-portal-finance-grid b{display:block;margin-top:5px;color:#12344d;font-size:17px}
+.student-grade-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:10px 0;border-bottom:1px solid #edf1f4}
+.student-grade-row:last-child{border-bottom:0}
+.student-grade-row b{color:#12344d}
+.student-portal-security-note{padding:11px 13px;border-radius:11px;background:#eaf8f0;border:1px solid #c7e7d2;color:#155f40}
+@media(max-width:760px){
+  .student-portal-top{padding:14px}
+  .student-portal-body{padding:14px}
+  .student-portal-finance-grid{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -870,6 +907,7 @@ body[data-role-theme="secretariat"] .production-hero{
       <div class="auth-choice">
         <button class="btn btn-primary" type="button" onclick="showLoginForm()">🔐 Se connecter<span>Compte déjà créé</span></button>
         <button class="btn btn-gold" type="button" onclick="showSignupForm()">➕ Créer un compte<span>Autorisation Fondateur requise</span></button>
+        <button class="btn btn-light student-entry-btn" type="button" onclick="showStudentPortalLogin()">🎓 Espace étudiant<span>Notes, paiements, présence et emploi du temps</span></button>
       </div>      <button class="btn btn-light" style="width:100%;margin-top:4px" type="button" onclick="showActivationKey()">🔑 Connecter ce poste avec une clé EIAFC</button>
       <button class="btn btn-light" style="width:100%;margin-top:4px" type="button" onclick="showFounderAccess()">👑 Créer / récupérer mon compte Fondateur</button>
       <p class="small">Chaque compte est associé à un rôle et à une école. Après connexion, le logiciel ouvre automatiquement le tableau de bord correspondant au poste.</p>
@@ -881,6 +919,15 @@ body[data-role-theme="secretariat"] .production-hero{
       <button class="btn btn-primary" style="width:100%" onclick="login()">Se connecter</button>
       <button class="btn btn-light auth-back" type="button" onclick="showAuthChoice()">← Retour au choix</button>
       <p class="small">Votre tableau de bord et vos menus seront chargés selon votre rôle.</p>
+    </div>
+    <div id="studentPortalLoginBox" class="hidden">
+      <div class="section-title"><h3>🎓 Espace étudiant</h3></div>
+      <div class="notice">Utilisez le <b>matricule EIAFC</b> et le code personnel remis par l’administration.</div>
+      <div class="field"><label>Matricule</label><input id="studentPortalMatricule" autocomplete="username" placeholder="Ex. EIAFC-EIAFC-2627-0039"></div>
+      <div class="field"><label>Code étudiant à 6 chiffres</label><input id="studentPortalPin" type="password" inputmode="numeric" maxlength="6" autocomplete="current-password"></div>
+      <button class="btn btn-primary" style="width:100%" type="button" onclick="studentPortalLogin()">Ouvrir mon espace</button>
+      <button class="btn btn-light auth-back" type="button" onclick="webShowAuthChoice()">← Retour</button>
+      <p class="small">L’étudiant accède uniquement à ses propres informations. Aucun accès aux données des autres étudiants ni aux données administratives internes.</p>
     </div>
     <div id="signupBox" class="hidden">
       <div class="section-title"><h3>➕ Créer un nouveau compte</h3></div>
@@ -938,9 +985,48 @@ body[data-role-theme="secretariat"] .production-hero{
   </div>
 </div>
 
+
+<div id="studentPortalShell" class="student-portal-shell hidden">
+  <div class="student-portal-top">
+    <div>
+      <div class="student-portal-brand">EIAFC • ESPACE ÉTUDIANT</div>
+      <h2 id="studentPortalWelcome">Mon espace</h2>
+      <div class="small" id="studentPortalSchool">Portail Cloud sécurisé</div>
+    </div>
+    <button class="btn btn-light" type="button" onclick="studentPortalLogout()">Déconnexion</button>
+  </div>
+  <div class="student-portal-body">
+    <div class="grid kpis" id="studentPortalKpis"></div>
+    <div class="grid two-col" style="margin-top:16px">
+      <div class="card">
+        <div class="section-title"><h3>💳 Ma situation financière</h3></div>
+        <div id="studentPortalFinance"></div>
+      </div>
+      <div class="card">
+        <div class="section-title"><h3>📝 Mes résultats</h3></div>
+        <div id="studentPortalGrades"></div>
+      </div>
+    </div>
+    <div class="grid two-col" style="margin-top:16px">
+      <div class="card">
+        <div class="section-title"><h3>🕘 Ma présence</h3></div>
+        <div id="studentPortalAttendance"></div>
+      </div>
+      <div class="card">
+        <div class="section-title"><h3>🗓 Mon emploi du temps</h3></div>
+        <div class="table-wrap"><table id="studentPortalTimetable"></table></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="section-title"><h3>🧾 Mes paiements & reçus</h3></div>
+      <div class="table-wrap"><table id="studentPortalPayments"></table></div>
+    </div>
+  </div>
+</div>
+
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.0.2 • GOUVERNANCE • ACADÉMIQUE • FINANCE • CLOUD</span></div>
+    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.1 • FINALISATION CLOUD • PORTAIL ÉTUDIANT • SÉCURITÉ</span></div>
     <div class="user-mini"><b id="currentUserName">Non connecté</b><span id="currentUserRole"></span><br><button class="btn btn-light btn-sm" onclick="logout()">Déconnexion</button></div>
     <div class="nav">
       <button class="nav-btn active" data-view="dashboard" data-perm="dashboard">📊 Tableau de bord</button>
@@ -1741,6 +1827,14 @@ body[data-role-theme="secretariat"] .production-hero{
         <div class="card"><div class="section-title"><h3>Droits par rôle</h3></div><div class="small"><b>Fondateur / Propriétaire :</b> seul compte avec accès complet aux paramètres, utilisateurs, sauvegardes, réseau, taux de paie et suppressions sécurisées.<br><br><b>Comptable :</b> finances, paie, validations, rapports, audit, stock et clôtures.<br><br><b>Directeur des études :</b> pilotage pédagogique, matières, classes, emploi du temps, enseignants, notes, cahier de texte, présences et discipline. Aucun accès aux montants financiers.<br><br><b>Éducateur :</b> vie scolaire, présences, retards, absences, discipline, suivi des étudiants et consultation de l’emploi du temps. Aucun montant financier.<br><br><b>Enseignant :</b> ses matières, ses classes, notes, cahier de texte, présence et emploi du temps. Aucun montant financier.<br><br><b>RH :</b> dossiers du personnel, présence, avances/prêts, préparation de la paie et bulletins.<br><br><b>Caissier :</b> étudiants en lecture, paiements, reçus et caisse.<br><br><b>Secrétariat :</b> inscriptions, dossiers étudiants, listes de classe et présence étudiants uniquement. <b>Aucun montant, paiement, échéancier, caisse, rapport financier, personnel, stock général, audit ou paramètre.</b><br><br><b>Secrétariat &amp; Caisse :</b> inscriptions, dossiers étudiants et présence + paiements, reçus, échéancier, fiche financière étudiant, caisse et clôture. Son tableau de bord combine automatiquement les indicateurs administratifs et de caisse. <b>Aucun accès aux dépenses, autres recettes, comptabilité générale, rapports financiers, personnel/paie, audit, utilisateurs ou paramètres.</b> <br><br><b>Périmètre :</b> tous les comptes non-Fondateur sont strictement rattachés à <b>une seule école</b>. Pour affecter un utilisateur à une autre école, le Fondateur ouvre l’école concernée puis utilise « Affecter ici ». Le rôle peut être modifié directement dans la colonne « Rôle », par exemple de « Secrétariat » vers « Secrétariat & Caisse ».</div></div>
       </div>
       <div class="card" style="margin-top:16px"><div class="section-title"><h3>Utilisateurs & identités</h3><div class="toolbar"><button class="btn btn-light btn-sm" type="button" onclick="flushIdentityQueue(true)">Synchroniser les identités</button></div></div><div id="userIdentityQuality" class="info" style="margin-bottom:12px"></div><div class="table-wrap"><table id="usersTable"></table></div></div>
+      <div class="card" style="margin-top:16px" data-owner-only="true">
+        <div class="section-title"><h3>🔐 Sessions utilisateurs</h3><span class="small">Fondateur uniquement</span></div>
+        <div class="info">Révoque immédiatement les sessions Cloud actives d’un utilisateur. Il devra se reconnecter sur tous ses appareils.</div>
+        <div class="form-grid" style="margin-top:12px">
+          <div class="field span-2"><label>Utilisateur</label><select id="sessionRevokeUser"></select></div>
+          <div class="field span-2" style="align-self:end"><button class="btn btn-danger" type="button" onclick="revokeSelectedUserSessions()">Révoquer toutes les sessions</button></div>
+        </div>
+      </div>
     </section>
 
     <section id="settings" class="view">
@@ -1776,7 +1870,14 @@ body[data-role-theme="secretariat"] .production-hero{
             <div class="field"><label>Nombre de sauvegardes locales à conserver</label><input type="number" id="autoBackupKeep" min="3" max="15" value="7"></div>
             <div class="field span-2"><label>&nbsp;</label><div class="toolbar"><button type="button" class="btn btn-primary" onclick="saveSecurityBackupSettings()">Enregistrer sécurité</button><button type="button" class="btn btn-gold" onclick="createLocalSnapshot('Sauvegarde manuelle',true)">Créer une sauvegarde locale</button></div></div>
           </div>
-          <div class="server-pending"><b>Protection serveur :</b> les droits dans l'interface sont actifs. La vérification/extension des règles Supabase côté serveur reste à confirmer avant d'ouvrir un espace étudiant public.</div>
+          <div id="serverSecurityBox" class="server-good"><b>Protection serveur Supabase :</b> vérification en cours…</div>
+          <div class="toolbar" style="margin:12px 0">
+            <button class="btn btn-primary btn-sm" type="button" onclick="checkCloudSecurityNow()">Vérifier sécurité Cloud</button>
+            <button class="btn btn-light btn-sm" type="button" onclick="retryCloudPending()">🔄 Synchroniser les éléments en attente</button>
+            <button class="btn btn-gold btn-sm" type="button" onclick="toggleStudentPortalCloud()">🎓 Activer / désactiver le portail étudiant</button>
+          </div>
+          <div class="section-title" style="margin-top:14px"><h3>☁️ Sauvegardes Cloud</h3><button class="btn btn-light btn-sm" type="button" onclick="loadCloudBackups(true)">Actualiser</button></div>
+          <div id="cloudBackupTimeline" class="backup-timeline"><div class="empty">Chargement des sauvegardes Cloud…</div></div>
           <div class="section-title" style="margin-top:14px"><h3>Historique des sauvegardes locales</h3><span class="small">Fondateur uniquement</span></div><div id="backupTimeline" class="backup-timeline"></div>
           <p class="small">Une copie locale V7 est conservée sur ce poste. En cas de coupure Internet, vous pouvez continuer à travailler. Faites également une sauvegarde JSON régulière pour une sécurité supplémentaire.</p>
           <div class="toolbar"><button class="btn btn-gold" onclick="exportBackup()">Exporter sauvegarde JSON</button><button class="btn btn-primary" onclick="exportTransferPackage()">Préparer transfert vers un autre poste</button><label class="btn btn-light" style="cursor:pointer">Importer sauvegarde<input type="file" id="importFile" accept=".json" hidden onchange="importBackup(event)"></label><button class="btn btn-danger" onclick="resetAll()">Réinitialiser complètement EIAFC</button></div><div class="toolbar" style="margin-top:10px"><button class="btn btn-danger" type="button" onclick="resetThisDeviceOnly()">Réinitialiser ce poste uniquement</button><span class="small">N'efface pas la base centrale LAN/Cloud. Utile si un mauvais compte a été créé sur ce PC.</span></div><div class="info" style="margin-top:10px"><b>Pour installer un deuxième ordinateur :</b> exportez « Transfert vers un autre poste », copiez le fichier JSON et ce logiciel sur votre clé USB, puis sur le nouveau PC choisissez « Importer transfert USB ». Le Fondateur et les autres comptes seront conservés.</div>
@@ -1925,7 +2026,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.0.2";
+const APP_VERSION="11.1.0";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -4268,7 +4369,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   const WEB_APIKEY='sb_publishable_gAPfLd6okuu42hvOwQp35Q_L87JA22Q';
   const WEB_WORKSPACE='EIAFC_V7';
   const WEB_TOKEN_KEY='eiafc_web_secure_session_v4';
-  const WEB_BUILD='2026-09-03-v11-governance';
+  const WEB_BUILD='2026-09-04-v11-1-final-cloud-portal';
   (async()=>{
     if(!String(location.hostname).endsWith('.vercel.app'))return;
     try{
@@ -4302,6 +4403,164 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
     if(!r.ok||j?.ok===false)throw new Error(j?.error||`Service EIAFC indisponible (${r.status})`);
     return j;
   }
+
+  const STUDENT_TOKEN_KEY='eiafc_student_secure_session_v1';
+  const STUDENT_DATA_KEY='eiafc_student_secure_data_v1';
+
+  function studentToken(){return sessionStorage.getItem(STUDENT_TOKEN_KEY)||''}
+  function studentStoredData(){try{return JSON.parse(sessionStorage.getItem(STUDENT_DATA_KEY)||'null')}catch(_e){return null}}
+  function clearStudentSession(){sessionStorage.removeItem(STUDENT_TOKEN_KEY);sessionStorage.removeItem(STUDENT_DATA_KEY)}
+
+  function showStudentPortalLogin(){
+    hideLegacyPortal();
+    loginOverlay?.classList.remove('hidden');
+    authChoiceBox?.classList.add('hidden');loginBox?.classList.add('hidden');signupBox?.classList.add('hidden');
+    studentPortalLoginBox?.classList.remove('hidden');
+    try{document.querySelector('.login-card').scrollTop=0}catch(_e){}
+    setTimeout(()=>studentPortalMatricule?.focus(),0)
+  }
+
+  function studentMoney(v){return `${Math.round(Number(v||0)).toLocaleString('fr-FR')} FCFA`}
+  function studentDate(v){if(!v)return'—';try{return new Date(v+'T00:00:00').toLocaleDateString('fr-FR')}catch(_e){return v}}
+  function studentAverageRows(data){
+    const subjects=data?.subjects||[], grades=data?.grades||[];
+    return subjects.map(s=>{
+      const rows=grades.filter(g=>String(g.subjectId)===String(s.id));
+      const den=rows.reduce((a,g)=>a+Number(g.coefficient||1),0);
+      const avg=den?rows.reduce((a,g)=>a+(Number(g.score||0)/Math.max(1,Number(g.maxScore||20))*20)*Number(g.coefficient||1),0)/den:null;
+      return{s,avg,count:rows.length}
+    }).filter(x=>x.count>0)
+  }
+
+  function renderStudentPortal(data){
+    if(!data?.student)return;
+    const st=data.student,pays=(data.payments||[]).filter(x=>x.status!=='Annulé'&&x.status!=='Rejeté');
+    const due=Math.max(0,Number(st.regFee||0)+Number(st.tuition||0)-Number(st.discount||0));
+    const paid=pays.filter(x=>x.status==='Validé'||x.status==='Valide'||!x.status).reduce((a,x)=>a+Number(x.amount||0),0);
+    const rest=Math.max(0,due-paid);
+    const att=data.attendance||[], present=att.filter(x=>['Présent','Retard'].includes(x.status)).length;
+    const rate=att.length?100*present/att.length:null;
+    const avgs=studentAverageRows(data), general=avgs.length?avgs.reduce((a,x)=>a+Number(x.avg||0)*Number(x.s.coefficient||1),0)/avgs.reduce((a,x)=>a+Number(x.s.coefficient||1),0):null;
+
+    loginOverlay?.classList.add('hidden');
+    document.querySelector('.app')?.classList.add('hidden');
+    studentPortalShell?.classList.remove('hidden');
+    studentPortalWelcome.textContent=`Bienvenue ${st.name||st.matricule}`;
+    studentPortalSchool.textContent=`${data.school?.name||'EIAFC'} • ${data.year||''} • ${st.program||''} ${st.track||''}`;
+    studentPortalKpis.innerHTML=[
+      ['Matricule',st.matricule||'—'],['Reste scolarité',studentMoney(rest)],['Moyenne générale',general===null?'—':general.toFixed(2)+'/20'],['Assiduité',rate===null?'—':rate.toFixed(1)+'%']
+    ].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value" style="font-size:20px!important">${x[1]}</div></div>`).join('');
+    studentPortalFinance.innerHTML=`<div class="student-portal-finance-grid"><div><span>Total dû</span><b>${studentMoney(due)}</b></div><div><span>Total payé</span><b>${studentMoney(paid)}</b></div><div><span>Reste</span><b>${studentMoney(rest)}</b></div></div><div class="student-portal-security-note" style="margin-top:12px">Ces informations concernent uniquement votre dossier EIAFC.</div>`;
+    studentPortalGrades.innerHTML=avgs.length?avgs.map(x=>`<div class="student-grade-row"><div><b>${x.s.name||x.s.code||'Matière'}</b><div class="small">${x.count} évaluation(s)</div></div><div><b>${x.avg.toFixed(2)}/20</b></div></div>`).join(''):'<div class="empty">Aucune note disponible.</div>';
+    studentPortalAttendance.innerHTML=`<div class="student-portal-finance-grid"><div><span>Saisies</span><b>${att.length}</b></div><div><span>Présent / Retard</span><b>${present}</b></div><div><span>Taux</span><b>${rate===null?'—':rate.toFixed(1)+'%'}</b></div></div>`;
+    const tt=data.timetable||[];
+    studentPortalTimetable.innerHTML=`<thead><tr><th>Jour</th><th>Heure</th><th>Matière</th><th>Salle</th></tr></thead><tbody>${tt.length?tt.map(x=>{const s=(data.subjects||[]).find(z=>String(z.id)===String(x.subjectId));return`<tr><td><b>${x.day||''}</b></td><td>${x.start||''}–${x.end||''}</td><td>${s?.name||x.subjectId||'—'}</td><td>${x.room||'—'}</td></tr>`}).join(''):'<tr><td colspan="4" class="empty">Aucun cours planifié.</td></tr>'}</tbody>`;
+    studentPortalPayments.innerHTML=`<thead><tr><th>Date</th><th>Reçu</th><th>Mode</th><th>Statut</th><th class="money">Montant</th></tr></thead><tbody>${pays.length?pays.sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>`<tr><td>${studentDate(x.date)}</td><td><b>${x.receipt||'—'}</b></td><td>${x.mode||'—'}</td><td>${x.status||'—'}</td><td class="money">${studentMoney(x.amount)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">Aucun paiement disponible.</td></tr>'}</tbody>`
+  }
+
+  async function studentPortalLogin(){
+    const matricule=String(studentPortalMatricule?.value||'').trim();
+    const pin=String(studentPortalPin?.value||'').trim();
+    if(!matricule||!/^\d{6}$/.test(pin))return alert('Saisissez votre matricule et votre code étudiant à 6 chiffres.');
+    try{
+      const j=await webApi('student_login',{workspace:WEB_WORKSPACE,matricule,pin,deviceId:getDeviceId()});
+      sessionStorage.setItem(STUDENT_TOKEN_KEY,j.session);
+      sessionStorage.setItem(STUDENT_DATA_KEY,JSON.stringify(j.state||{}));
+      studentPortalPin.value='';
+      renderStudentPortal(j.state)
+    }catch(e){alert(e?.message||e)}
+  }
+
+  async function refreshStudentPortal(){
+    if(!studentToken())return false;
+    try{
+      const j=await webApi('student_get_state',{},studentToken());
+      sessionStorage.setItem(STUDENT_DATA_KEY,JSON.stringify(j.state||{}));
+      renderStudentPortal(j.state);return true
+    }catch(e){clearStudentSession();return false}
+  }
+
+  function studentPortalLogout(){
+    clearStudentSession();
+    studentPortalShell?.classList.add('hidden');
+    document.querySelector('.app')?.classList.remove('hidden');
+    webShowAuthChoice()
+  }
+
+  async function checkCloudSecurityNow(interactive=true){
+    if(!webToken())return false;
+    try{
+      const j=await webApi('capabilities',{},webToken());
+      if(serverSecurityBox){
+        const p=db.settings?.studentPortal?.enabled===true?'activé':'désactivé';
+        serverSecurityBox.className='server-good';
+        serverSecurityBox.innerHTML=`<b>Supabase sécurisé :</b> API serveur V${j.serverVersion||'?'} active • rôle ${j.role||roleName()} • portail étudiant ${p} • ${j.readCollections?.length||0} collection(s) en lecture / ${j.writeCollections?.length||0} en écriture.`
+      }
+      if(interactive)showToast(`<b>Sécurité Cloud OK</b><br>Serveur V${j.serverVersion||'?'}.`);
+      return true
+    }catch(e){
+      if(serverSecurityBox){serverSecurityBox.className='server-pending';serverSecurityBox.innerHTML=`<b>Cloud à vérifier :</b> ${esc(e?.message||e)}`}
+      if(interactive)alert(e?.message||e);return false
+    }
+  }
+
+  async function loadCloudBackups(interactive=false){
+    if(!cloudBackupTimeline||!webToken()||!isOwner())return;
+    try{
+      const j=await webApi('list_backups',{},webToken()),rows=j.rows||[];
+      cloudBackupTimeline.innerHTML=rows.length?rows.map(x=>`<div class="backup-row"><div><b>${new Date(x.created_at).toLocaleString('fr-FR')}</b><small>Révision ${x.revision} • ${esc(x.source||'Cloud EIAFC')} • ${Math.max(1,Math.round(Number(x.size_bytes||0)/1024))} Ko</small></div><span class="status valid">Cloud</span></div>`).join(''):'<div class="empty">Aucune sauvegarde Cloud enregistrée.</div>';
+      if(interactive)showToast(`<b>Sauvegardes Cloud</b><br>${rows.length} copie(s) trouvée(s).`)
+    }catch(e){cloudBackupTimeline.innerHTML=`<div class="server-pending">${esc(e?.message||e)}</div>`}
+  }
+
+  async function toggleStudentPortalCloud(){
+    if(!isOwner())return alert('Fondateur uniquement.');
+    const enabled=!(db.settings?.studentPortal?.enabled===true);
+    if(!confirm(`${enabled?'Activer':'Désactiver'} le portail étudiant sécurisé ?`))return;
+    try{
+      const j=await webApi('set_student_portal_enabled',{enabled},webToken());
+      if(j.state){webBase=normalizeDB(deepClone(j.state));db=deepClone(webBase);persist();localSessionBase=deepClone(db)}
+      refreshAll();await checkCloudSecurityNow(false);
+      alert(`Portail étudiant ${enabled?'activé':'désactivé'}.`)
+    }catch(e){alert(e?.message||e)}
+  }
+
+  async function revokeSelectedUserSessions(){
+    if(!isOwner())return alert('Fondateur uniquement.');
+    const username=String(sessionRevokeUser?.value||'');
+    if(!username)return alert('Choisissez un utilisateur.');
+    if(username===currentUser?.username)return alert('Utilisez la déconnexion pour votre propre session.');
+    if(!confirm(`Révoquer toutes les sessions Cloud de ${username} ?`))return;
+    try{
+      await webApi('revoke_user_sessions',{username},webToken());
+      showToast(`<b>Sessions révoquées</b><br>${esc(username)} devra se reconnecter.`)
+    }catch(e){alert(e?.message||e)}
+  }
+
+  function populateSessionRevokeUsers(){
+    if(!sessionRevokeUser||!isOwner())return;
+    const rows=(db.users||[]).filter(u=>u.deleted!==true&&u.active!==false&&u.username!==currentUser?.username);
+    const prev=sessionRevokeUser.value;
+    sessionRevokeUser.innerHTML='<option value="">— Choisir —</option>'+rows.map(u=>`<option value="${esc(u.username)}">${esc(u.fullname||u.username)} — ${esc(u.role||'')}</option>`).join('');
+    if(rows.some(u=>u.username===prev))sessionRevokeUser.value=prev
+  }
+
+  async function retryCloudPending(){
+    try{
+      await securePush();await securePull(true);
+      showToast(`<b>Synchronisation terminée</b><br>${pendingChangesCount()} élément(s) encore en attente.`)
+    }catch(e){alert(e?.message||e)}
+  }
+
+  window.showStudentPortalLogin=showStudentPortalLogin;
+  window.studentPortalLogin=studentPortalLogin;
+  window.studentPortalLogout=studentPortalLogout;
+  window.checkCloudSecurityNow=checkCloudSecurityNow;
+  window.loadCloudBackups=loadCloudBackups;
+  window.toggleStudentPortalCloud=toggleStudentPortalCloud;
+  window.revokeSelectedUserSessions=revokeSelectedUserSessions;
+  window.retryCloudPending=retryCloudPending;
+
   function webToken(){return sessionStorage.getItem(WEB_TOKEN_KEY)||''}
   function webStoredUser(){try{return JSON.parse(sessionStorage.getItem(WEB_USER_KEY)||'null')}catch(_e){return null}}
   function webPendingKey(user=currentUser||webStoredUser()){return `eiafc_web_pending_v102_${String(user?.username||'anonymous').toLowerCase()}`}
@@ -4327,7 +4586,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   function webShowAuthChoice(){
     hideLegacyPortal();
     loginOverlay?.classList.remove('hidden');
-    authChoiceBox?.classList.remove('hidden');loginBox?.classList.add('hidden');signupBox?.classList.add('hidden');
+    authChoiceBox?.classList.remove('hidden');loginBox?.classList.add('hidden');signupBox?.classList.add('hidden');studentPortalLoginBox?.classList.add('hidden');
     if(bootStatus){bootStatus.textContent='Connexion Cloud sécurisée — aucun paramètre réseau à saisir.';bootStatus.classList.remove('hidden')}
     loginPassword.value='';if(signupOwnerPassword)signupOwnerPassword.value='';
   }
@@ -4340,7 +4599,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   }
   function webShowSignupForm(){
     hideLegacyPortal();
-    authChoiceBox?.classList.add('hidden');loginBox?.classList.add('hidden');signupBox?.classList.remove('hidden');
+    authChoiceBox?.classList.add('hidden');loginBox?.classList.add('hidden');signupBox?.classList.remove('hidden');studentPortalLoginBox?.classList.add('hidden');
     if(signupSchool)signupSchool.innerHTML='<option value="">École choisie après autorisation du Fondateur</option>';
     if(signupOwnerUsername&&!signupOwnerUsername.value)signupOwnerUsername.value='fondateur';
     resetLoginCardScroll();
@@ -4554,6 +4813,22 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   window.lanConfigured=lanConfigured=function(){return false};
   window.cloudConfigured=cloudConfigured=function(){return !!webToken()};
   window.networkConfigured=networkConfigured=function(){return !!webToken()};
+
+  window.generateStudentPortalPin=async function(){
+    if(!bulletinStudent?.value)return alert("Choisissez un étudiant.");
+    if(!(isOwner()||["Directeur des études","Secrétariat"].includes(roleName())))return alert("Fondateur, Direction des études ou Secrétariat uniquement.");
+    const st=studentByMat(bulletinStudent.value);if(!st)return;
+    const pin=String(Math.floor(100000+Math.random()*900000));
+    const portalPinHash=await makePasswordHash(pin);
+    try{
+      const j=await webApi('set_student_portal_pin',{matricule:st.matricule,portalPinHash},webToken());
+      if(j.state){webBase=normalizeDB(deepClone(j.state));db=deepClone(webBase);persist();localSessionBase=deepClone(db)}
+      logAction("Accès étudiant sécurisé",st.matricule);
+      studentPortalAccessResult.innerHTML=`<div class="portal-preview"><b>Accès étudiant sécurisé pour ${esc(st.name)}</b><div class="student-access-code">${pin}</div><div class="small">Matricule : <b>${esc(st.matricule)}</b>. Communiquez ce code une seule fois. Le code est enregistré uniquement sous forme protégée dans Supabase.</div></div>`;
+      refreshAll()
+    }catch(e){alert(e?.message||e)}
+  };
+
   window.capturePendingPatch=capturePendingPatch=function(){
     if(!webBase||!currentUser)return;
     const p=mergeCloudPatches(loadWebPending(),securePatch(webBase,db));
@@ -4572,6 +4847,10 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   window.cloudNextId=cloudNextId=async function(type,label){const j=await webApi('next_id',{year:activeYear(),kind:type,label},webToken());return j.id};
   window.nextAcademicId=nextAcademicId=async function(type,label){if(webToken()&&navigator.onLine!==false){try{return await cloudNextId(type,label)}catch(e){console.error(e)}}return nextOfflineId(type,label)};
   window.saveDB=saveDB=function(){persist();capturePendingPatch();refreshAll();queueSecurePush()};
+  const originalRenderUsersWeb=window.renderUsers||renderUsers;
+  window.renderUsers=renderUsers=function(){originalRenderUsersWeb();populateSessionRevokeUsers()};
+  setTimeout(()=>{try{if(webToken()){checkCloudSecurityNow(false);if(isOwner())loadCloudBackups(false)}if(studentToken())refreshStudentPortal()}catch(_e){}},1200);
+
   window.startPrimaryBridge=startPrimaryBridge=function(){startWebPolling()};
 
   window.refreshCloudDevices=refreshCloudDevices=async function(interactive=false){
