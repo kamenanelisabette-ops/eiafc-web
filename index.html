@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de l’Université privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-04-v11-1-final-cloud-portal">
+<meta name="eiafc-web-build" content="2026-09-05-v11-3-daily-cash-closing">
 <meta name="author" content="Université privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -806,6 +806,94 @@ body[data-role-theme="secretariat"] .production-hero{
   .student-portal-finance-grid{grid-template-columns:1fr}
 }
 
+
+/* EIAFC V11.2 — Dépenses et recherche rapide paiement */
+.expense-table-wrap,.payments-table-wrap{
+  position:relative;
+  width:100%;
+  max-width:100%;
+  overflow-x:auto !important;
+  scrollbar-gutter:stable both-edges;
+  -webkit-overflow-scrolling:touch;
+}
+.expense-table-wrap::-webkit-scrollbar,.payments-table-wrap::-webkit-scrollbar{height:12px}
+.expense-table-wrap::-webkit-scrollbar-track,.payments-table-wrap::-webkit-scrollbar-track{background:#edf2f6;border-radius:999px}
+.expense-table-wrap::-webkit-scrollbar-thumb,.payments-table-wrap::-webkit-scrollbar-thumb{background:#9db1c0;border:2px solid #edf2f6;border-radius:999px}
+#expensesTable{min-width:1760px}
+#paymentsTable{min-width:1680px}
+#expensesTable th:last-child,#expensesTable td:last-child,
+#paymentsTable th:last-child,#paymentsTable td:last-child{
+  position:sticky;
+  right:0;
+  z-index:5;
+  min-width:178px;
+  background:#fff !important;
+  box-shadow:-10px 0 18px rgba(18,48,74,.09);
+}
+#expensesTable th:last-child,#paymentsTable th:last-child{
+  z-index:8;
+  background:#e8f0f5 !important;
+}
+#expensesTable td:last-child .btn,#paymentsTable td:last-child .btn{margin:2px 0;white-space:nowrap}
+#payStudentSearch{border-color:#b8cbd8!important;background:#fbfdff!important}
+#payStudentSearch:focus{border-color:#2c789f!important;box-shadow:0 0 0 4px rgba(31,110,154,.11)!important}
+#payStudentPreview{min-height:46px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+#expSearch{min-width:250px}
+@media(max-width:760px){
+ #expensesTable{min-width:1550px}
+ #paymentsTable{min-width:1500px}
+ #expensesTable th:last-child,#expensesTable td:last-child,#paymentsTable th:last-child,#paymentsTable td:last-child{min-width:150px}
+ #expSearch{min-width:190px}
+}
+
+
+/* EIAFC V11.3 — Clôture de caisse journalière */
+.closing-daily-summary{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(135px,1fr));
+  gap:9px;
+  padding:12px;
+  border:1px solid #dce7ee;
+  border-radius:14px;
+  background:linear-gradient(135deg,#f8fbfd,#fff);
+}
+.closing-daily-summary .cash-day-item{
+  border:1px solid #e3eaef;
+  border-radius:11px;
+  background:#fff;
+  padding:10px 11px;
+}
+.closing-daily-summary .cash-day-item span{
+  display:block;
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+  color:#71808d;
+  font-weight:900;
+}
+.closing-daily-summary .cash-day-item b{
+  display:block;
+  margin-top:5px;
+  font-size:15px;
+  color:#12344d;
+}
+.closing-daily-summary .cash-day-item.final{
+  border-color:#d4a62e;
+  background:#fff9e8;
+}
+.closing-daily-summary .cash-day-note{
+  grid-column:1/-1;
+  font-size:11px;
+  color:#60717e;
+  line-height:1.45;
+}
+@media(max-width:900px){
+  .closing-daily-summary{grid-template-columns:repeat(2,minmax(135px,1fr))}
+}
+@media(max-width:520px){
+  .closing-daily-summary{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -1026,7 +1114,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.1 • FINALISATION CLOUD • PORTAIL ÉTUDIANT • SÉCURITÉ</span></div>
+    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.3 • CLÔTURE DE CAISSE JOURNALIÈRE • CONTRÔLE RENFORCÉ • CLOUD</span></div>
     <div class="user-mini"><b id="currentUserName">Non connecté</b><span id="currentUserRole"></span><br><button class="btn btn-light btn-sm" onclick="logout()">Déconnexion</button></div>
     <div class="nav">
       <button class="nav-btn active" data-view="dashboard" data-perm="dashboard">📊 Tableau de bord</button>
@@ -1511,7 +1599,9 @@ body[data-role-theme="secretariat"] .production-hero{
         <div class="section-title"><h3>Nouveau versement étudiant</h3></div>
         <form id="paymentForm" class="form-grid">
           <div class="field"><label>Date</label><input type="date" id="payDate" required></div>
-          <div class="field span-2"><label>Étudiant</label><select id="payStudent" required></select></div>
+          <div class="field span-2"><label>🔎 Rechercher un étudiant</label><input id="payStudentSearch" placeholder="Nom, prénom, matricule ou téléphone..." autocomplete="off" oninput="updateStudentSelect()"><div class="small" id="payStudentSearchInfo">Tapez quelques lettres du nom ou du matricule.</div></div>
+          <div class="field span-2"><label>Étudiant sélectionné</label><select id="payStudent" required onchange="updatePaymentStudentPreview()"></select></div>
+          <div class="field span-4"><div id="payStudentPreview" class="info"><b>Étudiant :</b> recherchez puis sélectionnez l’étudiant avant d’enregistrer le paiement.</div></div>
           <div class="field"><label>Type paiement</label><select id="payType"><option>Inscription</option><option>Scolarité</option><option>Dossier</option><option>Examen</option><option>Soutenance</option><option>Tenue</option><option>Attestation</option><option>Autre</option></select></div>
           <div class="field"><label>Mode paiement</label><select id="payMode"><option>Espèces</option><option>Wave</option><option>MTN Mobile Money</option><option>Banque</option><option>Orange Money</option><option>Chèque</option><option>Autre</option></select></div>
           <div class="field"><label>Montant (FCFA)</label><input type="number" min="1" id="payAmount" required></div>
@@ -1524,7 +1614,7 @@ body[data-role-theme="secretariat"] .production-hero{
       </div>
       <div class="card" style="margin-top:16px">
         <div class="section-title"><h3>Historique des paiements</h3><div class="toolbar"><input id="paySearch" placeholder="Rechercher reçu, étudiant..." oninput="renderPayments()"><select id="payProgramFilter" onchange="updatePayTrackOptions();renderPayments()"><option value="">Tous programmes</option><option>Formation qualifiante</option><option>BTS 1</option><option>BTS 2</option><option>Licence</option><option>Master</option><option value="BTS à classer">⚠ BTS à classer</option></select><select id="payAssignmentFilter" onchange="renderPayments()"><option value="">Tous statuts d’affectation</option><option value="assigned">Affectés de l’État</option><option value="unassigned">Non affectés</option><option value="unspecified">⚠ À préciser</option></select><select id="payTrackFilter" onchange="renderPayments()"><option value="">Toutes filières</option></select><select id="payStatusFilter" onchange="renderPayments()"><option value="">Tous statuts</option><option>En attente</option><option>Validé</option><option>Rejeté</option><option>Annulé</option></select><button class="btn btn-light btn-sm" onclick="exportCSV('payments')">Exporter CSV</button></div></div>
-        <div class="table-wrap"><table id="paymentsTable"></table></div>
+        <div class="table-wrap payments-table-wrap"><table id="paymentsTable"></table></div>
       </div>
     </section>
 
@@ -1594,7 +1684,7 @@ body[data-role-theme="secretariat"] .production-hero{
           <div class="field span-4"><button class="btn btn-primary" type="submit">Enregistrer le règlement</button></div>
         </form>
       </div>
-      <div class="card" style="margin-top:16px"><div class="section-title"><h3>Dépenses & dettes fournisseurs</h3><div class="toolbar"><select id="expProgramFilter" onchange="renderExpenses()"><option value="">Tous programmes</option><option>Formation qualifiante</option><option>BTS 1</option><option>BTS 2</option><option>Licence</option><option>Master</option><option>Administration générale</option><option value="BTS à classer">⚠ BTS à classer</option></select><button class="btn btn-light btn-sm" onclick="exportCSV('expenses')">Exporter dépenses</button><button class="btn btn-light btn-sm" onclick="exportCSV('expense_payments')">Exporter règlements</button></div></div><div class="grid kpis" id="expenseKpis" style="margin-bottom:12px"></div><div class="table-wrap"><table id="expensesTable"></table></div></div>
+      <div class="card" style="margin-top:16px"><div class="section-title"><h3>Dépenses & dettes fournisseurs</h3><div class="toolbar"><input id="expSearch" placeholder="Rechercher dépense, fournisseur, libellé..." oninput="renderExpenses()"><select id="expProgramFilter" onchange="renderExpenses()"><option value="">Tous programmes</option><option>Formation qualifiante</option><option>BTS 1</option><option>BTS 2</option><option>Licence</option><option>Master</option><option>Administration générale</option><option value="BTS à classer">⚠ BTS à classer</option></select><button class="btn btn-light btn-sm" onclick="exportCSV('expenses')">Exporter dépenses</button><button class="btn btn-light btn-sm" onclick="exportCSV('expense_payments')">Exporter règlements</button></div></div><div class="grid kpis" id="expenseKpis" style="margin-bottom:12px"></div><div class="small" style="margin:6px 0 9px"><b>Correction d’erreur :</b> le Fondateur peut utiliser <b>Supprimer erreur</b>. La dépense et ses règlements liés sont retirés des états, mais la trace reste dans l’audit.</div><div class="table-wrap expense-table-wrap"><table id="expensesTable"></table></div></div>
       <div class="card" style="margin-top:16px"><div class="section-title"><h3>Historique des règlements fournisseurs</h3></div><div class="table-wrap"><table id="expensePaymentsTable"></table></div></div>
     </section>
 
@@ -1652,15 +1742,21 @@ body[data-role-theme="secretariat"] .production-hero{
           <div class="section-title"><h3>Clôturer la caisse espèces</h3></div>
           <form id="closingForm" class="form-grid">
             <div class="field"><label>Date de clôture</label><input type="date" id="closingDate" required onchange="updateClosingPreview()"></div>
-            <div class="field"><label>Solde théorique</label><input id="closingTheoretical" readonly></div>
-            <div class="field"><label>Espèces réellement comptées</label><input type="number" id="closingActual" required oninput="updateClosingPreview()"></div>
-            <div class="field"><label>Écart</label><input id="closingDifference" readonly></div>
-            <div class="field span-4"><label>Justification de l'écart</label><textarea id="closingNote" rows="3"></textarea></div>
+            <div class="field"><label>Solde théorique de fin de journée</label><input id="closingTheoretical" readonly></div>
+            <div class="field"><label>Espèces réellement comptées</label><input type="number" id="closingActual" required oninput="updateClosingPreview()" placeholder="Comptez la caisse puis saisissez le montant"></div>
+            <div class="field"><label>Écart</label><input id="closingDifference" readonly placeholder="—"></div>
+            <div class="field span-4">
+              <div id="closingDailySummary" class="closing-daily-summary"></div>
+            </div>
+            <div class="field span-4"><label>Justification de l'écart</label><textarea id="closingNote" rows="3" placeholder="Obligatoire seulement s'il existe un écart réel"></textarea></div>
             <div class="field"><label>Responsable</label><input id="closingAgent" readonly></div>
             <div class="field span-4"><button class="btn btn-primary" type="submit">Enregistrer la clôture</button></div>
           </form>
         </div>
-        <div class="card"><div class="section-title"><h3>Règle de contrôle</h3></div><div class="info">La clôture compare le <b>solde théorique espèces</b> avec le montant réellement présent dans la caisse. Tout écart doit être justifié et restera dans l'historique.</div></div>
+        <div class="card"><div class="section-title"><h3>Règle de contrôle</h3></div>
+          <div class="info"><b>Calcul journalier :</b> solde d’ouverture de la journée + encaissements espèces du jour + transferts reçus − décaissements espèces du jour − transferts sortis = <b>solde théorique de fin de journée</b>.</div>
+          <div class="notice" style="margin-top:12px">Si une clôture antérieure existe, le logiciel repart du <b>montant réellement compté</b> lors de cette clôture, puis intègre automatiquement les mouvements intervenus depuis. Les jours non clôturés ne sont donc pas perdus.</div>
+        </div>
       </div>
       <div class="card" style="margin-top:16px"><div class="section-title"><h3>Historique des clôtures</h3></div><div class="table-wrap"><table id="closingsTable"></table></div></div>
     </section>
@@ -2026,7 +2122,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.1.0";
+const APP_VERSION="11.3.0";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -3902,7 +3998,22 @@ function archiveInventoryItem(id){if(!can("inventory"))return;const x=db.invento
 function deleteInventoryItem(id){if(!canFounderDelete())return alert("Suppression réservée au Fondateur.");const x=db.inventory.find(a=>a.id===id);if(!x||x.deleted===true)return;const moves=db.inventoryMoves.filter(m=>m.deleted!==true&&m.itemId===id);if(moves.length)return alert("Cet article possède des mouvements de stock. Archivez-le au lieu de le supprimer pour préserver l’audit.");const reason=prompt(`Motif de suppression de ${x.label} :`);if(!reason?.trim())return;x.deleted=true;x.deletedAt=new Date().toISOString();x.deletedBy=currentUserLabel();x.deleteReason=reason.trim();logAction("SUPPRESSION FONDATEUR",`Article stock ${x.label} — ${reason.trim()}`);saveDB()}
 function renderInventory(){if(!inventoryTable)return;updateInventoryItemSelect();const items=currentRecords(db.inventory),rows=items.map(x=>({...x,...inventoryPosition(x.id)})),activeRows=rows.filter(x=>x.active!==false),low=activeRows.filter(x=>x.qty<=Number(x.minStock||0)),zero=activeRows.filter(x=>x.qty<=0),totalValue=activeRows.reduce((a,x)=>a+Number(x.value||0),0);inventoryKpis.innerHTML=[["Articles actifs",activeRows.length],["À réapprovisionner",low.length],["Articles à zéro",zero.length],["Valeur estimée du stock",fmt(totalValue)]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");inventoryTable.innerHTML=`<thead><tr><th>Réf.</th><th>Article</th><th>Catégorie</th><th>Emplacement</th><th>Unité</th><th class="money">Stock</th><th class="money">Coût moyen</th><th class="money">Valeur</th><th class="money">Seuil</th><th>État</th><th>Actions</th></tr></thead><tbody>${rows.length?rows.map(x=>`<tr class="${x.active!==false&&x.qty<=Number(x.minStock||0)?"low-stock":""}"><td>${esc(x.sku||"—")}</td><td><b>${esc(x.label)}</b></td><td>${esc(x.category)}</td><td>${esc(x.location||"—")}</td><td>${esc(x.unit)}</td><td class="money"><b>${x.qty}</b></td><td class="money">${fmt(x.avgCost)}</td><td class="money"><b>${fmt(x.value)}</b></td><td class="money">${x.minStock}</td><td>${x.active===false?'<span class="status pending">Archivé</span>':x.qty<=Number(x.minStock||0)?'<span class="status rejected">À réapprovisionner</span>':'<span class="status valid">OK</span>'}</td><td><button class="btn btn-light btn-sm" onclick="archiveInventoryItem('${x.id}')">${x.active===false?"Réactiver":"Archiver"}</button> ${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="deleteInventoryItem('${x.id}')">Supprimer</button>`:""}</td></tr>`).join(""):`<tr><td colspan="11" class="empty">Aucun article de stock</td></tr>`}</tbody>`;const moves=currentRecords(db.inventoryMoves).filter(x=>x.deleted!==true).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.createdAt||"").localeCompare(String(a.createdAt||"")));inventoryMovesTable.innerHTML=`<thead><tr><th>Date</th><th>Article</th><th>Type</th><th class="money">Quantité</th><th class="money">Coût unit.</th><th class="money">Valeur</th><th>Fournisseur / destination</th><th>Référence</th><th>Observation</th><th>Agent</th><th>Sync</th><th>Action</th></tr></thead><tbody>${moves.length?moves.map(x=>{const i=db.inventory.find(a=>a.id===x.itemId),cost=Number(x.unitCost||0);return`<tr><td>${x.date}</td><td>${esc(i?.label||"Article supprimé")}</td><td><span class="status ${x.type==="Entrée"?"valid":"pending"}">${x.type}</span></td><td class="money">${x.qty} ${esc(i?.unit||"")}</td><td class="money">${fmt(cost)}</td><td class="money">${fmt(Number(x.qty||0)*cost)}</td><td>${esc(x.party||"—")}</td><td>${esc(x.ref||"")}</td><td>${esc(x.obs||"")}</td><td>${esc(x.agent||"")}</td><td>${syncBadgeFor("inventoryMoves",x.id)}</td><td>${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="founderDeleteOperation('inventoryMoves','${x.id}')">Supprimer</button>`:""}</td></tr>`}).join(""):`<tr><td colspan="12" class="empty">Aucun mouvement</td></tr>`}</tbody>`}
 
-function updateStudentSelect(){const old=payStudent.value;payStudent.innerHTML='<option value="">Sélectionner...</option>'+currentStudents().filter(s=>s.status==="Actif").sort((a,b)=>a.name.localeCompare(b.name)).map(s=>`<option value="${s.matricule}">${s.matricule} — ${esc(s.name)} — ${esc(studentAssignmentLabel(s)+" — "+(s.track||"filière à renseigner"))}</option>`).join("");if([...payStudent.options].some(o=>o.value===old))payStudent.value=old}
+function updateStudentSelect(){
+ if(!payStudent)return;
+ const old=payStudent.value,q=textKey(payStudentSearch?.value||"");
+ let rows=currentStudents().filter(s=>s.status==="Actif").filter(s=>!q||textKey([s.name,s.matricule,s.phone,s.track,s.program,studentAssignmentLabel(s)].join(" ")).includes(q)).sort((a,b)=>a.name.localeCompare(b.name,"fr"));
+ payStudent.innerHTML=(rows.length?'<option value="">Sélectionner...</option>':'<option value="">Aucun étudiant trouvé</option>')+rows.map(s=>`<option value="${s.matricule}">${esc(s.name)} — ${s.matricule} — ${esc(s.phone||"")} — ${esc(s.track||"filière à renseigner")}</option>`).join("");
+ if(rows.some(s=>s.matricule===old))payStudent.value=old;
+ else if(q&&rows.length===1)payStudent.value=rows[0].matricule;
+ if(payStudentSearchInfo)payStudentSearchInfo.textContent=q?`${rows.length} étudiant(s) trouvé(s)${rows.length===1?" — sélection automatique":""}.`:`${rows.length} étudiant(s) actif(s) — recherchez par nom, matricule ou téléphone.`;
+ updatePaymentStudentPreview()
+}
+function updatePaymentStudentPreview(){
+ if(!payStudentPreview)return;const s=studentByMat(payStudent?.value);
+ if(!s){payStudentPreview.innerHTML='<b>Étudiant :</b> recherchez puis sélectionnez l’étudiant avant d’enregistrer le paiement.';return}
+ const rest=studentRest(s),paid=studentDebtPaid(s.matricule);
+ payStudentPreview.innerHTML=`<b>${esc(s.name)}</b><span class="badge">${esc(s.matricule)}</span><span>${esc(s.program)} • ${esc(s.track||"filière à renseigner")}</span><span>• ${esc(s.phone||"sans téléphone")}</span><span>• Payé ${fmt(paid)} • <b>Reste ${fmt(rest)}</b></span>`
+}
 
 function findPaymentDuplicate(student,date,type,mode,amount,ref){
  const rk=textKey(ref),transactionRef=mode!=="Espèces"&&!!rk;
@@ -3915,7 +4026,7 @@ paymentForm.addEventListener("submit",async e=>{
  const dupPay=findPaymentDuplicate(st.matricule,payDate.value,payType.value,payMode.value,amount,payRef.value);if(dupPay){if(payMode.value!=="Espèces"&&payRef.value.trim()&&dupPay.mode===payMode.value&&textKey(dupPay.ref)===textKey(payRef.value))return alert(`Cette référence de transaction est déjà utilisée sur le reçu ${dupPay.receipt}. Saisissez la vraie référence de l’opérateur avant de continuer.`);if(!confirm(`Un paiement identique existe déjà (${dupPay.receipt}). Voulez-vous vraiment enregistrer un second paiement ?`))return}
  if(DEBT_PAYMENT_TYPES.has(payType.value)){const rest=studentRest(st);if(rest<=0&&!confirm("Cet étudiant est déjà soldé pour l'inscription et la scolarité. Voulez-vous quand même enregistrer ce paiement ?"))return;if(rest>0&&amount>rest&&!confirm(`Ce versement (${fmt(amount)}) dépasse le reste inscription/scolarité (${fmt(rest)}). Continuer ?`))return}
  const receipt=await nextUniqueAcademicId("payment",`REC-${activeSchoolCode()}`);if(!receipt)return;const obj={schoolId:activeSchoolId(),academicYear:activeYear(),date:payDate.value,receipt,createdOffline:isOfflineId(receipt),device:deviceName(),student:payStudent.value,type:payType.value,mode:payMode.value,amount,ref:payRef.value.trim(),agent:currentUserLabel(),obs:payObs.value.trim(),status:can("validate")?payStatus.value:"En attente",createdBy:currentUserLabel(),createdAt:new Date().toISOString()};
- db.payments.unshift(obj);logAction("Nouveau paiement",`${obj.receipt} - ${obj.student} - ${fmt(obj.amount)} - ${obj.status}`);saveDB();paymentForm.reset();payDate.value=defaultManagementDate();payAgent.value=currentUserLabel();if(can("validate"))payStatus.value="En attente";showReceipt(obj.receipt)
+ db.payments.unshift(obj);logAction("Nouveau paiement",`${obj.receipt} - ${obj.student} - ${fmt(obj.amount)} - ${obj.status}`);saveDB();paymentForm.reset();if(payStudentSearch)payStudentSearch.value="";updateStudentSelect();payDate.value=defaultManagementDate();payAgent.value=currentUserLabel();if(can("validate"))payStatus.value="En attente";showReceipt(obj.receipt)
 });
 function renderPayments(){
  const q=(paySearch?.value||"").toLowerCase(),sf=payStatusFilter?.value||"",pf=payProgramFilter?.value||"",af=payAssignmentFilter?.value||"",tf=payTrackFilter?.value||"";const arr=currentRecords(db.payments).filter(p=>{const st=studentByMat(p.student);return(!sf||p.status===sf)&&(!pf||st?.program===pf)&&assignmentMatches(st,af)&&(!tf||studentTrackValue(st)===tf)&&([p.receipt,p.student,st?.name,p.ref,st?.program,st?.track,studentAssignmentLabel(st)].join(" ").toLowerCase().includes(q))});
@@ -3941,7 +4052,7 @@ function showStudentFinance(mat){
  studentFinanceModal.classList.add("show")
 }
 function closeStudentFinance(){studentFinanceModal.classList.remove("show")}
-function startPaymentFor(mat){if(!can("payments"))return alert("Votre rôle ne permet pas d’enregistrer un paiement.");closeStudentFinance();document.querySelector('[data-view="payments"]').click();payStudent.value=mat;payAmount.focus()}
+function startPaymentFor(mat){if(!can("payments"))return alert("Votre rôle ne permet pas d’enregistrer un paiement.");closeStudentFinance();document.querySelector('[data-view="payments"]').click();const s=studentByMat(mat);if(payStudentSearch)payStudentSearch.value=s?.name||mat;updateStudentSelect();payStudent.value=mat;updatePaymentStudentPreview();payAmount.focus()}
 
 otherForm.addEventListener("submit",async e=>{
  e.preventDefault();if(!can("other"))return;if(!requireManagementDate(otherDate.value,"La date de la recette")||!requireOpenPeriod(otherDate.value,"La recette"))return;const amount=+otherAmount.value||0;if(amount<=0)return alert("Le montant de la recette doit être supérieur à zéro.");if(otherMode.value!=="Espèces"&&!otherRef.value.trim())return alert("Pour une recette non-espèces, la référence est obligatoire pour l’audit.");const receipt=await nextUniqueAcademicId("other",`ARD-${activeSchoolCode()}`);if(!receipt)return;const program=normalizeOperationProgram(otherService.value);const x={schoolId:activeSchoolId(),academicYear:activeYear(),date:otherDate.value,receipt,createdOffline:isOfflineId(receipt),device:deviceName(),type:otherType.value,label:otherLabel.value.trim(),mode:otherMode.value,amount,ref:otherRef.value.trim(),program,service:program,serviceLabel:program,track:cleanTrack(otherTrack.value),agent:currentUserLabel(),createdBy:currentUserLabel(),createdAt:new Date().toISOString(),status:can("validate")?otherStatus.value:"En attente"};db.other.unshift(x);logAction("Autre recette",`${x.receipt} - ${program} / ${x.track} - ${fmt(x.amount)} - ${x.status}`);saveDB();otherForm.reset();otherService.value=GENERAL_PROGRAM;otherTrack.value="";otherDate.value=defaultManagementDate();otherAgent.value=currentUserLabel()
@@ -4012,7 +4123,23 @@ function cancelExpensePayment(id){
  if(found.expense){const ep=(found.expense.settlements||[]).find(q=>String(q.id)===String(id));if(ep)Object.assign(ep,stamp);found.expense.paidMirror=expensePaidTotal(found.expense);found.expense.lastSettlementAt=new Date().toISOString()}
  logAction("Annulation règlement fournisseur",`${id} — ${reason.trim()}`);saveDB()
 }
-function renderExpenses(){const pf=expProgramFilter?.value||"",arr=currentRecords(db.expenses).filter(x=>!pf||operationProgram(x)===pf).sort((a,b)=>String(b.date).localeCompare(String(a.date))),valid=arr.filter(x=>x.status==="Validé"),engaged=valid.reduce((a,x)=>a+expenseTotal(x),0),paid=valid.reduce((a,x)=>a+expensePaidTotal(x),0),rest=valid.reduce((a,x)=>a+expenseRest(x),0),open=valid.filter(x=>expenseRest(x)>0).length;if(expenseKpis)expenseKpis.innerHTML=[["Dépenses engagées",fmt(engaged)],["Déjà payé",fmt(paid)],["Reste fournisseurs",fmt(rest)],["Factures non soldées",open]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");expensesTable.innerHTML=`<thead><tr><th>Date</th><th>Échéance</th><th>N°</th><th>Programme</th><th>Filière</th><th>Catégorie</th><th>Fournisseur</th><th>Libellé</th><th class="money">Engagé</th><th class="money">Payé</th><th class="money">Reste</th><th>Situation</th><th>Statut</th><th>Sync</th><th>Action</th></tr></thead><tbody>${arr.length?arr.map(x=>{const paid=expensePaidTotal(x),reste=expenseRest(x),sett=expenseSettlementStatus(x),over=x.status==="Validé"&&reste>0&&String(x.dueDate||x.date)<today();return`<tr class="${over?"schedule-overdue":""}"><td>${x.date}</td><td>${x.dueDate||x.date}</td><td>${esc(x.id)}</td><td><b>${esc(operationProgram(x))}</b></td><td>${esc(operationTrack(x))}</td><td>${esc(x.category)}</td><td>${esc(x.beneficiary||"—")}</td><td>${esc(x.label)}</td><td class="money">${fmt(expenseTotal(x))}</td><td class="money">${fmt(paid)}</td><td class="money"><b>${fmt(reste)}</b></td><td><span class="status ${sett==="Soldée"?"valid":sett==="Partielle"?"pending":sett==="Non payée"?"rejected":statusClass(x.status)}">${esc(sett)}</span>${over?'<br><span class="small">Échéance dépassée</span>':''}</td><td><span class="status ${statusClass(x.status)}">${x.status}</span></td><td>${syncBadgeFor("expenses",x.id)}</td><td>${x.status==="Validé"&&reste>0?`<button class="btn btn-gold btn-sm" onclick="selectExpenseForPayment('${x.id}')">Payer / avance</button> `:""}${can("cancel")&&x.status!=="Annulé"?`<button class="btn btn-danger btn-sm" onclick="cancelExpense('${x.id}')">Annuler</button>`:""} ${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="founderDeleteOperation('expenses','${x.id}')">Supprimer</button>`:""}</td></tr>`}).join(""):`<tr><td colspan="15" class="empty">Aucune dépense</td></tr>`}</tbody>`;const pays=expensePaymentHistoryRows().sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.createdAt||"").localeCompare(String(a.createdAt||"")));if(expensePaymentsTable)expensePaymentsTable.innerHTML=`<thead><tr><th>Date</th><th>Dépense</th><th>Fournisseur</th><th>Mode</th><th class="money">Montant</th><th>Référence</th><th>Observation</th><th>Statut</th><th>Sync</th><th>Action</th></tr></thead><tbody>${pays.length?pays.map(p=>{const x=db.expenses.find(e=>e.id===p.expenseId);return`<tr><td>${p.date}</td><td>${esc(p.expenseId)}</td><td>${esc(x?.beneficiary||x?.label||"—")}</td><td>${esc(p.mode)}</td><td class="money"><b>${fmt(p.amount)}</b></td><td>${esc(p.ref||"")}</td><td>${esc(p.obs||"")}</td><td><span class="status ${p.status==="Annulé"?"cancelled":"valid"}">${esc(p.status)}</span></td><td>${p.embedded&&!(db.expensePayments||[]).some(q=>String(q.id)===String(p.id))?'<span class="sync-ok">✓ intégré</span>':syncBadgeFor("expensePayments",p.id)}</td><td>${p.status!=="Annulé"&&can("cancel")?`<button class="btn btn-danger btn-sm" onclick="cancelExpensePayment('${p.id}')">Annuler</button>`:""}</td></tr>`}).join(""):`<tr><td colspan="10" class="empty">Aucun règlement fournisseur distinct</td></tr>`}</tbody>`;updateExpensePaymentSelect()}
+function founderDeleteExpense(id){
+ if(!canFounderDelete())return alert("Suppression réservée au Fondateur.");
+ const x=db.expenses.find(v=>String(v.id)===String(id)&&v.deleted!==true);if(!x)return alert("Cette dépense est introuvable ou déjà supprimée.");
+ if(!requireOpenPeriod(x.date,"La suppression de la dépense"))return;
+ const direct=(db.expensePayments||[]).filter(p=>p.deleted!==true&&String(p.expenseId)===String(id));
+ const embedded=(x.settlements||[]).filter(p=>p&&p.deleted!==true&&p.status!=="Annulé");
+ const paid=expensePaidTotal(x),reason=prompt(`Motif obligatoire de suppression de la dépense ${id} :`);if(!reason?.trim())return;
+ const detail=paid>0?`\n\nCette dépense contient ${fmt(paid)} de règlement(s). ${direct.length||embedded.length} règlement(s) lié(s) seront également retirés des états et de la trésorerie.`:"";
+ if(!confirm(`CONFIRMATION FONDATEUR : supprimer la dépense ${id} ?\n\n${x.beneficiary||""} — ${x.label||""} — ${fmt(expenseTotal(x))}${detail}\n\nLa trace restera dans l'audit et les sauvegardes.`))return;
+ const stamp=new Date().toISOString(),who=currentUserLabel(),why=reason.trim();
+ x.deleted=true;x.deletedAt=stamp;x.deletedBy=who;x.deleteReason=why;
+ direct.forEach(p=>{p.deleted=true;p.deletedAt=stamp;p.deletedBy=who;p.deleteReason=`Suppression dépense ${id} — ${why}`;p.status="Annulé";p.cancelReason=why;p.cancelledAt=stamp;p.cancelledBy=who});
+ (x.settlements||[]).forEach(p=>{if(!p)return;p.deleted=true;p.deletedAt=stamp;p.deletedBy=who;p.deleteReason=`Suppression dépense ${id} — ${why}`;p.status="Annulé";p.cancelReason=why;p.cancelledAt=stamp;p.cancelledBy=who});
+ logAction("SUPPRESSION FONDATEUR",`Dépense ${id} — ${x.label||""} — ${fmt(expenseTotal(x))} — ${direct.length} règlement(s) liés — ${why}`);
+ saveDB();showToast(`<b>Dépense supprimée des états</b><br>${esc(id)} peut maintenant être ressaisie correctement.`)
+}
+function renderExpenses(){const pf=expProgramFilter?.value||"",q=textKey(expSearch?.value||""),arr=currentRecords(db.expenses).filter(x=>(!pf||operationProgram(x)===pf)&&(!q||textKey([x.id,x.beneficiary,x.label,x.category,operationProgram(x),operationTrack(x),x.ref].join(" ")).includes(q))).sort((a,b)=>String(b.date).localeCompare(String(a.date))),valid=arr.filter(x=>x.status==="Validé"),engaged=valid.reduce((a,x)=>a+expenseTotal(x),0),paid=valid.reduce((a,x)=>a+expensePaidTotal(x),0),rest=valid.reduce((a,x)=>a+expenseRest(x),0),open=valid.filter(x=>expenseRest(x)>0).length;if(expenseKpis)expenseKpis.innerHTML=[["Dépenses engagées",fmt(engaged)],["Déjà payé",fmt(paid)],["Reste fournisseurs",fmt(rest)],["Factures non soldées",open]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");expensesTable.innerHTML=`<thead><tr><th>Date</th><th>Échéance</th><th>N°</th><th>Programme</th><th>Filière</th><th>Catégorie</th><th>Fournisseur</th><th>Libellé</th><th class="money">Engagé</th><th class="money">Payé</th><th class="money">Reste</th><th>Situation</th><th>Statut</th><th>Sync</th><th>Action</th></tr></thead><tbody>${arr.length?arr.map(x=>{const paid=expensePaidTotal(x),reste=expenseRest(x),sett=expenseSettlementStatus(x),over=x.status==="Validé"&&reste>0&&String(x.dueDate||x.date)<today();return`<tr class="${over?"schedule-overdue":""}"><td>${x.date}</td><td>${x.dueDate||x.date}</td><td>${esc(x.id)}</td><td><b>${esc(operationProgram(x))}</b></td><td>${esc(operationTrack(x))}</td><td>${esc(x.category)}</td><td>${esc(x.beneficiary||"—")}</td><td>${esc(x.label)}</td><td class="money">${fmt(expenseTotal(x))}</td><td class="money">${fmt(paid)}</td><td class="money"><b>${fmt(reste)}</b></td><td><span class="status ${sett==="Soldée"?"valid":sett==="Partielle"?"pending":sett==="Non payée"?"rejected":statusClass(x.status)}">${esc(sett)}</span>${over?'<br><span class="small">Échéance dépassée</span>':''}</td><td><span class="status ${statusClass(x.status)}">${x.status}</span></td><td>${syncBadgeFor("expenses",x.id)}</td><td>${x.status==="Validé"&&reste>0?`<button class="btn btn-gold btn-sm" onclick="selectExpenseForPayment('${x.id}')">Payer / avance</button> `:""}${can("cancel")&&x.status!=="Annulé"?`<button class="btn btn-danger btn-sm" onclick="cancelExpense('${x.id}')">Annuler</button>`:""} ${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="founderDeleteExpense('${x.id}')">Supprimer erreur</button>`:""}</td></tr>`}).join(""):`<tr><td colspan="15" class="empty">Aucune dépense</td></tr>`}</tbody>`;const pays=expensePaymentHistoryRows().sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.createdAt||"").localeCompare(String(a.createdAt||"")));if(expensePaymentsTable)expensePaymentsTable.innerHTML=`<thead><tr><th>Date</th><th>Dépense</th><th>Fournisseur</th><th>Mode</th><th class="money">Montant</th><th>Référence</th><th>Observation</th><th>Statut</th><th>Sync</th><th>Action</th></tr></thead><tbody>${pays.length?pays.map(p=>{const x=db.expenses.find(e=>e.id===p.expenseId);return`<tr><td>${p.date}</td><td>${esc(p.expenseId)}</td><td>${esc(x?.beneficiary||x?.label||"—")}</td><td>${esc(p.mode)}</td><td class="money"><b>${fmt(p.amount)}</b></td><td>${esc(p.ref||"")}</td><td>${esc(p.obs||"")}</td><td><span class="status ${p.status==="Annulé"?"cancelled":"valid"}">${esc(p.status)}</span></td><td>${p.embedded&&!(db.expensePayments||[]).some(q=>String(q.id)===String(p.id))?'<span class="sync-ok">✓ intégré</span>':syncBadgeFor("expensePayments",p.id)}</td><td>${p.status!=="Annulé"&&can("cancel")?`<button class="btn btn-danger btn-sm" onclick="cancelExpensePayment('${p.id}')">Annuler</button>`:""}</td></tr>`}).join(""):`<tr><td colspan="10" class="empty">Aucun règlement fournisseur distinct</td></tr>`}</tbody>`;updateExpensePaymentSelect()}
 function selectExpenseForPayment(id){updateExpensePaymentSelect();expensePaymentExpense.value=id;expensePaymentDate.value=defaultManagementDate();const x=db.expenses.find(v=>v.id===id);expensePaymentAmount.value=x?expenseRest(x):"";expensePaymentMode.value=x?.mode||"Espèces";expensePaymentRef.value="";expensePaymentObs.value="";expensePaymentExpense.scrollIntoView({behavior:"smooth",block:"center"})}
 function cancelExpense(id){const x=db.expenses.find(a=>a.id===id),r=prompt("Motif de l'annulation :");if(!x||!r?.trim())return;if(expensePaidTotal(x)>0&&!confirm(`Cette dépense a déjà ${fmt(expensePaidTotal(x))} de règlement(s). L'annulation exclura la charge et les règlements de la trésorerie. Continuer ?`))return;x.status="Annulé";x.cancelReason=r.trim();logAction("Annulation dépense",`${id} - ${r.trim()}`);saveDB()}
 
@@ -4050,13 +4177,153 @@ function renderCash(){
 }
 function addDays(dateStr,n){const d=new Date(dateStr+"T12:00:00");d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
 
-function updateClosingPreview(){const d=closingDate?.value||today(),theo=cashBalanceAt(d),actual=Number(closingActual?.value||0),diff=actual-theo;if(closingTheoretical)closingTheoretical.value=fmt(theo);if(closingDifference)closingDifference.value=fmt(diff)}
+function cashFlowPartsByMatch(match){
+ const cashIn=
+  validPayments().filter(x=>match(x.date)&&treasuryChannel(x.mode)==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0)+
+  validOther().filter(x=>match(x.date)&&treasuryChannel(x.mode)==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0);
+ const cashOut=
+  expenseCashMovements().filter(x=>match(x.date)&&treasuryChannel(x.mode)==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0)+
+  payrollPaid().filter(x=>match(x.payDate)&&treasuryChannel(x.mode)==="Espèces").reduce((a,x)=>a+Number(x.net||0),0)+
+  currentRecords(db.staffLoans).filter(x=>x.status!=="Annulé"&&match(x.date)&&treasuryChannel(x.mode)==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0);
+ const transferIn=validTransfers().filter(x=>match(x.date)&&treasuryChannel(x.to)==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0);
+ const transferOut=validTransfers().filter(x=>match(x.date)&&treasuryChannel(x.from)==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0);
+ return{cashIn,cashOut,transferIn,transferOut,net:cashIn+transferIn-cashOut-transferOut}
+}
+
+function cashClosingComputation(date){
+ date=String(date||"");
+ const closes=[...currentRecords(db.closings)]
+  .filter(x=>String(x.date||"")<date)
+  .sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))||String(b.time||"").localeCompare(String(a.time||"")));
+ const previous=closes[0]||null;
+ const managementStart=managementBounds().start;
+ const base=previous?Number(previous.actual||0):Number(openingForYear().cash||0);
+
+ // Mouvements après la dernière clôture et AVANT la journée sélectionnée.
+ const bridge=cashFlowPartsByMatch(d=>{
+  d=String(d||"");
+  if(!d||d>=date)return false;
+  return previous?d>String(previous.date||""):d>=managementStart
+ });
+ const opening=base+bridge.net;
+
+ // Mouvements strictement de la journée sélectionnée.
+ const day=cashFlowPartsByMatch(d=>String(d||"")===date);
+ const theoretical=opening+day.net;
+
+ return{
+  date,previous,base,bridge,opening,
+  cashIn:day.cashIn,cashOut:day.cashOut,
+  transferIn:day.transferIn,transferOut:day.transferOut,
+  dailyNet:day.net,theoretical,
+  baseLabel:previous?`Clôture ${previous.date} — ${previous.id}`:`Solde d’ouverture ${activeYear()}`
+ }
+}
+
+function expectedClosingTheoretical(c){
+ if(!c?.date)return Number(c?.theoretical||0);
+ return cashClosingComputation(c.date).theoretical
+}
+
+function updateClosingPreview(){
+ const d=closingDate?.value||today(),calc=cashClosingComputation(d);
+ if(closingTheoretical)closingTheoretical.value=fmt(calc.theoretical);
+
+ const raw=String(closingActual?.value??"").trim(),hasActual=raw!=="";
+ if(closingDifference){
+  closingDifference.value=hasActual?fmt(Number(raw)-calc.theoretical):"";
+  closingDifference.placeholder="—";
+ }
+
+ if(closingDailySummary){
+  const transferNet=calc.transferIn-calc.transferOut;
+  closingDailySummary.innerHTML=`
+   <div class="cash-day-item"><span>Ouverture du jour</span><b>${fmt(calc.opening)}</b></div>
+   <div class="cash-day-item"><span>Entrées espèces du jour</span><b>${fmt(calc.cashIn)}</b></div>
+   <div class="cash-day-item"><span>Sorties espèces du jour</span><b>${fmt(calc.cashOut)}</b></div>
+   <div class="cash-day-item"><span>Transferts nets espèces</span><b>${fmt(transferNet)}</b></div>
+   <div class="cash-day-item final"><span>Théorique fin de journée</span><b>${fmt(calc.theoretical)}</b></div>
+   <div class="cash-day-note"><b>Base :</b> ${esc(calc.baseLabel)}.${calc.bridge.net?` Mouvements non clôturés antérieurs intégrés : <b>${fmt(calc.bridge.net)}</b>.`:""} Les chiffres « Entrées » et « Sorties » ci-dessus concernent uniquement le <b>${d}</b>.</div>`;
+ }
+}
+
 closingForm.addEventListener("submit",async e=>{
- e.preventDefault();if(!can("closing"))return;if(!requireManagementDate(closingDate.value,"La date de clôture")||!requireOpenPeriod(closingDate.value,"La clôture"))return;const date=closingDate.value,theoretical=cashBalanceAt(date),actual=Number(closingActual.value||0),difference=actual-theoretical,note=closingNote.value.trim();if(actual<0)return alert("Le montant d’espèces comptées ne peut pas être négatif.");
- const existingClose=currentRecords(db.closings).find(x=>x.date===date);if(existingClose)return alert(`Une clôture officielle existe déjà pour le ${date} (${existingClose.id}). Pour préserver l’audit, corrigez ou supprimez d’abord cette clôture avec le compte Fondateur.`);if(Math.abs(difference)>0.01&&!note)return alert("Une justification est obligatoire lorsque la caisse comptée diffère du solde théorique.");
- const id=await nextUniqueAcademicId("closing",`CLO-${activeSchoolCode()}`);if(!id)return;const x={schoolId:activeSchoolId(),academicYear:activeYear(),id,createdOffline:isOfflineId(id),device:deviceName(),date,theoretical,actual,difference,note,agent:currentUserLabel(),time:new Date().toISOString()};db.closings.unshift(x);logAction("Clôture de caisse",`${x.id} - ${date} - écart ${fmt(difference)}`);saveDB();closingActual.value="";closingNote.value="";updateClosingPreview()
+ e.preventDefault();
+ if(!can("closing"))return;
+ if(!requireManagementDate(closingDate.value,"La date de clôture")||!requireOpenPeriod(closingDate.value,"La clôture"))return;
+ const date=closingDate.value,calc=cashClosingComputation(date),theoretical=calc.theoretical;
+ const rawActual=String(closingActual.value??"").trim();
+ if(rawActual==="")return alert("Saisissez le montant d’espèces réellement compté dans la caisse.");
+ const actual=Number(rawActual),difference=actual-theoretical,note=closingNote.value.trim();
+ if(!Number.isFinite(actual)||actual<0)return alert("Le montant d’espèces comptées doit être un nombre valide et ne peut pas être négatif.");
+
+ const existingClose=currentRecords(db.closings).find(x=>x.date===date);
+ if(existingClose)return alert(`Une clôture officielle existe déjà pour le ${date} (${existingClose.id}). Pour préserver l’audit, corrigez ou supprimez d’abord cette clôture avec le compte Fondateur.`);
+ if(Math.abs(difference)>0.01&&!note)return alert("Une justification est obligatoire lorsque la caisse comptée diffère du solde théorique.");
+
+ const id=await nextUniqueAcademicId("closing",`CLO-${activeSchoolCode()}`);
+ if(!id)return;
+ const x={
+  schoolId:activeSchoolId(),academicYear:activeYear(),id,
+  createdOffline:isOfflineId(id),device:deviceName(),date,
+  calculationVersion:2,
+  previousClosingId:calc.previous?.id||"",
+  previousClosingDate:calc.previous?.date||"",
+  opening:calc.opening,
+  cashIn:calc.cashIn,
+  cashOut:calc.cashOut,
+  transferIn:calc.transferIn,
+  transferOut:calc.transferOut,
+  bridgeNet:calc.bridge.net,
+  theoretical,actual,difference,note,
+  agent:currentUserLabel(),time:new Date().toISOString()
+ };
+ db.closings.unshift(x);
+ logAction("Clôture de caisse",`${x.id} - ${date} - ouverture ${fmt(x.opening)} - entrées ${fmt(x.cashIn)} - sorties ${fmt(x.cashOut)} - théorique ${fmt(theoretical)} - compté ${fmt(actual)} - écart ${fmt(difference)}`);
+ saveDB();
+ closingActual.value="";closingNote.value="";
+ updateClosingPreview()
 });
-function renderClosings(){closingsTable.innerHTML=`<thead><tr><th>Date</th><th>N°</th><th class="money">Théorique</th><th class="money">Compté</th><th class="money">Écart</th><th>Justification</th><th>Responsable</th><th>Action</th></tr></thead><tbody>${currentRecords(db.closings).length?[...currentRecords(db.closings)].sort((a,b)=>b.time.localeCompare(a.time)).map(x=>`<tr><td>${x.date}</td><td>${x.id}</td><td class="money">${fmt(x.theoretical)}</td><td class="money">${fmt(x.actual)}</td><td class="money" style="color:${Number(x.difference)===0?'var(--green)':'var(--red)'}"><b>${fmt(x.difference)}</b></td><td>${esc(x.note)}</td><td>${esc(x.agent)}</td><td>${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="founderDeleteOperation('closings','${x.id}')">Supprimer</button>`:""}</td></tr>`).join(""):`<tr><td colspan="8" class="empty">Aucune clôture</td></tr>`}</tbody>`}
+
+function closingRowCalculation(x){
+ const calc=cashClosingComputation(x.date);
+ return{
+  opening:Number.isFinite(Number(x.opening))?Number(x.opening):calc.opening,
+  cashIn:Number.isFinite(Number(x.cashIn))?Number(x.cashIn):calc.cashIn,
+  cashOut:Number.isFinite(Number(x.cashOut))?Number(x.cashOut):calc.cashOut,
+  transferNet:(Number.isFinite(Number(x.transferIn))?Number(x.transferIn):calc.transferIn)-
+              (Number.isFinite(Number(x.transferOut))?Number(x.transferOut):calc.transferOut)
+ }
+}
+
+function renderClosings(){
+ const rows=[...currentRecords(db.closings)].sort((a,b)=>String(b.time||"").localeCompare(String(a.time||"")));
+ closingsTable.innerHTML=`<thead><tr>
+  <th>Date</th><th>N°</th>
+  <th class="money">Ouverture</th>
+  <th class="money">Entrées jour</th>
+  <th class="money">Sorties jour</th>
+  <th class="money">Transferts nets</th>
+  <th class="money">Théorique fin</th>
+  <th class="money">Compté</th>
+  <th class="money">Écart</th>
+  <th>Justification</th><th>Responsable</th><th>Action</th>
+ </tr></thead><tbody>${rows.length?rows.map(x=>{
+  const c=closingRowCalculation(x);
+  return`<tr>
+   <td>${x.date}</td><td>${x.id}</td>
+   <td class="money">${fmt(c.opening)}</td>
+   <td class="money">${fmt(c.cashIn)}</td>
+   <td class="money">${fmt(c.cashOut)}</td>
+   <td class="money">${fmt(c.transferNet)}</td>
+   <td class="money"><b>${fmt(x.theoretical)}</b></td>
+   <td class="money">${fmt(x.actual)}</td>
+   <td class="money" style="color:${Math.abs(Number(x.difference||0))<0.01?'var(--green)':'var(--red)'}"><b>${fmt(x.difference)}</b></td>
+   <td>${esc(x.note||"")}</td><td>${esc(x.agent||"")}</td>
+   <td>${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="founderDeleteOperation('closings','${x.id}')">Supprimer</button>`:""}</td>
+  </tr>`
+ }).join(""):`<tr><td colspan="12" class="empty">Aucune clôture</td></tr>`}</tbody>`
+}
 
 function journalRows(){
  const rows=[];validPayments().forEach(p=>{const st=studentByMat(p.student);rows.push({date:p.date,piece:p.receipt,program:st?.program||"",track:studentTrackValue(st),origin:"Paiement étudiant",label:`${p.type} - ${st?.name||p.student}`,debit:p.mode,credit:"Recettes scolaires",amount:p.amount})});validOther().forEach(x=>rows.push({date:x.date,piece:x.receipt,program:operationProgram(x),track:operationTrack(x),origin:"Autre recette",label:`${x.type} - ${x.label}`,debit:x.mode,credit:"Autres recettes",amount:x.amount}));validExpenses().forEach(x=>rows.push({date:x.date,piece:x.id,program:operationProgram(x),track:operationTrack(x),origin:"Dépense engagée",label:`${x.category} - ${x.label}`,debit:"Dépenses",credit:"Fournisseurs",amount:expenseTotal(x)}));expenseCashMovements().forEach(p=>{const x=db.expenses.find(e=>e.id===p.expenseId);if(x)rows.push({date:p.date,piece:p.id,program:operationProgram(x),track:operationTrack(x),origin:"Règlement fournisseur",label:`${x.beneficiary||x.label} - ${x.id}`,debit:"Fournisseurs",credit:p.mode,amount:p.amount})});payrollPaid().forEach(x=>rows.push({date:x.payDate,piece:x.id,program:GENERAL_PROGRAM,track:COMMON_TRACK,origin:"Paie personnel",label:`Salaire net - ${staffByMat(x.staff)?.name||x.staff}`,debit:"Salaires",credit:x.mode,amount:x.net}));currentRecords(db.staffLoans).filter(x=>x.status!=="Annulé"&&x.mode).forEach(x=>rows.push({date:x.date,piece:x.id,program:GENERAL_PROGRAM,track:COMMON_TRACK,origin:"Avance / prêt personnel",label:`${x.type} - ${staffByMat(x.staff)?.name||x.staff}`,debit:"Personnel - avances",credit:x.mode,amount:x.amount}));validTransfers().forEach(x=>rows.push({date:x.date,piece:x.id,program:GENERAL_PROGRAM,track:COMMON_TRACK,origin:"Transfert trésorerie",label:`${x.from} → ${x.to}`,debit:x.to,credit:x.from,amount:x.amount}));return rows.sort((a,b)=>b.date.localeCompare(a.date))
@@ -4119,7 +4386,7 @@ function closeReceipt(){receiptModal.classList.remove("show")}
 
 function auditRecordId(x){return x?.eventId||""}
 function auditDuplicatePieces(){const ids=[...currentRecords(db.payments).map(x=>x.receipt),...currentRecords(db.other).map(x=>x.receipt),...currentRecords(db.expenses).map(x=>x.id),...currentRecords(db.transfers).map(x=>x.id),...currentRecords(db.closings).map(x=>x.id),...currentRecords(db.manualEntries).map(x=>x.id)].filter(Boolean),m={};ids.forEach(id=>m[id]=(m[id]||0)+1);return Object.entries(m).filter(([,n])=>n>1)}
-function auditFinancialIntegrity(){const tb=trialBalance(),debit=tb.reduce((a,x)=>a+Number(x.debit||0),0),credit=tb.reduce((a,x)=>a+Number(x.credit||0),0),bal=balances(),acc={};tb.forEach(x=>acc[x.account]=Number(x.balance||0));const checks=[["Espèces",Number(bal["Espèces"]||0),Number(acc["571"]||0)],["Wave",Number(bal["Wave"]||0),Number(acc["5521"]||0)],["MTN Mobile Money",Number(bal["MTN Mobile Money"]||0),Number(acc["5522"]||0)],["Orange Money",Number(bal["Orange Money"]||0),Number(acc["5523"]||0)],["Banque",Number(bal["Banque"]||0),Number(acc["521"]||0)]],treasuryDiff=checks.reduce((a,[,x,y])=>a+Math.abs(x-y),0),orphanPayments=currentRecords(db.payments).filter(p=>{const st=studentByMat(p.student);return !st||recordSchoolId(st)!==activeSchoolId()||recordYear(st)!==activeYear()}),staleClosings=currentRecords(db.closings).filter(c=>Math.abs(Number(c.theoretical||0)-cashBalanceAt(c.date))>0.5),duplicates=auditDuplicatePieces(),orphanAttendance=currentRecords(db.attendance).filter(a=>!studentByMat(a.student)),orphanExpensePayments=currentRecords(db.expensePayments).filter(p=>!db.expenses.some(e=>e.id===p.expenseId&&e.deleted!==true)),negativeStock=currentRecords(db.inventory).filter(i=>inventoryStock(i.id)<0),chain=verifyAuditChain();return{debit,credit,doubleEntryOk:Math.abs(debit-credit)<0.5,checks,treasuryDiff,orphanPayments,orphanAttendance,negativeStock,staleClosings,duplicates,orphanExpensePayments,chain}}
+function auditFinancialIntegrity(){const tb=trialBalance(),debit=tb.reduce((a,x)=>a+Number(x.debit||0),0),credit=tb.reduce((a,x)=>a+Number(x.credit||0),0),bal=balances(),acc={};tb.forEach(x=>acc[x.account]=Number(x.balance||0));const checks=[["Espèces",Number(bal["Espèces"]||0),Number(acc["571"]||0)],["Wave",Number(bal["Wave"]||0),Number(acc["5521"]||0)],["MTN Mobile Money",Number(bal["MTN Mobile Money"]||0),Number(acc["5522"]||0)],["Orange Money",Number(bal["Orange Money"]||0),Number(acc["5523"]||0)],["Banque",Number(bal["Banque"]||0),Number(acc["521"]||0)]],treasuryDiff=checks.reduce((a,[,x,y])=>a+Math.abs(x-y),0),orphanPayments=currentRecords(db.payments).filter(p=>{const st=studentByMat(p.student);return !st||recordSchoolId(st)!==activeSchoolId()||recordYear(st)!==activeYear()}),staleClosings=currentRecords(db.closings).filter(c=>Math.abs(Number(c.theoretical||0)-expectedClosingTheoretical(c))>0.5),duplicates=auditDuplicatePieces(),orphanAttendance=currentRecords(db.attendance).filter(a=>!studentByMat(a.student)),orphanExpensePayments=currentRecords(db.expensePayments).filter(p=>!db.expenses.some(e=>e.id===p.expenseId&&e.deleted!==true)),negativeStock=currentRecords(db.inventory).filter(i=>inventoryStock(i.id)<0),chain=verifyAuditChain();return{debit,credit,doubleEntryOk:Math.abs(debit-credit)<0.5,checks,treasuryDiff,orphanPayments,orphanAttendance,negativeStock,staleClosings,duplicates,orphanExpensePayments,chain}}
 function resetAuditFilters(){[auditFrom,auditTo,auditUserFilter,auditActionFilter].forEach(el=>{if(el)el.value=""});renderAudit()}
 function auditFilteredRows(){const from=auditFrom?.value||"",to=auditTo?.value||"",uf=textKey(auditUserFilter?.value||""),af=textKey(auditActionFilter?.value||""),all=auditSchoolFilter?.value==="all",allowed=new Set(accessibleSchools().map(s=>s.id));return (all?db.audit.filter(x=>x.deleted!==true&&recordYear(x)===activeYear()&&allowed.has(recordSchoolId(x))):currentRecords(db.audit)).filter(x=>{const d=String(x.time||"").slice(0,10),u=textKey([x.user,x.role,x.device].join(" ")),a=textKey([x.action,x.details].join(" "));return(!from||d>=from)&&(!to||d<=to)&&(!uf||u.includes(uf))&&(!af||a.includes(af))}).sort((a,b)=>String(b.time||"").localeCompare(String(a.time||"")))}
 function renderAudit(){if(!auditTable)return;let arr=auditFilteredRows();const creations=arr.filter(x=>/création|inscription|nouveau|initialisation/i.test(x.action)).length,changes=arr.filter(x=>/modification|changement|validation|réouverture|clôture/i.test(x.action)).length,cancels=arr.filter(x=>/annulation|rejet/i.test(x.action)).length,deletes=arr.filter(x=>/suppression/i.test(x.action)).length;if(auditKpis)auditKpis.innerHTML=[["Actions filtrées",arr.length],["Créations / inscriptions",creations],["Modifications / contrôles",changes],["Annulations / rejets",cancels],["Suppressions",deletes]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");const i=auditFinancialIntegrity(),treasuryOk=i.treasuryDiff<0.5;if(auditIntegrityBox)auditIntegrityBox.innerHTML=`<b>${i.doubleEntryOk&&treasuryOk&&!i.orphanPayments.length&&!i.orphanAttendance.length&&!i.negativeStock.length&&!i.duplicates.length&&i.chain.ok?"✅ Contrôles d’intégrité satisfaisants":"⚠ Contrôles à examiner"}</b> — Partie double : <b>${i.doubleEntryOk?"équilibrée":"déséquilibrée"}</b> (${fmt(i.debit)} / ${fmt(i.credit)}). Trésorerie ↔ comptabilité : <b>${treasuryOk?"rapprochée":"écart "+fmt(i.treasuryDiff)}</b>. Paiements orphelins : <b>${i.orphanPayments.length}</b>. Présences orphelines : <b>${i.orphanAttendance.length}</b>. Règlements fournisseurs orphelins : <b>${i.orphanExpensePayments?.length||0}</b>. Stocks négatifs : <b>${i.negativeStock.length}</b>. Pièces en doublon : <b>${i.duplicates.length}</b>. Clôtures devenues différentes du théorique recalculé : <b>${i.staleClosings.length}</b>. Contrôles financiers : <b>${esc(activeSchoolCode())}</b>. Chaînes d’audit multi-postes : <b>${i.chain.checked?`${i.chain.broken?"anomalie":"OK"} (${i.chain.checked} empreinte(s))`:"aucune empreinte encore"}</b>.`;auditTable.innerHTML=`<thead><tr><th>Date/heure</th><th>École</th><th>Année</th><th>Utilisateur</th><th>Rôle</th><th>Poste</th><th>Action</th><th>Détails</th><th>Empreinte</th></tr></thead><tbody>${arr.length?arr.map(x=>`<tr><td>${new Date(x.time).toLocaleString("fr-FR")}</td><td>${esc(x.schoolName||schoolLabel(schoolById(recordSchoolId(x))))}</td><td>${esc(x.academicYear||activeYear())}</td><td>${esc(x.user)}</td><td>${esc(x.role)}</td><td>${esc(x.device||"—")}</td><td><span class="action-tag">${esc(x.action)}</span></td><td>${esc(x.details)}</td><td><span class="small">${x.hash?esc(x.hash.slice(0,12)):"ancien / non chaîné"}</span></td></tr>`).join(""):`<tr><td colspan="9" class="empty">Aucune action pour ces filtres</td></tr>`}</tbody>`}
