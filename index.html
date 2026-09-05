@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de l’Université privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-05-v11-3-daily-cash-closing">
+<meta name="eiafc-web-build" content="2026-09-05-v11-4-evening-handover">
 <meta name="author" content="Université privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -894,6 +894,36 @@ body[data-role-theme="secretariat"] .production-hero{
   .closing-daily-summary{grid-template-columns:1fr}
 }
 
+
+/* EIAFC V11.4 — clôture + remise Fondateur */
+.closing-workflow{
+  margin:0 0 14px;
+  padding:12px 14px;
+  border-radius:13px;
+  border:1px solid #d8e5ed;
+  background:linear-gradient(135deg,#eef7fb,#fff);
+  color:#214a62;
+  font-size:12px;
+  line-height:1.5;
+}
+.closing-all-toggle{
+  display:flex;
+  align-items:flex-start;
+  gap:11px;
+  padding:12px 14px;
+  border:1px solid #d8c66d;
+  border-radius:13px;
+  background:linear-gradient(135deg,#fff8d9,#fffdf4);
+  cursor:pointer;
+}
+.closing-all-toggle input{width:20px;height:20px;margin-top:1px}
+.closing-all-toggle span{display:block}
+.closing-all-toggle small{display:block;margin-top:4px;color:#75631d;line-height:1.4}
+.closing-daily-summary .cash-day-item.founder{
+  border-color:#d8c66d;
+  background:#fff9e8;
+}
+
 </style>
 </head>
 <body>
@@ -1114,7 +1144,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.3 • CLÔTURE DE CAISSE JOURNALIÈRE • CONTRÔLE RENFORCÉ • CLOUD</span></div>
+    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.4 • CLÔTURE + REMISE DU SOIR • CAISSE FONDATEUR • CLOUD</span></div>
     <div class="user-mini"><b id="currentUserName">Non connecté</b><span id="currentUserRole"></span><br><button class="btn btn-light btn-sm" onclick="logout()">Déconnexion</button></div>
     <div class="nav">
       <button class="nav-btn active" data-view="dashboard" data-perm="dashboard">📊 Tableau de bord</button>
@@ -1714,17 +1744,17 @@ body[data-role-theme="secretariat"] .production-hero{
         <div id="cashControlAlerts" style="margin-bottom:12px"></div>
         <div class="table-wrap"><table id="cashTable"></table></div>
         <div class="section-title" style="margin-top:18px"><h3>🎓 Caisse séparée par pôle</h3><span class="small">Encaissements et décaissements réels sur la période</span></div>
-        <div class="info" style="margin-bottom:12px">Les transferts entre Espèces, Wave, MTN, Orange Money et Banque ne sont pas comptés comme recettes ou dépenses. Les règlements fournisseurs sont rattachés au pôle de la dépense d’origine.</div>
+        <div class="info" style="margin-bottom:12px"><b>Deux caisses sont distinguées :</b> « Espèces » = caisse tenue par la comptable pendant la journée ; « Caisse Fondateur » = espèces remises main à main au Fondateur/Direction. Une remise entre les deux n’est ni une recette ni une dépense. Les règlements fournisseurs restent rattachés au pôle de la dépense d’origine.</div>
         <div class="table-wrap"><table id="cashProgramTable"></table></div>
       </div>
       <div class="grid two-col" style="margin-top:16px">
         <div class="card" id="transferCard">
           <div class="section-title"><h3>🔁 Transfert de trésorerie</h3><span class="small">Fondateur / Comptable</span></div>
-          <div class="notice">Utilisez ce module pour déplacer de l'argent entre Espèces, Wave, MTN, Orange Money et Banque. Un transfert <b>n'est ni une recette ni une dépense</b> et ne doit donc pas fausser le résultat.</div>
+          <div class="notice">Utilisez ce module pour déplacer de l'argent entre <b>Caisse comptable, Caisse Fondateur, Wave, MTN, Orange Money et Banque</b>. Une remise main à main à la Direction est un transfert interne : elle ne doit jamais être enregistrée comme dépense.</div>
           <form id="transferForm" class="form-grid" style="margin-top:12px">
             <div class="field"><label>Date</label><input type="date" id="transferDate" required></div>
-            <div class="field"><label>Depuis</label><select id="transferFrom"><option>Espèces</option><option>Wave</option><option>MTN Mobile Money</option><option>Orange Money</option><option>Banque</option></select></div>
-            <div class="field"><label>Vers</label><select id="transferTo"><option>Banque</option><option>Espèces</option><option>Wave</option><option>MTN Mobile Money</option><option>Orange Money</option></select></div>
+            <div class="field"><label>Depuis</label><select id="transferFrom"><option>Espèces</option><option>Caisse Fondateur</option><option>Wave</option><option>MTN Mobile Money</option><option>Orange Money</option><option>Banque</option></select></div>
+            <div class="field"><label>Vers</label><select id="transferTo"><option>Banque</option><option>Caisse Fondateur</option><option>Espèces</option><option>Wave</option><option>MTN Mobile Money</option><option>Orange Money</option></select></div>
             <div class="field"><label>Montant</label><input type="number" min="1" id="transferAmount" required></div>
             <div class="field span-2"><label>Référence / bordereau</label><input id="transferRef" placeholder="Référence dépôt / retrait / transaction"></div>
             <div class="field span-2"><label>Observation</label><input id="transferObs" placeholder="Ex. dépôt espèces vers banque"></div>
@@ -1739,23 +1769,51 @@ body[data-role-theme="secretariat"] .production-hero{
     <section id="closing" class="view">
       <div class="grid two-col">
         <div class="card">
-          <div class="section-title"><h3>Clôturer la caisse espèces</h3></div>
+          <div class="section-title"><h3>🌙 Clôture + remise du soir</h3><span class="badge">Routine EIAFC</span></div>
+          <div class="closing-workflow"><b>1. Calcul du disponible → 2. Comptage physique → 3. Remise au Fondateur / dépôt → 4. Reste caisse → 5. Ouverture du lendemain.</b></div>
           <form id="closingForm" class="form-grid">
             <div class="field"><label>Date de clôture</label><input type="date" id="closingDate" required onchange="updateClosingPreview()"></div>
-            <div class="field"><label>Solde théorique de fin de journée</label><input id="closingTheoretical" readonly></div>
-            <div class="field"><label>Espèces réellement comptées</label><input type="number" id="closingActual" required oninput="updateClosingPreview()" placeholder="Comptez la caisse puis saisissez le montant"></div>
-            <div class="field"><label>Écart</label><input id="closingDifference" readonly placeholder="—"></div>
+            <div class="field"><label>Disponible théorique AVANT remise</label><input id="closingAvailable" readonly></div>
+            <div class="field"><label>Espèces réellement comptées AVANT remise</label><input type="number" min="0" id="closingCountedBefore" required oninput="updateClosingPreview()" placeholder="Montant trouvé dans la caisse"></div>
+            <div class="field"><label>Écart de comptage</label><input id="closingCountDifference" readonly placeholder="—"></div>
+
+            <div class="field span-4">
+              <label class="closing-all-toggle">
+                <input type="checkbox" id="closingDepositAll" checked onchange="updateClosingPreview()">
+                <span><b>Remettre / verser toute la caisse ce soir</b><small>Chez EIAFC, cette option permet normalement de commencer le lendemain avec une caisse comptable à 0 FCFA.</small></span>
+              </label>
+            </div>
+
+            <div class="field"><label>Mode de remise / versement</label>
+              <select id="closingDepositTo" onchange="updateClosingPreview()">
+                <option value="Caisse Fondateur">🤝 Remis au Fondateur (main à main)</option>
+                <option value="Banque">🏦 Dépôt Banque</option>
+                <option value="Wave">Wave</option>
+                <option value="MTN Mobile Money">MTN Mobile Money</option>
+                <option value="Orange Money">Orange Money</option>
+              </select>
+            </div>
+            <div class="field"><label>Montant remis / versé</label><input type="number" min="0" id="closingDepositAmount" oninput="updateClosingPreview()"></div>
+            <div class="field"><label>Reçu par</label><input id="closingReceiver" placeholder="Ex. Fondateur / Direction"></div>
+            <div class="field"><label>Référence / bordereau</label><input id="closingDepositRef" placeholder="Ex. remise main à main / bordereau banque"></div>
+
+            <div class="field"><label>Reste théorique APRÈS remise</label><input id="closingTheoretical" readonly></div>
+            <div class="field"><label>Reste réel en caisse comptable</label><input id="closingActual" readonly></div>
+            <div class="field"><label>Écart final</label><input id="closingDifference" readonly placeholder="—"></div>
+            <div class="field"><label>Ouverture du lendemain</label><input id="closingNextOpening" readonly></div>
+
             <div class="field span-4">
               <div id="closingDailySummary" class="closing-daily-summary"></div>
             </div>
-            <div class="field span-4"><label>Justification de l'écart</label><textarea id="closingNote" rows="3" placeholder="Obligatoire seulement s'il existe un écart réel"></textarea></div>
-            <div class="field"><label>Responsable</label><input id="closingAgent" readonly></div>
-            <div class="field span-4"><button class="btn btn-primary" type="submit">Enregistrer la clôture</button></div>
+            <div class="field span-4"><label>Justification de l'écart</label><textarea id="closingNote" rows="3" placeholder="Obligatoire si le comptage réel diffère du montant attendu"></textarea></div>
+            <div class="field"><label>Clôture saisie par</label><input id="closingAgent" readonly></div>
+            <div class="field span-4"><button class="btn btn-primary" type="submit">✅ Enregistrer clôture + remise du soir</button></div>
           </form>
         </div>
-        <div class="card"><div class="section-title"><h3>Règle de contrôle</h3></div>
-          <div class="info"><b>Calcul journalier :</b> solde d’ouverture de la journée + encaissements espèces du jour + transferts reçus − décaissements espèces du jour − transferts sortis = <b>solde théorique de fin de journée</b>.</div>
-          <div class="notice" style="margin-top:12px">Si une clôture antérieure existe, le logiciel repart du <b>montant réellement compté</b> lors de cette clôture, puis intègre automatiquement les mouvements intervenus depuis. Les jours non clôturés ne sont donc pas perdus.</div>
+        <div class="card"><div class="section-title"><h3>Comment ça fonctionne chez EIAFC</h3></div>
+          <div class="info"><b>Avant la remise :</b> ouverture caisse comptable + encaissements espèces − décaissements espèces ± transferts = argent qui doit être physiquement chez la comptable.</div>
+          <div class="notice" style="margin-top:12px"><b>Remise main à main :</b> si la comptable vous remet l’argent, le logiciel transfère « Espèces → Caisse Fondateur ». La caisse de la comptable peut donc finir à <b>0 FCFA</b>, tandis que l’argent reste bien dans la trésorerie de l’école sous « Caisse Fondateur ».</div>
+          <div class="info" style="margin-top:12px"><b>Plus tard :</b> si le Fondateur dépose l’argent à la banque, utilisez « Caisse Fondateur → Banque ». Ce mouvement reste un transfert interne, jamais une dépense.</div>
         </div>
       </div>
       <div class="card" style="margin-top:16px"><div class="section-title"><h3>Historique des clôtures</h3></div><div class="table-wrap"><table id="closingsTable"></table></div></div>
@@ -2122,7 +2180,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.3.0";
+const APP_VERSION="11.4.0";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -2359,7 +2417,7 @@ function inReportPeriod(date,period,y=activeYear()){if(period==="PRE"){const m=m
 function reportPeriodLabel(period,y=activeYear()){return period==="PRE"?prePeriodLabel(y):period}
 function defaultManagementDate(y=activeYear()){const b=managementBounds(y),t=today();return t<b.start?b.start:t>b.end?b.end:t}
 function defaultAcademicDate(y=activeYear()){const b=academicBounds(y),t=today();return t<b.start?b.start:t>b.end?b.end:t}
-function openingForYear(y=activeYear(),sid=activeSchoolId()){db.settings.schoolOpenings=db.settings.schoolOpenings||{};db.settings.schoolOpenings[sid]=db.settings.schoolOpenings[sid]||{};if(!db.settings.schoolOpenings[sid][y])db.settings.schoolOpenings[sid][y]={cash:0,wave:0,mtn:0,bank:0,orange:0};return db.settings.schoolOpenings[sid][y]}
+function openingForYear(y=activeYear(),sid=activeSchoolId()){db.settings.schoolOpenings=db.settings.schoolOpenings||{};db.settings.schoolOpenings[sid]=db.settings.schoolOpenings[sid]||{};if(!db.settings.schoolOpenings[sid][y])db.settings.schoolOpenings[sid][y]={cash:0,founderCash:0,wave:0,mtn:0,bank:0,orange:0};const o=db.settings.schoolOpenings[sid][y];if(o.founderCash==null)o.founderCash=0;return o}
 function availableYears(){return [...new Set([...availableYearsRaw(),activeYear()])].filter(y=>YEAR_RE.test(String(y))).sort()}
 function ensureYear(y){if(!YEAR_RE.test(String(y)))return false;db.settings.years=[...new Set([...(db.settings.years||[]),y])].sort();openingForYear(y);return true}
 function nextAcademicIdLocal(type,label){const code=yearCode(),prefix=`${label}-${code}-`,arr=type==="student"?db.students:type==="payment"?db.payments:type==="other"?db.other:type==="expense"?db.expenses:db.closings;let max=0;arr.forEach(x=>{const id=type==="student"?x.matricule:type==="payment"?x.receipt:type==="other"?x.receipt:type==="expense"?x.id:x.id;if(String(id||"").startsWith(prefix)){const n=Number(String(id).slice(prefix.length));if(n>max)max=n}});const key=`${type}_${code}`;db.counters[key]=Math.max(Number(db.counters[key]||0),max)+1;return prefix+String(db.counters[key]).padStart(4,"0")}
@@ -3472,7 +3530,7 @@ function setDefaults(){
 function applyYearDefaults(){const b=academicBounds(),mb=managementBounds(),periods=reportPeriods();if(studentFirstDue)studentFirstDue.value=b.firstDue;if(cashFrom)cashFrom.value=mb.start;if(cashTo)cashTo.value=mb.end;const cur=today()<b.start?"PRE":ym(today());if(reportMonth){const old=reportMonth.value;reportMonth.innerHTML=periods.map(p=>`<option value="${p}">${reportPeriodLabel(p)}</option>`).join("");reportMonth.value=periods.includes(old)?old:(periods.includes(cur)?cur:periods[0])}if(accMonth){const old=accMonth.value;accMonth.innerHTML='<option value="">Année complète</option>'+periods.map(p=>`<option value="${p}">${reportPeriodLabel(p)}</option>`).join("");if(old)accMonth.value=old}if(budgetMonth){const old=budgetMonth.value;budgetMonth.innerHTML=periods.map(p=>`<option value="${p}">${reportPeriodLabel(p)}</option>`).join("");budgetMonth.value=periods.includes(old)?old:(periods.includes(cur)?cur:periods[0])}}
 function refreshYearSelector(){if(!yearSwitcher)return;const years=availableYears();yearSwitcher.innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join("");yearSwitcher.value=activeYear()}
 function switchAcademicYear(y){if(!ensureYear(y))return alert("Année invalide. Format attendu : 2026-2027");setActiveYearLocal(y);applyYearDefaults();refreshAll()}
-function createNextAcademicYear(){if(!requireOwner("la création d’une année académique"))return;const oldYear=activeYear(),oldBalance=balances(),oldItems=currentRecords(db.inventory).filter(x=>x.active!==false).map(x=>({...x,stock:inventoryStock(x.id)})),[a,b]=yearParts(oldYear),next=`${a+1}-${b+1}`;if(!confirm(`Créer et activer l'année académique ${next} ?`))return;ensureYear(next);const carry=confirm("Reprendre automatiquement les soldes de trésorerie de fin d'année comme soldes d'ouverture de la nouvelle année ?");if(carry)Object.assign(openingForYear(next),{cash:oldBalance["Espèces"]||0,wave:oldBalance["Wave"]||0,mtn:oldBalance["MTN Mobile Money"]||0,bank:oldBalance["Banque"]||0,orange:oldBalance["Orange Money"]||0});const carryStock=oldItems.length?confirm("Reprendre aussi le stock physique disponible dans la nouvelle année ?"):false;if(carryStock){oldItems.forEach(i=>{const id=makeUniqueId("STK",next),ni={id,schoolId:activeSchoolId(),academicYear:next,label:i.label,category:i.category,unit:i.unit,minStock:i.minStock,active:true,createdAt:new Date().toISOString(),createdBy:currentUserLabel()};db.inventory.unshift(ni);if(i.stock>0)db.inventoryMoves.unshift({id:makeUniqueId("MVT",next),schoolId:activeSchoolId(),academicYear:next,itemId:id,date:managementBounds(next).start,type:"Entrée",qty:i.stock,ref:`REPORT-${oldYear}`,obs:"Report automatique du stock de fin d’année",agent:currentUserLabel(),device:deviceName(),createdAt:new Date().toISOString()})})}db.settings.year=next;setActiveYearLocal(next);logAction("Nouvelle année académique",`${next} créée${carry?" avec reprise des soldes":""}${carryStock?" et report du stock":""}`);saveDB();applyYearDefaults();refreshAll();alert(`Année ${next} activée.`)}
+function createNextAcademicYear(){if(!requireOwner("la création d’une année académique"))return;const oldYear=activeYear(),oldBalance=balances(),oldItems=currentRecords(db.inventory).filter(x=>x.active!==false).map(x=>({...x,stock:inventoryStock(x.id)})),[a,b]=yearParts(oldYear),next=`${a+1}-${b+1}`;if(!confirm(`Créer et activer l'année académique ${next} ?`))return;ensureYear(next);const carry=confirm("Reprendre automatiquement les soldes de trésorerie de fin d'année comme soldes d'ouverture de la nouvelle année ?");if(carry)Object.assign(openingForYear(next),{cash:oldBalance["Espèces"]||0,founderCash:oldBalance["Caisse Fondateur"]||0,wave:oldBalance["Wave"]||0,mtn:oldBalance["MTN Mobile Money"]||0,bank:oldBalance["Banque"]||0,orange:oldBalance["Orange Money"]||0});const carryStock=oldItems.length?confirm("Reprendre aussi le stock physique disponible dans la nouvelle année ?"):false;if(carryStock){oldItems.forEach(i=>{const id=makeUniqueId("STK",next),ni={id,schoolId:activeSchoolId(),academicYear:next,label:i.label,category:i.category,unit:i.unit,minStock:i.minStock,active:true,createdAt:new Date().toISOString(),createdBy:currentUserLabel()};db.inventory.unshift(ni);if(i.stock>0)db.inventoryMoves.unshift({id:makeUniqueId("MVT",next),schoolId:activeSchoolId(),academicYear:next,itemId:id,date:managementBounds(next).start,type:"Entrée",qty:i.stock,ref:`REPORT-${oldYear}`,obs:"Report automatique du stock de fin d’année",agent:currentUserLabel(),device:deviceName(),createdAt:new Date().toISOString()})})}db.settings.year=next;setActiveYearLocal(next);logAction("Nouvelle année académique",`${next} créée${carry?" avec reprise des soldes":""}${carryStock?" et report du stock":""}`);saveDB();applyYearDefaults();refreshAll();alert(`Année ${next} activée.`)}
 setDefaults();
 function updateExpenseLiveSummary(){
  if(!expenseLiveSummary)return;
@@ -3554,7 +3612,7 @@ function refreshAll(){
 }
 function treasuryChannel(mode){if(mode==="Chèque"||mode==="Autre")return "Banque";return mode}
 function balances(){
- const op=openingForYear(),out={"Espèces":Number(op.cash||0),"Wave":Number(op.wave||0),"MTN Mobile Money":Number(op.mtn||0),"Banque":Number(op.bank||0),"Orange Money":Number(op.orange||0)};
+ const op=openingForYear(),out={"Espèces":Number(op.cash||0),"Caisse Fondateur":Number(op.founderCash||0),"Wave":Number(op.wave||0),"MTN Mobile Money":Number(op.mtn||0),"Banque":Number(op.bank||0),"Orange Money":Number(op.orange||0)};
  [...validPayments(),...validOther()].forEach(x=>{const ch=treasuryChannel(x.mode);if(out[ch]!==undefined)out[ch]+=Number(x.amount||0)});expenseCashMovements().forEach(x=>{const ch=treasuryChannel(x.mode);if(out[ch]!==undefined)out[ch]-=Number(x.amount||0)});payrollPaid().forEach(x=>{const ch=treasuryChannel(x.mode);if(out[ch]!==undefined)out[ch]-=Number(x.net||0)});currentRecords(db.staffLoans).filter(x=>x.status!=="Annulé"&&x.mode).forEach(x=>{const ch=treasuryChannel(x.mode);if(out[ch]!==undefined)out[ch]-=Number(x.amount||0)});validTransfers().forEach(x=>{const f=treasuryChannel(x.from),t=treasuryChannel(x.to);if(out[f]!==undefined)out[f]-=Number(x.amount||0);if(out[t]!==undefined)out[t]+=Number(x.amount||0)});return out
 }
 function monthlySummary(m,program="",track="",assignment=""){
@@ -3765,7 +3823,7 @@ function renderDashboard(){
    ["Étudiants",sts.length,"dans votre école"],["Actifs",active,"étudiants"],["Dossiers incomplets",incomplete,"à compléter"],["Présences aujourd’hui",attToday,"saisies"],
    ["Paiements du jour",todayPays.length,"opération(s)"],["En attente",pendingRows.length,"paiement(s)"],["Étudiants en retard",overdueStudents.length,"à relancer"],["Dernière clôture",lc?.date||"Aucune","caisse"]
   ].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
-  channelBalances.innerHTML=[["Espèces",bal["Espèces"]],["Wave",bal["Wave"]],["MTN Mobile Money",bal["MTN Mobile Money"]],["Orange Money",bal["Orange Money"]],["Banque",bal["Banque"]]].map(([k,v])=>`<div style="margin:12px 0"><div class="flex" style="justify-content:space-between"><b>${k}</b><span>${dashboardMoneyOrHidden(v,"cash")}</span></div></div>`).join("");
+  channelBalances.innerHTML=[["Espèces",bal["Espèces"]],["Caisse Fondateur",bal["Caisse Fondateur"]],["Wave",bal["Wave"]],["MTN Mobile Money",bal["MTN Mobile Money"]],["Orange Money",bal["Orange Money"]],["Banque",bal["Banque"]]].map(([k,v])=>`<div style="margin:12px 0"><div class="flex" style="justify-content:space-between"><b>${k}</b><span>${dashboardMoneyOrHidden(v,"cash")}</span></div></div>`).join("");
   recoveryBox.innerHTML=`<div class="kpi"><div class="value">${overdueStudents.length}</div><div class="sub">Étudiant(s) avec retard de paiement</div></div><p class="small">Le montant global du reste à recouvrer est réservé au Fondateur et au Comptable.</p>`;
   todayActivity.innerHTML=`<div><span>Paiements enregistrés aujourd’hui</span><b>${todayPays.length}</b></div><div><span>Montant encaissé aujourd’hui</span><b>${dashboardMoneyOrHidden(tp,"cash")}</b></div><div><span>Paiements en attente</span><b>${pendingRows.length}</b></div><div><span>Présences saisies</span><b>${attToday}</b></div>`;
   lastClosing.innerHTML=lc?`<div><span>Date</span><b>${lc.date}</b></div><div><span>État</span><b>${Number(lc.difference||0)===0?"Équilibrée":"Écart à contrôler"}</b></div><div><span>Responsable</span><b>${esc(lc.agent||"—")}</b></div>`:`<div class="empty">Aucune clôture enregistrée</div>`;
@@ -3779,7 +3837,7 @@ function renderDashboard(){
    ["Paiements du jour",payCount,"opération(s)"],["Encaissement du jour",dashboardMoneyOrHidden(tp,"cash"),"opérationnel"],["Paiements en attente",pendingRows.length,"à contrôler"],["Étudiants en retard",overdueStudents.length,"à relancer"],
    ["Solde espèces",dashboardMoneyOrHidden(bal["Espèces"],"cash"),"caisse"],["Solde Wave",dashboardMoneyOrHidden(bal["Wave"],"cash"),"opérationnel"],["Solde MTN",dashboardMoneyOrHidden(bal["MTN Mobile Money"],"cash"),"opérationnel"],["Solde Orange",dashboardMoneyOrHidden(bal["Orange Money"],"cash"),"opérationnel"]
   ].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
-  channelBalances.innerHTML=[["Espèces",bal["Espèces"]],["Wave",bal["Wave"]],["MTN Mobile Money",bal["MTN Mobile Money"]],["Orange Money",bal["Orange Money"]],["Banque",bal["Banque"]]].map(([k,v])=>`<div style="margin:12px 0"><div class="flex" style="justify-content:space-between"><b>${k}</b><span>${dashboardMoneyOrHidden(v,"cash")}</span></div></div>`).join("");
+  channelBalances.innerHTML=[["Espèces",bal["Espèces"]],["Caisse Fondateur",bal["Caisse Fondateur"]],["Wave",bal["Wave"]],["MTN Mobile Money",bal["MTN Mobile Money"]],["Orange Money",bal["Orange Money"]],["Banque",bal["Banque"]]].map(([k,v])=>`<div style="margin:12px 0"><div class="flex" style="justify-content:space-between"><b>${k}</b><span>${dashboardMoneyOrHidden(v,"cash")}</span></div></div>`).join("");
   recoveryBox.innerHTML=`<div class="kpi"><div class="value">${overdueStudents.length}</div><div class="sub">Étudiant(s) à relancer</div></div><p class="small">Les montants globaux de scolarité, dépenses et résultat sont masqués pour le rôle Caissier.</p>`;
   todayActivity.innerHTML=`<div><span>Nombre de paiements validés</span><b>${payCount}</b></div><div><span>Encaissement opérationnel</span><b>${dashboardMoneyOrHidden(tp,"cash")}</b></div><div><span>En attente de validation</span><b>${pendingRows.length}</b></div>`;
   lastClosing.innerHTML=lc?`<div><span>Date</span><b>${lc.date}</b></div><div><span>État</span><b>${Number(lc.difference||0)===0?"Équilibrée":"Écart à contrôler"}</b></div><div><span>Responsable</span><b>${esc(lc.agent||"—")}</b></div>`:`<div class="empty">Aucune clôture enregistrée</div>`;
@@ -3797,7 +3855,7 @@ function renderDashboard(){
  if(roleName()==="Comptable"){
   const totalDue=sts.reduce((a,s)=>a+studentDue(s),0),paid=validPayments().reduce((a,p)=>a+Number(p.amount||0),0),rest=sts.reduce((a,s)=>a+studentRest(s),0),exp=validExpenses().reduce((a,x)=>a+Number(x.amount||0),0),oth=validOther().reduce((a,x)=>a+Number(x.amount||0),0),pending=currentRecords(db.payments).filter(p=>p.status==="En attente").reduce((a,p)=>a+Number(p.amount||0),0),over=sts.reduce((a,s)=>a+overdueAmount(s),0),net=paid+oth-exp,bal=balances(),month=ym(today()),monthData=monthlySummary(month);
   kpiGrid.innerHTML=[["Total facturé",fmt(totalDue),"étudiants"],["Paiements validés",fmt(paid),"année active"],["Autres recettes",fmt(oth),"validées"],["Dépenses",fmt(exp),"validées"],["Flux net",fmt(net),"recettes - dépenses"],["Reste à recouvrer",fmt(rest),"étudiants"],["Échu",fmt(over),"à recouvrer"],["Paiements en attente",fmt(pending),"à valider"]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
-  channelBalances.innerHTML=[["Espèces",bal["Espèces"]],["Wave",bal["Wave"]],["MTN Mobile Money",bal["MTN Mobile Money"]],["Orange Money",bal["Orange Money"]],["Banque",bal["Banque"]]].map(([k,v])=>`<div style="margin:12px 0"><div class="flex" style="justify-content:space-between"><b>${k}</b><span>${fmt(v)}</span></div></div>`).join("");
+  channelBalances.innerHTML=[["Espèces",bal["Espèces"]],["Caisse Fondateur",bal["Caisse Fondateur"]],["Wave",bal["Wave"]],["MTN Mobile Money",bal["MTN Mobile Money"]],["Orange Money",bal["Orange Money"]],["Banque",bal["Banque"]]].map(([k,v])=>`<div style="margin:12px 0"><div class="flex" style="justify-content:space-between"><b>${k}</b><span>${fmt(v)}</span></div></div>`).join("");
   const rate=totalDue?Math.min(100,(totalDue-rest)/totalDue*100):0;recoveryBox.innerHTML=`<div class="kpi"><div class="value">${rate.toFixed(1)}%</div><div class="sub">Taux de recouvrement</div></div><div class="bar" style="margin-top:15px"><span style="width:${rate}%"></span></div><p class="small">${fmt(rest)} restent à recouvrer.</p>`;
   const t=today(),tp=validPayments().filter(x=>x.date===t).reduce((a,x)=>a+Number(x.amount||0),0),to=validOther().filter(x=>x.date===t).reduce((a,x)=>a+Number(x.amount||0),0),te=validExpenses().filter(x=>x.date===t).reduce((a,x)=>a+Number(x.amount||0),0);todayActivity.innerHTML=`<div><span>Paiements étudiants</span><b>${fmt(tp)}</b></div><div><span>Autres recettes</span><b>${fmt(to)}</b></div><div><span>Dépenses</span><b>${fmt(te)}</b></div><div><span>Flux du jour</span><b>${fmt(tp+to-te)}</b></div><div><span>Flux du mois</span><b>${fmt(monthData.net)}</b></div>`;
   const lc=[...currentRecords(db.closings)].sort((a,b)=>b.date.localeCompare(a.date))[0];lastClosing.innerHTML=lc?`<div><span>Date</span><b>${lc.date}</b></div><div><span>Théorique</span><b>${fmt(lc.theoretical)}</b></div><div><span>Compté</span><b>${fmt(lc.actual)}</b></div><div><span>Écart</span><b>${fmt(lc.difference)}</b></div>`:`<div class="empty">Aucune clôture enregistrée</div>`;
@@ -3809,7 +3867,7 @@ function renderDashboard(){
  const month=ym(today()),monthData=monthlySummary(month);
  const data=[["Étudiants",sts.length,"inscrits"],["Affectés de l’État",assignedCount,"étudiants"],["Non affectés",unassignedCount,"étudiants"],["Statut à préciser",unspecifiedCount,"anciens dossiers"],["Total facturé",fmt(totalDue),"après remises"],["Paiements validés",fmt(paid),"étudiants"],["Reste à recouvrer",fmt(rest),"global"],["Retards échus",fmt(over),"échéances dépassées"],["Paiements en attente",fmt(pending),"à contrôler"],["Dépenses",fmt(exp),"validées"],["Flux net",fmt(net),"recettes - dépenses"]];
  kpiGrid.innerHTML=data.map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
- const bal=balances();channelBalances.innerHTML=[["Espèces",bal["Espèces"]],["Wave",bal["Wave"]],["MTN Mobile Money",bal["MTN Mobile Money"]],["Orange Money",bal["Orange Money"]],["Banque",bal["Banque"]]].map(([k,v])=>`<div style="margin:12px 0"><div class="flex" style="justify-content:space-between"><b>${k}</b><span>${fmt(v)}</span></div></div>`).join("");
+ const bal=balances();channelBalances.innerHTML=[["Espèces",bal["Espèces"]],["Caisse Fondateur",bal["Caisse Fondateur"]],["Wave",bal["Wave"]],["MTN Mobile Money",bal["MTN Mobile Money"]],["Orange Money",bal["Orange Money"]],["Banque",bal["Banque"]]].map(([k,v])=>`<div style="margin:12px 0"><div class="flex" style="justify-content:space-between"><b>${k}</b><span>${fmt(v)}</span></div></div>`).join("");
  const rate=totalDue?Math.min(100,debtPaid/totalDue*100):0;recoveryBox.innerHTML=`<div class="kpi"><div class="value">${rate.toFixed(1)}%</div><div class="sub">Taux de recouvrement</div></div><div class="bar" style="margin-top:15px"><span style="width:${rate}%"></span></div><p class="small">${fmt(rest)} restent à recouvrer, dont <b>${fmt(over)}</b> déjà échus.</p>`;
  const t=today(),tp=validPayments().filter(x=>x.date===t).reduce((a,x)=>a+Number(x.amount||0),0),to=validOther().filter(x=>x.date===t).reduce((a,x)=>a+Number(x.amount||0),0),te=validExpenses().filter(x=>x.date===t).reduce((a,x)=>a+Number(x.amount||0),0);
  todayActivity.innerHTML=`<div><span>Paiements étudiants</span><b>${fmt(tp)}</b></div><div><span>Autres recettes</span><b>${fmt(to)}</b></div><div><span>Dépenses</span><b>${fmt(te)}</b></div><div><span>Flux du jour</span><b>${fmt(tp+to-te)}</b></div><div><span>Flux du mois ${month}</span><b>${fmt(monthData.net)}</b></div>`;
@@ -4171,13 +4229,16 @@ function renderCash(){
  const a=cashFrom.value,b=cashTo.value,dates=new Set();[...currentRecords(db.payments),...currentRecords(db.other),...expenseCashMovements(),...currentRecords(db.transfers),...currentRecords(db.staffLoans)].forEach(x=>{if(x.date>=a&&x.date<=b)dates.add(x.date)});payrollPaid().forEach(x=>{if(x.payDate>=a&&x.payDate<=b)dates.add(x.payDate)});const arr=[...dates].sort();let prior=a?cashBalanceAt(addDays(a,-1)):Number(openingForYear().cash||0);
  const rows=arr.map(date=>{const vp=validPayments().filter(x=>x.date===date),vo=validOther().filter(x=>x.date===date),ve=expenseCashMovements().filter(x=>x.date===date),vpayroll=payrollPaid().filter(x=>x.payDate===date),vloans=currentRecords(db.staffLoans).filter(x=>x.status!=="Annulé"&&x.date===date),vt=validTransfers().filter(x=>x.date===date),incCash=[...vp,...vo].filter(x=>x.mode==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0),outCash=ve.filter(x=>treasuryChannel(x.mode)==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0)+vpayroll.filter(x=>treasuryChannel(x.mode)==="Espèces").reduce((a,x)=>a+Number(x.net||0),0)+vloans.filter(x=>treasuryChannel(x.mode)==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0),trIn=vt.filter(x=>x.to==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0),trOut=vt.filter(x=>x.from==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0),op=prior;prior=op+incCash+trIn-outCash-trOut;const inc=[...vp,...vo].reduce((a,x)=>a+Number(x.amount||0),0),out=ve.reduce((a,x)=>a+Number(x.amount||0),0)+vpayroll.reduce((a,x)=>a+Number(x.net||0),0)+vloans.reduce((a,x)=>a+Number(x.amount||0),0);return{date,op,incCash,outCash,trIn,trOut,close:prior,inc,out,net:inc-out}});
  const periodIn=validPayments().filter(x=>x.date>=a&&x.date<=b&&x.mode==="Espèces").reduce((z,x)=>z+Number(x.amount||0),0)+validOther().filter(x=>x.date>=a&&x.date<=b&&x.mode==="Espèces").reduce((z,x)=>z+Number(x.amount||0),0),periodOut=expenseCashMovements().filter(x=>x.date>=a&&x.date<=b&&treasuryChannel(x.mode)==="Espèces").reduce((z,x)=>z+Number(x.amount||0),0)+payrollPaid().filter(x=>x.payDate>=a&&x.payDate<=b&&treasuryChannel(x.mode)==="Espèces").reduce((z,x)=>z+Number(x.net||0),0)+currentRecords(db.staffLoans).filter(x=>x.status!=="Annulé"&&x.date>=a&&x.date<=b&&treasuryChannel(x.mode)==="Espèces").reduce((z,x)=>z+Number(x.amount||0),0),endBal=cashBalanceAt(b),lastClosing=[...currentRecords(db.closings)].filter(x=>x.date<=b).sort((x,y)=>String(y.date).localeCompare(String(x.date))||String(y.time).localeCompare(String(x.time)))[0],unclosedDates=arr.filter(d=>!currentRecords(db.closings).some(c=>c.date===d)).length;
- if(cashControlKpis)cashControlKpis.innerHTML=[["Solde début",fmt(a?cashBalanceAt(addDays(a,-1)):Number(openingForYear().cash||0))],["Entrées espèces",fmt(periodIn)],["Sorties espèces",fmt(periodOut)],["Solde théorique fin",fmt(endBal)]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");
+ if(cashControlKpis){const bnow=balances();cashControlKpis.innerHTML=[["Caisse comptable début",fmt(a?cashBalanceAt(addDays(a,-1)):Number(openingForYear().cash||0))],["Entrées espèces",fmt(periodIn)],["Sorties espèces",fmt(periodOut)],["Caisse comptable fin",fmt(endBal)],["Caisse Fondateur actuelle",fmt(bnow["Caisse Fondateur"]||0)]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("")}
  if(cashControlAlerts){const msgs=[];if(endBal<0)msgs.push(`<div class="danger-note"><b>ALERTE :</b> la caisse théorique est négative de ${fmt(Math.abs(endBal))}. Vérifiez les dates, dépenses, avances, transferts et soldes d’ouverture.</div>`);if(lastClosing&&Number(lastClosing.difference||0)!==0)msgs.push(`<div class="notice"><b>Dernière clôture (${lastClosing.date}) :</b> écart de ${fmt(lastClosing.difference)} entre le comptage physique et le théorique.</div>`);if(unclosedDates>0)msgs.push(`<div class="info"><b>Contrôle quotidien :</b> ${unclosedDates} jour(s) avec mouvement dans la période n’ont pas de clôture de caisse enregistrée.</div>`);const supplierRest=validExpenses().reduce((z,x)=>z+expenseRest(x),0);if(supplierRest>0)msgs.push(`<div class="info"><b>Dettes fournisseurs :</b> ${fmt(supplierRest)} restent à payer. Elles ne sont pas retirées de la caisse tant qu’un règlement n’est pas saisi.</div>`);cashControlAlerts.innerHTML=msgs.join("")}
- cashTable.innerHTML=`<thead><tr><th>Date</th><th class="money">Ouverture espèces</th><th class="money">Entrées opérations</th><th class="money">Sorties opérations</th><th class="money">Transferts reçus</th><th class="money">Transferts sortis</th><th class="money">Clôture théorique</th><th class="money">Recettes totales</th><th class="money">Décaissements totaux</th><th class="money">Flux net opérations</th></tr></thead><tbody>${rows.length?rows.map(x=>`<tr><td>${x.date}</td><td class="money">${fmt(x.op)}</td><td class="money">${fmt(x.incCash)}</td><td class="money">${fmt(x.outCash)}</td><td class="money">${fmt(x.trIn)}</td><td class="money">${fmt(x.trOut)}</td><td class="money"><b>${fmt(x.close)}</b></td><td class="money">${fmt(x.inc)}</td><td class="money">${fmt(x.out)}</td><td class="money">${fmt(x.net)}</td></tr>`).join(""):`<tr><td colspan="10" class="empty">Aucun mouvement</td></tr>`}</tbody>`;renderCashPoles(a,b)
+ cashTable.innerHTML=`<thead><tr><th>Date</th><th class="money">Ouverture espèces</th><th class="money">Entrées opérations</th><th class="money">Sorties opérations</th><th class="money">Transferts reçus</th><th class="money">Transferts sortis</th><th class="money">Caisse comptable fin</th><th class="money">Recettes totales</th><th class="money">Décaissements totaux</th><th class="money">Flux net opérations</th></tr></thead><tbody>${rows.length?rows.map(x=>`<tr><td>${x.date}</td><td class="money">${fmt(x.op)}</td><td class="money">${fmt(x.incCash)}</td><td class="money">${fmt(x.outCash)}</td><td class="money">${fmt(x.trIn)}</td><td class="money">${fmt(x.trOut)}</td><td class="money"><b>${fmt(x.close)}</b></td><td class="money">${fmt(x.inc)}</td><td class="money">${fmt(x.out)}</td><td class="money">${fmt(x.net)}</td></tr>`).join(""):`<tr><td colspan="10" class="empty">Aucun mouvement</td></tr>`}</tbody>`;renderCashPoles(a,b)
 }
 function addDays(dateStr,n){const d=new Date(dateStr+"T12:00:00");d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
 
-function cashFlowPartsByMatch(match){
+function isClosingRemittanceTransfer(x){return x?.closingRemittance===true||x?.kind==="Remise du soir"}
+
+function cashFlowPartsByMatch(match,opts={}){
+ const excludeClosingRemittance=opts.excludeClosingRemittance===true;
  const cashIn=
   validPayments().filter(x=>match(x.date)&&treasuryChannel(x.mode)==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0)+
   validOther().filter(x=>match(x.date)&&treasuryChannel(x.mode)==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0);
@@ -4185,8 +4246,9 @@ function cashFlowPartsByMatch(match){
   expenseCashMovements().filter(x=>match(x.date)&&treasuryChannel(x.mode)==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0)+
   payrollPaid().filter(x=>match(x.payDate)&&treasuryChannel(x.mode)==="Espèces").reduce((a,x)=>a+Number(x.net||0),0)+
   currentRecords(db.staffLoans).filter(x=>x.status!=="Annulé"&&match(x.date)&&treasuryChannel(x.mode)==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0);
- const transferIn=validTransfers().filter(x=>match(x.date)&&treasuryChannel(x.to)==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0);
- const transferOut=validTransfers().filter(x=>match(x.date)&&treasuryChannel(x.from)==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0);
+ const trs=validTransfers().filter(x=>match(x.date)&&(!excludeClosingRemittance||!isClosingRemittanceTransfer(x)));
+ const transferIn=trs.filter(x=>treasuryChannel(x.to)==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0);
+ const transferOut=trs.filter(x=>treasuryChannel(x.from)==="Espèces").reduce((a,x)=>a+Number(x.amount||0),0);
  return{cashIn,cashOut,transferIn,transferOut,net:cashIn+transferIn-cashOut-transferOut}
 }
 
@@ -4197,9 +4259,10 @@ function cashClosingComputation(date){
   .sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))||String(b.time||"").localeCompare(String(a.time||"")));
  const previous=closes[0]||null;
  const managementStart=managementBounds().start;
+
+ // IMPORTANT : previous.actual is the cash REALLY LEFT in the accountant's till AFTER the prior handover.
  const base=previous?Number(previous.actual||0):Number(openingForYear().cash||0);
 
- // Mouvements après la dernière clôture et AVANT la journée sélectionnée.
  const bridge=cashFlowPartsByMatch(d=>{
   d=String(d||"");
   if(!d||d>=date)return false;
@@ -4207,43 +4270,81 @@ function cashClosingComputation(date){
  });
  const opening=base+bridge.net;
 
- // Mouvements strictement de la journée sélectionnée.
- const day=cashFlowPartsByMatch(d=>String(d||"")===date);
- const theoretical=opening+day.net;
+ // For today's "available before handover", ignore an already-recorded end-of-day remittance.
+ const day=cashFlowPartsByMatch(d=>String(d||"")===date,{excludeClosingRemittance:true});
+ const available=opening+day.net;
 
  return{
   date,previous,base,bridge,opening,
   cashIn:day.cashIn,cashOut:day.cashOut,
   transferIn:day.transferIn,transferOut:day.transferOut,
-  dailyNet:day.net,theoretical,
-  baseLabel:previous?`Clôture ${previous.date} — ${previous.id}`:`Solde d’ouverture ${activeYear()}`
+  dailyNet:day.net,available,theoretical:available,
+  baseLabel:previous?`Reste réel après clôture du ${previous.date} — ${previous.id}`:`Solde d’ouverture ${activeYear()}`
  }
 }
 
 function expectedClosingTheoretical(c){
  if(!c?.date)return Number(c?.theoretical||0);
- return cashClosingComputation(c.date).theoretical
+ const calc=cashClosingComputation(c.date);
+ if(Number(c?.calculationVersion||0)>=3){
+  return calc.available-Number(c.remittanceAmount||0)
+ }
+ return calc.available
+}
+
+function closingDepositDestination(){
+ return String(closingDepositTo?.value||"Caisse Fondateur")
 }
 
 function updateClosingPreview(){
  const d=closingDate?.value||today(),calc=cashClosingComputation(d);
- if(closingTheoretical)closingTheoretical.value=fmt(calc.theoretical);
+ if(closingAvailable)closingAvailable.value=fmt(calc.available);
 
- const raw=String(closingActual?.value??"").trim(),hasActual=raw!=="";
+ const raw=String(closingCountedBefore?.value??"").trim(),hasCount=raw!=="";
+ const counted=hasCount?Number(raw):0;
+ const countDiff=hasCount?counted-calc.available:0;
+
+ if(closingCountDifference){
+  closingCountDifference.value=hasCount?fmt(countDiff):"";
+  closingCountDifference.placeholder="—";
+ }
+
+ const all=closingDepositAll?.checked===true;
+ if(closingDepositAmount){
+  closingDepositAmount.readOnly=all;
+  if(all)closingDepositAmount.value=hasCount?String(Math.max(0,counted)):"";
+ }
+ const depRaw=String(closingDepositAmount?.value??"").trim();
+ const remittance=depRaw===""?0:Math.max(0,Number(depRaw)||0);
+ const theoreticalAfter=calc.available-remittance;
+ const actualAfter=hasCount?counted-remittance:0;
+ const finalDiff=hasCount?actualAfter-theoreticalAfter:0;
+
+ if(closingTheoretical)closingTheoretical.value=fmt(theoreticalAfter);
+ if(closingActual)closingActual.value=hasCount?fmt(actualAfter):"";
  if(closingDifference){
-  closingDifference.value=hasActual?fmt(Number(raw)-calc.theoretical):"";
+  closingDifference.value=hasCount?fmt(finalDiff):"";
   closingDifference.placeholder="—";
+ }
+ if(closingNextOpening)closingNextOpening.value=hasCount?fmt(actualAfter):"";
+
+ if(closingReceiver&&!closingReceiver.value.trim()){
+  closingReceiver.value=closingDepositDestination()==="Caisse Fondateur"?"Fondateur / Direction":""
  }
 
  if(closingDailySummary){
   const transferNet=calc.transferIn-calc.transferOut;
+  const dest=closingDepositDestination();
   closingDailySummary.innerHTML=`
-   <div class="cash-day-item"><span>Ouverture du jour</span><b>${fmt(calc.opening)}</b></div>
+   <div class="cash-day-item"><span>Ouverture caisse comptable</span><b>${fmt(calc.opening)}</b></div>
    <div class="cash-day-item"><span>Entrées espèces du jour</span><b>${fmt(calc.cashIn)}</b></div>
    <div class="cash-day-item"><span>Sorties espèces du jour</span><b>${fmt(calc.cashOut)}</b></div>
-   <div class="cash-day-item"><span>Transferts nets espèces</span><b>${fmt(transferNet)}</b></div>
-   <div class="cash-day-item final"><span>Théorique fin de journée</span><b>${fmt(calc.theoretical)}</b></div>
-   <div class="cash-day-note"><b>Base :</b> ${esc(calc.baseLabel)}.${calc.bridge.net?` Mouvements non clôturés antérieurs intégrés : <b>${fmt(calc.bridge.net)}</b>.`:""} Les chiffres « Entrées » et « Sorties » ci-dessus concernent uniquement le <b>${d}</b>.</div>`;
+   <div class="cash-day-item"><span>Autres transferts nets</span><b>${fmt(transferNet)}</b></div>
+   <div class="cash-day-item final"><span>Disponible avant remise</span><b>${fmt(calc.available)}</b></div>
+   <div class="cash-day-item"><span>Compté réellement</span><b>${hasCount?fmt(counted):"—"}</b></div>
+   <div class="cash-day-item founder"><span>Remis / versé vers ${esc(dest)}</span><b>${fmt(remittance)}</b></div>
+   <div class="cash-day-item final"><span>Reste caisse comptable</span><b>${hasCount?fmt(actualAfter):"—"}</b></div>
+   <div class="cash-day-note"><b>Lecture simple :</b> l’argent remis au Fondateur ne disparaît pas. Il quitte seulement la <b>caisse comptable</b> et entre dans la <b>Caisse Fondateur</b>. Si toute la caisse est remise, l’ouverture du lendemain devient <b>0 FCFA</b>.</div>`;
  }
 }
 
@@ -4251,48 +4352,98 @@ closingForm.addEventListener("submit",async e=>{
  e.preventDefault();
  if(!can("closing"))return;
  if(!requireManagementDate(closingDate.value,"La date de clôture")||!requireOpenPeriod(closingDate.value,"La clôture"))return;
- const date=closingDate.value,calc=cashClosingComputation(date),theoretical=calc.theoretical;
- const rawActual=String(closingActual.value??"").trim();
- if(rawActual==="")return alert("Saisissez le montant d’espèces réellement compté dans la caisse.");
- const actual=Number(rawActual),difference=actual-theoretical,note=closingNote.value.trim();
- if(!Number.isFinite(actual)||actual<0)return alert("Le montant d’espèces comptées doit être un nombre valide et ne peut pas être négatif.");
+
+ const date=closingDate.value,calc=cashClosingComputation(date),available=calc.available;
+ const rawCount=String(closingCountedBefore.value??"").trim();
+ if(rawCount==="")return alert("Comptez d'abord les espèces réellement présentes avant la remise du soir.");
+ const countedBefore=Number(rawCount);
+ if(!Number.isFinite(countedBefore)||countedBefore<0)return alert("Le montant compté doit être un nombre valide et positif ou nul.");
+
+ const remittanceAmount=Number(closingDepositAmount.value||0);
+ if(!Number.isFinite(remittanceAmount)||remittanceAmount<0)return alert("Montant remis / versé invalide.");
+ if(remittanceAmount>countedBefore+0.01)return alert("Vous ne pouvez pas remettre plus d'argent que le montant réellement compté.");
+
+ const remittanceTo=closingDepositDestination();
+ const receiver=String(closingReceiver.value||"").trim();
+ const note=closingNote.value.trim();
+ const countDifference=countedBefore-available;
+ const theoreticalAfter=available-remittanceAmount;
+ const actualAfter=countedBefore-remittanceAmount;
+ const finalDifference=actualAfter-theoreticalAfter;
+
+ if(Math.abs(countDifference)>0.01&&!note)return alert("Le comptage réel diffère du montant attendu. Saisissez obligatoirement une justification.");
+ if(remittanceAmount>0&&remittanceTo==="Caisse Fondateur"&&!receiver)return alert("Indiquez qui a reçu l'argent remis main à main.");
+ if(remittanceAmount>0&&remittanceTo!=="Caisse Fondateur"&&!String(closingDepositRef.value||"").trim())return alert("La référence / le bordereau est obligatoire pour un dépôt Banque ou Mobile Money.");
 
  const existingClose=currentRecords(db.closings).find(x=>x.date===date);
- if(existingClose)return alert(`Une clôture officielle existe déjà pour le ${date} (${existingClose.id}). Pour préserver l’audit, corrigez ou supprimez d’abord cette clôture avec le compte Fondateur.`);
- if(Math.abs(difference)>0.01&&!note)return alert("Une justification est obligatoire lorsque la caisse comptée diffère du solde théorique.");
+ if(existingClose)return alert(`Une clôture officielle existe déjà pour le ${date} (${existingClose.id}). Pour préserver l'audit, supprimez/corrigez d'abord cette clôture avec le compte Fondateur.`);
 
  const id=await nextUniqueAcademicId("closing",`CLO-${activeSchoolCode()}`);
  if(!id)return;
+
+ let transferId="";
+ if(remittanceAmount>0){
+  transferId=makeUniqueId("TRF");
+  const ref=String(closingDepositRef.value||"").trim()||`REMISE-${id}`;
+  const tr={
+   id:transferId,schoolId:activeSchoolId(),academicYear:activeYear(),date,
+   from:"Espèces",to:remittanceTo,amount:remittanceAmount,ref,
+   obs:remittanceTo==="Caisse Fondateur"
+     ?`Remise main à main du soir — reçu par ${receiver||"Fondateur / Direction"} — clôture ${id}`
+     :`Versement du soir — clôture ${id}`,
+   status:"Validé",agent:currentUserLabel(),device:deviceName(),createdAt:new Date().toISOString(),
+   kind:"Remise du soir",closingRemittance:true,closingId:id,receiver
+  };
+  db.transfers.unshift(tr);
+ }
+
  const x={
   schoolId:activeSchoolId(),academicYear:activeYear(),id,
   createdOffline:isOfflineId(id),device:deviceName(),date,
-  calculationVersion:2,
+  calculationVersion:3,
   previousClosingId:calc.previous?.id||"",
   previousClosingDate:calc.previous?.date||"",
-  opening:calc.opening,
-  cashIn:calc.cashIn,
-  cashOut:calc.cashOut,
-  transferIn:calc.transferIn,
-  transferOut:calc.transferOut,
-  bridgeNet:calc.bridge.net,
-  theoretical,actual,difference,note,
+  opening:calc.opening,cashIn:calc.cashIn,cashOut:calc.cashOut,
+  transferIn:calc.transferIn,transferOut:calc.transferOut,bridgeNet:calc.bridge.net,
+  availableBefore:available,countedBefore,countDifference,
+  remittanceAmount,remittanceTo,remittanceTransferId:transferId,
+  receiver,remittanceRef:String(closingDepositRef.value||"").trim(),
+  theoretical:theoreticalAfter,actual:actualAfter,difference:finalDifference,
+  nextOpening:actualAfter,note,
   agent:currentUserLabel(),time:new Date().toISOString()
  };
  db.closings.unshift(x);
- logAction("Clôture de caisse",`${x.id} - ${date} - ouverture ${fmt(x.opening)} - entrées ${fmt(x.cashIn)} - sorties ${fmt(x.cashOut)} - théorique ${fmt(theoretical)} - compté ${fmt(actual)} - écart ${fmt(difference)}`);
+
+ logAction(
+  "Clôture + remise du soir",
+  `${x.id} — ${date} — disponible ${fmt(available)} — compté ${fmt(countedBefore)} — remis ${fmt(remittanceAmount)} vers ${remittanceTo} — reste ${fmt(actualAfter)} — écart ${fmt(finalDifference)}`
+ );
  saveDB();
- closingActual.value="";closingNote.value="";
+
+ closingCountedBefore.value="";
+ closingDepositAmount.value="";
+ closingDepositRef.value="";
+ closingNote.value="";
+ closingDepositAll.checked=true;
+ closingDepositTo.value="Caisse Fondateur";
+ closingReceiver.value="Fondateur / Direction";
  updateClosingPreview()
 });
 
 function closingRowCalculation(x){
  const calc=cashClosingComputation(x.date);
+ const v3=Number(x?.calculationVersion||0)>=3;
  return{
   opening:Number.isFinite(Number(x.opening))?Number(x.opening):calc.opening,
   cashIn:Number.isFinite(Number(x.cashIn))?Number(x.cashIn):calc.cashIn,
   cashOut:Number.isFinite(Number(x.cashOut))?Number(x.cashOut):calc.cashOut,
   transferNet:(Number.isFinite(Number(x.transferIn))?Number(x.transferIn):calc.transferIn)-
-              (Number.isFinite(Number(x.transferOut))?Number(x.transferOut):calc.transferOut)
+              (Number.isFinite(Number(x.transferOut))?Number(x.transferOut):calc.transferOut),
+  available:v3?Number(x.availableBefore||0):Number(x.theoretical||0),
+  counted:v3?Number(x.countedBefore||0):Number(x.actual||0),
+  remittance:v3?Number(x.remittanceAmount||0):0,
+  remittanceTo:v3?(x.remittanceTo||"—"):"—",
+  remaining:Number(x.actual||0)
  }
 }
 
@@ -4303,11 +4454,13 @@ function renderClosings(){
   <th class="money">Ouverture</th>
   <th class="money">Entrées jour</th>
   <th class="money">Sorties jour</th>
-  <th class="money">Transferts nets</th>
-  <th class="money">Théorique fin</th>
+  <th class="money">Disponible avant remise</th>
   <th class="money">Compté</th>
+  <th class="money">Remis / versé</th>
+  <th>Destination</th>
+  <th class="money">Reste caisse</th>
   <th class="money">Écart</th>
-  <th>Justification</th><th>Responsable</th><th>Action</th>
+  <th>Reçu par / justification</th><th>Responsable</th><th>Action</th>
  </tr></thead><tbody>${rows.length?rows.map(x=>{
   const c=closingRowCalculation(x);
   return`<tr>
@@ -4315,15 +4468,34 @@ function renderClosings(){
    <td class="money">${fmt(c.opening)}</td>
    <td class="money">${fmt(c.cashIn)}</td>
    <td class="money">${fmt(c.cashOut)}</td>
-   <td class="money">${fmt(c.transferNet)}</td>
-   <td class="money"><b>${fmt(x.theoretical)}</b></td>
-   <td class="money">${fmt(x.actual)}</td>
+   <td class="money"><b>${fmt(c.available)}</b></td>
+   <td class="money">${fmt(c.counted)}</td>
+   <td class="money"><b>${fmt(c.remittance)}</b></td>
+   <td>${esc(c.remittanceTo)}</td>
+   <td class="money"><b>${fmt(c.remaining)}</b></td>
    <td class="money" style="color:${Math.abs(Number(x.difference||0))<0.01?'var(--green)':'var(--red)'}"><b>${fmt(x.difference)}</b></td>
-   <td>${esc(x.note||"")}</td><td>${esc(x.agent||"")}</td>
-   <td>${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="founderDeleteOperation('closings','${x.id}')">Supprimer</button>`:""}</td>
+   <td>${esc([x.receiver,x.note].filter(Boolean).join(" — ")||"—")}</td>
+   <td>${esc(x.agent||"")}</td>
+   <td>${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="deleteClosingWithRemittance('${x.id}')">Supprimer erreur</button>`:""}</td>
   </tr>`
- }).join(""):`<tr><td colspan="12" class="empty">Aucune clôture</td></tr>`}</tbody>`
+ }).join(""):`<tr><td colspan="14" class="empty">Aucune clôture</td></tr>`}</tbody>`
 }
+
+function deleteClosingWithRemittance(id){
+ if(!canFounderDelete())return alert("Fondateur uniquement.");
+ const x=db.closings.find(c=>String(c.id)===String(id)&&c.deleted!==true);if(!x)return;
+ const reason=prompt(`Motif obligatoire pour supprimer la clôture ${id} :`);
+ if(!reason?.trim())return;
+ if(!confirm(`Supprimer cette clôture et sa remise du soir associée ?\n\nLa trace restera dans l'historique.`))return;
+ x.deleted=true;x.deletedAt=new Date().toISOString();x.deletedBy=currentUserLabel();x.deleteReason=reason.trim();
+ if(x.remittanceTransferId){
+  const tr=db.transfers.find(t=>String(t.id)===String(x.remittanceTransferId));
+  if(tr){tr.deleted=true;tr.deletedAt=new Date().toISOString();tr.deletedBy=currentUserLabel();tr.deleteReason=`Clôture ${id} supprimée — ${reason.trim()}`}
+ }
+ logAction("SUPPRESSION FONDATEUR",`Clôture ${id} + remise associée — ${reason.trim()}`);
+ saveDB()
+}
+window.deleteClosingWithRemittance=deleteClosingWithRemittance;
 
 function journalRows(){
  const rows=[];validPayments().forEach(p=>{const st=studentByMat(p.student);rows.push({date:p.date,piece:p.receipt,program:st?.program||"",track:studentTrackValue(st),origin:"Paiement étudiant",label:`${p.type} - ${st?.name||p.student}`,debit:p.mode,credit:"Recettes scolaires",amount:p.amount})});validOther().forEach(x=>rows.push({date:x.date,piece:x.receipt,program:operationProgram(x),track:operationTrack(x),origin:"Autre recette",label:`${x.type} - ${x.label}`,debit:x.mode,credit:"Autres recettes",amount:x.amount}));validExpenses().forEach(x=>rows.push({date:x.date,piece:x.id,program:operationProgram(x),track:operationTrack(x),origin:"Dépense engagée",label:`${x.category} - ${x.label}`,debit:"Dépenses",credit:"Fournisseurs",amount:expenseTotal(x)}));expenseCashMovements().forEach(p=>{const x=db.expenses.find(e=>e.id===p.expenseId);if(x)rows.push({date:p.date,piece:p.id,program:operationProgram(x),track:operationTrack(x),origin:"Règlement fournisseur",label:`${x.beneficiary||x.label} - ${x.id}`,debit:"Fournisseurs",credit:p.mode,amount:p.amount})});payrollPaid().forEach(x=>rows.push({date:x.payDate,piece:x.id,program:GENERAL_PROGRAM,track:COMMON_TRACK,origin:"Paie personnel",label:`Salaire net - ${staffByMat(x.staff)?.name||x.staff}`,debit:"Salaires",credit:x.mode,amount:x.net}));currentRecords(db.staffLoans).filter(x=>x.status!=="Annulé"&&x.mode).forEach(x=>rows.push({date:x.date,piece:x.id,program:GENERAL_PROGRAM,track:COMMON_TRACK,origin:"Avance / prêt personnel",label:`${x.type} - ${staffByMat(x.staff)?.name||x.staff}`,debit:"Personnel - avances",credit:x.mode,amount:x.amount}));validTransfers().forEach(x=>rows.push({date:x.date,piece:x.id,program:GENERAL_PROGRAM,track:COMMON_TRACK,origin:"Transfert trésorerie",label:`${x.from} → ${x.to}`,debit:x.to,credit:x.from,amount:x.amount}));return rows.sort((a,b)=>b.date.localeCompare(a.date))
@@ -4335,9 +4507,9 @@ const ACCOUNT_NAMES={
  "100":"Fonds propres / à-nouveau interne","2":"Immobilisations","401":"Fournisseurs","411":"Étudiants / créances","421":"Personnel - rémunérations dues","425":"Personnel - avances et acomptes","431":"CNPS / organismes sociaux","442":"État - impôts sur salaires","44":"État et organismes publics","521":"Banques","552":"Monnaie électronique / téléphone","5521":"Wave","5522":"MTN Mobile Money","5523":"Orange Money","571":"Caisse","60":"Achats / fournitures","62":"Services extérieurs","64":"Impôts et taxes","66":"Charges de personnel","67":"Charges financières","70":"Produits de formation / prestations","75":"Autres produits","8":"Autres charges / produits"
 };
 function accountName(code){code=String(code||"").trim();return ACCOUNT_NAMES[code]||ACCOUNT_NAMES[code.slice(0,3)]||ACCOUNT_NAMES[code.slice(0,2)]||ACCOUNT_NAMES[code.slice(0,1)]||"Compte "+code}
-function treasuryAccount(mode){if(mode==="Espèces")return"571";if(mode==="Banque"||mode==="Chèque")return"521";if(mode==="Wave")return"5521";if(mode==="MTN Mobile Money")return"5522";if(mode==="Orange Money")return"5523";return"521"}
+function treasuryAccount(mode){if(mode==="Espèces"||mode==="Caisse Fondateur")return"571";if(mode==="Banque"||mode==="Chèque")return"521";if(mode==="Wave")return"5521";if(mode==="MTN Mobile Money")return"5522";if(mode==="Orange Money")return"5523";return"521"}
 function expenseAccount(category){if(category==="Salaires")return"66";if(category==="Impôts/Taxes")return"64";if(["Fournitures","Électricité","Eau"].includes(category))return"60";if(category==="Autre")return"62";return"62"}
-function accountingRows(month="",program="",track=""){const rows=[],okDate=d=>!month||inReportPeriod(d,month),okProg=p=>!program||p===program,okTrack=t=>!track||cleanTrack(t)===track,push=(x)=>{if(okDate(x.date)&&okProg(x.program)&&okTrack(x.track))rows.push(x)};const op=openingForYear(),od=managementBounds().start;[["571",op.cash,"Espèces"],["5521",op.wave,"Wave"],["5522",op.mtn,"MTN"],["5523",op.orange,"Orange Money"],["521",op.bank,"Banque"]].forEach(([a,v,l])=>{if(Number(v||0)>0)push({date:od,piece:"AN-"+yearCode(),journal:"AN",program:GENERAL_PROGRAM,track:COMMON_TRACK,origin:"À-nouveau",label:`Solde ouverture ${l}`,debit:a,credit:"100",amount:Number(v),sourceId:"OPEN-"+l})});currentStudents().forEach(st=>{const due=studentDue(st);if(due>0)push({date:st.date,piece:"FAC-"+st.matricule,journal:"VTE",program:st.program,track:studentTrackValue(st),origin:"Facturation",label:`Inscription + scolarité — ${st.name}`,debit:"411",credit:"70",amount:due,sourceId:st.matricule})});validPayments().forEach(p=>{const st=studentByMat(p.student),debt=DEBT_PAYMENT_TYPES.has(p.type);push({date:p.date,piece:p.receipt,journal:p.mode==="Espèces"?"CAI":"BAN",program:st?.program||GENERAL_PROGRAM,track:studentTrackValue(st),origin:"Paiement",label:`${p.type} — ${st?.name||p.student}`,debit:treasuryAccount(p.mode),credit:debt?"411":"70",amount:Number(p.amount||0),sourceId:p.receipt})});validOther().forEach(x=>push({date:x.date,piece:x.receipt,journal:x.mode==="Espèces"?"CAI":"BAN",program:operationProgram(x),track:operationTrack(x),origin:"Autre recette",label:x.label,debit:treasuryAccount(x.mode),credit:"75",amount:Number(x.amount||0),sourceId:x.receipt}));validExpenses().forEach(x=>push({date:x.date,piece:x.id,journal:"ACH",program:operationProgram(x),track:operationTrack(x),origin:"Dépense engagée",label:x.label,debit:expenseAccount(x.category),credit:"401",amount:expenseTotal(x),sourceId:x.id}));expenseCashMovements().forEach(p=>{const x=db.expenses.find(e=>e.id===p.expenseId);if(x)push({date:p.date,piece:p.id,journal:p.mode==="Espèces"?"CAI":"BAN",program:operationProgram(x),track:operationTrack(x),origin:"Règlement fournisseur",label:`${x.beneficiary||x.label} — ${x.id}`,debit:"401",credit:treasuryAccount(p.mode),amount:Number(p.amount||0),sourceId:p.id})});
+function accountingRows(month="",program="",track=""){const rows=[],okDate=d=>!month||inReportPeriod(d,month),okProg=p=>!program||p===program,okTrack=t=>!track||cleanTrack(t)===track,push=(x)=>{if(okDate(x.date)&&okProg(x.program)&&okTrack(x.track))rows.push(x)};const op=openingForYear(),od=managementBounds().start;[["571",op.cash,"Espèces"],["571",op.founderCash||0,"Caisse Fondateur"],["5521",op.wave,"Wave"],["5522",op.mtn,"MTN"],["5523",op.orange,"Orange Money"],["521",op.bank,"Banque"]].forEach(([a,v,l])=>{if(Number(v||0)>0)push({date:od,piece:"AN-"+yearCode(),journal:"AN",program:GENERAL_PROGRAM,track:COMMON_TRACK,origin:"À-nouveau",label:`Solde ouverture ${l}`,debit:a,credit:"100",amount:Number(v),sourceId:"OPEN-"+l})});currentStudents().forEach(st=>{const due=studentDue(st);if(due>0)push({date:st.date,piece:"FAC-"+st.matricule,journal:"VTE",program:st.program,track:studentTrackValue(st),origin:"Facturation",label:`Inscription + scolarité — ${st.name}`,debit:"411",credit:"70",amount:due,sourceId:st.matricule})});validPayments().forEach(p=>{const st=studentByMat(p.student),debt=DEBT_PAYMENT_TYPES.has(p.type);push({date:p.date,piece:p.receipt,journal:p.mode==="Espèces"?"CAI":"BAN",program:st?.program||GENERAL_PROGRAM,track:studentTrackValue(st),origin:"Paiement",label:`${p.type} — ${st?.name||p.student}`,debit:treasuryAccount(p.mode),credit:debt?"411":"70",amount:Number(p.amount||0),sourceId:p.receipt})});validOther().forEach(x=>push({date:x.date,piece:x.receipt,journal:x.mode==="Espèces"?"CAI":"BAN",program:operationProgram(x),track:operationTrack(x),origin:"Autre recette",label:x.label,debit:treasuryAccount(x.mode),credit:"75",amount:Number(x.amount||0),sourceId:x.receipt}));validExpenses().forEach(x=>push({date:x.date,piece:x.id,journal:"ACH",program:operationProgram(x),track:operationTrack(x),origin:"Dépense engagée",label:x.label,debit:expenseAccount(x.category),credit:"401",amount:expenseTotal(x),sourceId:x.id}));expenseCashMovements().forEach(p=>{const x=db.expenses.find(e=>e.id===p.expenseId);if(x)push({date:p.date,piece:p.id,journal:p.mode==="Espèces"?"CAI":"BAN",program:operationProgram(x),track:operationTrack(x),origin:"Règlement fournisseur",label:`${x.beneficiary||x.label} — ${x.id}`,debit:"401",credit:treasuryAccount(p.mode),amount:Number(p.amount||0),sourceId:p.id})});
 currentRecords(db.staffLoans).filter(x=>x.status!=="Annulé"&&x.mode).forEach(x=>push({date:x.date,piece:x.id,journal:x.mode==="Espèces"?"CAI":"BAN",program:GENERAL_PROGRAM,track:COMMON_TRACK,origin:"Avance / prêt personnel",label:`${x.type} — ${staffByMat(x.staff)?.name||x.staff}`,debit:"425",credit:treasuryAccount(x.mode),amount:Number(x.amount||0),sourceId:x.id}));
 payrollPaid().forEach(x=>{const name=staffByMat(x.staff)?.name||x.staff,employeeSocial=Number(x.employeeCnps||0)+Number(x.employeeCmu||0),employerSocial=Number(x.employerCharges||0),tax=Number(x.tax||0),net=Number(x.net||0),grossPayable=Number(x.grossPayable??Math.max(0,Number(x.gross||0)-Number(x.absenceDeduction||0)-Number(x.lateDeduction||0))),loan=Number(x.loanDeduction||0),other=Number(x.otherDeduction||0);if(grossPayable>0)push({date:x.payDate,piece:x.id,journal:"PAI",program:GENERAL_PROGRAM,track:COMMON_TRACK,origin:"Paie",label:`Salaire brut dû — ${name}`,debit:"66",credit:"421",amount:grossPayable,sourceId:x.id});if(employerSocial>0)push({date:x.payDate,piece:x.id+"-CHG",journal:"PAI",program:GENERAL_PROGRAM,track:COMMON_TRACK,origin:"Paie",label:`Charges patronales — ${name}`,debit:"66",credit:"431",amount:employerSocial,sourceId:x.id});if(employeeSocial>0)push({date:x.payDate,piece:x.id+"-SOC",journal:"PAI",program:GENERAL_PROGRAM,track:COMMON_TRACK,origin:"Paie",label:`Retenues sociales salarié — ${name}`,debit:"421",credit:"431",amount:employeeSocial,sourceId:x.id});if(tax>0)push({date:x.payDate,piece:x.id+"-TAX",journal:"PAI",program:GENERAL_PROGRAM,track:COMMON_TRACK,origin:"Paie",label:`Impôt salaire retenu — ${name}`,debit:"421",credit:"442",amount:tax,sourceId:x.id});if(loan>0)push({date:x.payDate,piece:x.id+"-AVP",journal:"PAI",program:GENERAL_PROGRAM,track:COMMON_TRACK,origin:"Paie",label:`Remboursement avance / prêt — ${name}`,debit:"421",credit:"425",amount:loan,sourceId:x.id});if(other>0)push({date:x.payDate,piece:x.id+"-RET",journal:"PAI",program:GENERAL_PROGRAM,track:COMMON_TRACK,origin:"Paie",label:`Autres retenues — ${name}`,debit:"421",credit:"44",amount:other,sourceId:x.id});if(net>0)push({date:x.payDate,piece:x.id+"-NET",journal:x.mode==="Espèces"?"CAI":"BAN",program:GENERAL_PROGRAM,track:COMMON_TRACK,origin:"Paie",label:`Net payé — ${name}`,debit:"421",credit:treasuryAccount(x.mode),amount:net,sourceId:x.id})});
 validTransfers().forEach(x=>push({date:x.date,piece:x.id,journal:"TRF",program:GENERAL_PROGRAM,track:COMMON_TRACK,origin:"Transfert trésorerie",label:`${x.from} → ${x.to}`,debit:treasuryAccount(x.to),credit:treasuryAccount(x.from),amount:Number(x.amount||0),sourceId:x.id}));currentRecords(db.manualEntries).filter(x=>x.status!=="Annulé").forEach(x=>push({date:x.date,piece:x.id,journal:x.journal||"OD",program:x.program||GENERAL_PROGRAM,track:cleanTrack(x.track),origin:"Écriture manuelle",label:x.label,debit:String(x.debit),credit:String(x.credit),amount:Number(x.amount||0),sourceId:x.id}));return rows.sort((a,b)=>String(a.date).localeCompare(String(b.date))||String(a.piece).localeCompare(String(b.piece)))}
@@ -4369,7 +4541,7 @@ function renderReports(){
 }
 
 function annualSummaryData(program="",track="",assignment=""){const sts=studentScope(program,track,assignment),school=validPayments().filter(p=>{const st=studentByMat(p.student);return(!program||st?.program===program)&&(!track||studentTrackValue(st)===track)&&assignmentMatches(st,assignment)}).reduce((a,x)=>a+Number(x.amount||0),0),debtCollected=sts.reduce((a,s)=>a+studentDebtPaid(s.matricule),0),other=validOther().filter(x=>directOperationMatches(x,program,track,assignment)).reduce((a,x)=>a+Number(x.amount||0),0),expenses=validExpenses().filter(x=>directOperationMatches(x,program,track,assignment)).reduce((a,x)=>a+Number(x.amount||0),0),billed=sts.reduce((a,s)=>a+studentDue(s),0),receivables=sts.reduce((a,s)=>a+studentRest(s),0),overdue=sts.reduce((a,s)=>a+overdueAmount(s),0);return{students:sts.length,billed,school,debtCollected,other,revenue:school+other,expenses,result:school+other-expenses,receivables,overdue,rate:billed?Math.min(100,debtCollected/billed*100):0}}
-function renderAnnualBalance(){if(!annualKpis)return;const program=annualProgramFilter?.value||"",assignment=annualAssignmentFilter?.value||"",track=annualTrackFilter?.value||"",a=annualSummaryData(program,track,assignment),bal=balances(),op=openingForYear(),pr=program?[programSummary(program,"",assignment)]:programSummaryRows("",assignment),fr=track?[filiereSummary(program,track,"",assignment)]:filiereSummaryRows(program,"",assignment),ai=assignment?{products:0,charges:0,result:0}:accIncomeData("",program,track),ab=assignment?{assets:0,liabilities:0,difference:0}:accBalanceData("",program,track),ar=filiereAssignmentRows("",program);annualKpis.innerHTML=[["Étudiants sélection",a.students],["Recettes sélection",fmt(a.revenue)],["Dépenses directes",fmt(a.expenses)],["Résultat sélection",fmt(a.result)],["Créances étudiants",fmt(a.receivables)],["Impayés échus",fmt(a.overdue)]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");annualResult.innerHTML=`<div><span>Périmètre</span><b>${esc(program||"Toute l'école")} — ${esc(assignmentLabelFromFilter(assignment))} ${track?"— "+esc(track):""}</b></div><div><span>Effectif</span><b>${a.students}</b></div><div><span>Facturation étudiants</span><b>${fmt(a.billed)}</b></div><div><span>Encaissements étudiants (tous frais)</span><b>${fmt(a.school)}</b></div><div><span>Autres recettes directes</span><b>${fmt(a.other)}</b></div><div><span>Total recettes</span><b>${fmt(a.revenue)}</b></div><div><span>Total dépenses directes</span><b>${fmt(a.expenses)}</b></div><div><span>Résultat direct</span><b>${fmt(a.result)}</b></div><div><span>Recouvrement inscription/scolarité</span><b>${a.rate.toFixed(1)}%</b></div><div><span>Impayés échus</span><b>${fmt(a.overdue)}</b></div>`;annualTreasury.innerHTML=[["Espèces",op.cash,bal["Espèces"]],["Wave",op.wave,bal["Wave"]],["MTN Mobile Money",op.mtn,bal["MTN Mobile Money"]],["Orange Money",op.orange,bal["Orange Money"]],["Banque",op.bank,bal["Banque"]]].map(x=>`<div><span>${x[0]} <span class="small">(${esc(activeSchoolCode())})</span></span><b>${fmt(x[2])}</b></div>`).join("");if(annualAccountingIncome)annualAccountingIncome.innerHTML=assignment?`<div class="notice">Les charges et produits comptables directs sont rattachés à une filière/centre de coût, pas au statut Affecté de l’État / Non affecté. Ils ne sont donc pas ventilés arbitrairement par statut.</div>`:`<div><span>Produits comptables directs</span><b>${fmt(ai.products)}</b></div><div><span>Charges comptables directes</span><b>${fmt(ai.charges)}</b></div><div><span>Résultat comptable direct</span><b>${fmt(ai.result)}</b></div>`;if(annualAccountingBalance)annualAccountingBalance.innerHTML=assignment?`<div class="notice">Le bilan comptable direct n’est pas ventilé automatiquement par statut d’affectation. Utilisez le bilan par filière pour les charges directes et les tableaux Affecté État / Non affecté pour la scolarité et les créances.</div>`:`<div><span>Total actif simplifié</span><b>${fmt(ab.assets)}</b></div><div><span>Total passif + résultat</span><b>${fmt(ab.liabilities)}</b></div><div><span>Écart de contrôle</span><b>${fmt(ab.difference)}</b></div><div class="small">Bilan analytique direct EIAFC multi-écoles. Les charges communes non affectées ne sont pas réparties automatiquement.</div>`;annualPrograms.innerHTML=`<thead><tr><th>Programme</th><th>Effectif</th><th class="money">Facturé</th><th class="money">Paiements</th><th class="money">Autres recettes</th><th class="money">Dépenses</th><th class="money">Résultat</th><th class="money">Reste</th></tr></thead><tbody>${pr.map(x=>`<tr><td><b>${esc(x.program)}</b></td><td>${x.students}</td><td class="money">${fmt(x.billed)}</td><td class="money">${fmt(x.paid)}</td><td class="money">${fmt(x.other)}</td><td class="money">${fmt(x.expenses)}</td><td class="money"><b>${fmt(x.net)}</b></td><td class="money">${fmt(x.rest)}</td></tr>`).join("")}</tbody>`;if(annualAssignments)annualAssignments.innerHTML=`<thead><tr><th>Programme</th><th>Filière</th><th>Statut d’affectation</th><th>Effectif</th><th class="money">Facturé</th><th class="money">Paiements</th><th class="money">Reste</th><th class="money">Échu</th><th>Rames</th><th>Marqueurs</th></tr></thead><tbody>${ar.map(x=>`<tr><td><b>${esc(x.program)}</b></td><td>${esc(x.track)}</td><td><span class="status ${x.assignment==="assigned"?"valid":x.assignment==="unspecified"?"rejected":"pending"}">${x.label}</span></td><td>${x.students}</td><td class="money">${fmt(x.billed)}</td><td class="money">${fmt(x.paid)}</td><td class="money">${fmt(x.rest)}</td><td class="money">${fmt(x.overdue)}</td><td>${x.reams}/${x.students}</td><td>${x.markers}/${x.students*3}</td></tr>`).join("")}</tbody>`;annualTracks.innerHTML=`<thead><tr><th>Programme</th><th>Statut d’affectation</th><th>Filière / centre</th><th>Effectif</th><th class="money">Facturé</th><th class="money">Paiements</th><th class="money">Autres recettes</th><th class="money">Dépenses directes</th><th class="money">Résultat direct</th><th class="money">Reste</th></tr></thead><tbody>${fr.length?fr.map(x=>`<tr><td>${esc(x.program)}</td><td><span class="status ${assignment==='assigned'?'valid':assignment==='unassigned'?'pending':'valid'}">${esc(assignmentLabelFromFilter(assignment))}</span></td><td><b>${esc(x.track)}</b></td><td>${x.students}</td><td class="money">${fmt(x.billed)}</td><td class="money">${fmt(x.paid)}</td><td class="money">${fmt(x.other)}</td><td class="money">${fmt(x.expenses)}</td><td class="money"><b>${fmt(x.net)}</b></td><td class="money">${fmt(x.rest)}</td></tr>`).join(""):`<tr><td colspan="10" class="empty">Aucune filière pour ce périmètre</td></tr>`}</tbody>`;annualMonths.innerHTML=`<thead><tr><th>Période</th><th>Effectif périmètre</th><th class="money">Paiements</th><th class="money">Autres recettes</th><th class="money">Dépenses</th><th class="money">Résultat</th></tr></thead><tbody>${reportPeriods().map(m=>monthlySummary(m,program,track,assignment)).map(x=>`<tr><td>${x.month}</td><td>${x.students}</td><td class="money">${fmt(x.pay)}</td><td class="money">${fmt(x.other)}</td><td class="money">${fmt(x.exp)}</td><td class="money"><b>${fmt(x.net)}</b></td></tr>`).join("")}</tbody>`}
+function renderAnnualBalance(){if(!annualKpis)return;const program=annualProgramFilter?.value||"",assignment=annualAssignmentFilter?.value||"",track=annualTrackFilter?.value||"",a=annualSummaryData(program,track,assignment),bal=balances(),op=openingForYear(),pr=program?[programSummary(program,"",assignment)]:programSummaryRows("",assignment),fr=track?[filiereSummary(program,track,"",assignment)]:filiereSummaryRows(program,"",assignment),ai=assignment?{products:0,charges:0,result:0}:accIncomeData("",program,track),ab=assignment?{assets:0,liabilities:0,difference:0}:accBalanceData("",program,track),ar=filiereAssignmentRows("",program);annualKpis.innerHTML=[["Étudiants sélection",a.students],["Recettes sélection",fmt(a.revenue)],["Dépenses directes",fmt(a.expenses)],["Résultat sélection",fmt(a.result)],["Créances étudiants",fmt(a.receivables)],["Impayés échus",fmt(a.overdue)]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");annualResult.innerHTML=`<div><span>Périmètre</span><b>${esc(program||"Toute l'école")} — ${esc(assignmentLabelFromFilter(assignment))} ${track?"— "+esc(track):""}</b></div><div><span>Effectif</span><b>${a.students}</b></div><div><span>Facturation étudiants</span><b>${fmt(a.billed)}</b></div><div><span>Encaissements étudiants (tous frais)</span><b>${fmt(a.school)}</b></div><div><span>Autres recettes directes</span><b>${fmt(a.other)}</b></div><div><span>Total recettes</span><b>${fmt(a.revenue)}</b></div><div><span>Total dépenses directes</span><b>${fmt(a.expenses)}</b></div><div><span>Résultat direct</span><b>${fmt(a.result)}</b></div><div><span>Recouvrement inscription/scolarité</span><b>${a.rate.toFixed(1)}%</b></div><div><span>Impayés échus</span><b>${fmt(a.overdue)}</b></div>`;annualTreasury.innerHTML=[["Espèces",op.cash,bal["Espèces"]],["Caisse Fondateur",op.founderCash||0,bal["Caisse Fondateur"]],["Wave",op.wave,bal["Wave"]],["MTN Mobile Money",op.mtn,bal["MTN Mobile Money"]],["Orange Money",op.orange,bal["Orange Money"]],["Banque",op.bank,bal["Banque"]]].map(x=>`<div><span>${x[0]} <span class="small">(${esc(activeSchoolCode())})</span></span><b>${fmt(x[2])}</b></div>`).join("");if(annualAccountingIncome)annualAccountingIncome.innerHTML=assignment?`<div class="notice">Les charges et produits comptables directs sont rattachés à une filière/centre de coût, pas au statut Affecté de l’État / Non affecté. Ils ne sont donc pas ventilés arbitrairement par statut.</div>`:`<div><span>Produits comptables directs</span><b>${fmt(ai.products)}</b></div><div><span>Charges comptables directes</span><b>${fmt(ai.charges)}</b></div><div><span>Résultat comptable direct</span><b>${fmt(ai.result)}</b></div>`;if(annualAccountingBalance)annualAccountingBalance.innerHTML=assignment?`<div class="notice">Le bilan comptable direct n’est pas ventilé automatiquement par statut d’affectation. Utilisez le bilan par filière pour les charges directes et les tableaux Affecté État / Non affecté pour la scolarité et les créances.</div>`:`<div><span>Total actif simplifié</span><b>${fmt(ab.assets)}</b></div><div><span>Total passif + résultat</span><b>${fmt(ab.liabilities)}</b></div><div><span>Écart de contrôle</span><b>${fmt(ab.difference)}</b></div><div class="small">Bilan analytique direct EIAFC multi-écoles. Les charges communes non affectées ne sont pas réparties automatiquement.</div>`;annualPrograms.innerHTML=`<thead><tr><th>Programme</th><th>Effectif</th><th class="money">Facturé</th><th class="money">Paiements</th><th class="money">Autres recettes</th><th class="money">Dépenses</th><th class="money">Résultat</th><th class="money">Reste</th></tr></thead><tbody>${pr.map(x=>`<tr><td><b>${esc(x.program)}</b></td><td>${x.students}</td><td class="money">${fmt(x.billed)}</td><td class="money">${fmt(x.paid)}</td><td class="money">${fmt(x.other)}</td><td class="money">${fmt(x.expenses)}</td><td class="money"><b>${fmt(x.net)}</b></td><td class="money">${fmt(x.rest)}</td></tr>`).join("")}</tbody>`;if(annualAssignments)annualAssignments.innerHTML=`<thead><tr><th>Programme</th><th>Filière</th><th>Statut d’affectation</th><th>Effectif</th><th class="money">Facturé</th><th class="money">Paiements</th><th class="money">Reste</th><th class="money">Échu</th><th>Rames</th><th>Marqueurs</th></tr></thead><tbody>${ar.map(x=>`<tr><td><b>${esc(x.program)}</b></td><td>${esc(x.track)}</td><td><span class="status ${x.assignment==="assigned"?"valid":x.assignment==="unspecified"?"rejected":"pending"}">${x.label}</span></td><td>${x.students}</td><td class="money">${fmt(x.billed)}</td><td class="money">${fmt(x.paid)}</td><td class="money">${fmt(x.rest)}</td><td class="money">${fmt(x.overdue)}</td><td>${x.reams}/${x.students}</td><td>${x.markers}/${x.students*3}</td></tr>`).join("")}</tbody>`;annualTracks.innerHTML=`<thead><tr><th>Programme</th><th>Statut d’affectation</th><th>Filière / centre</th><th>Effectif</th><th class="money">Facturé</th><th class="money">Paiements</th><th class="money">Autres recettes</th><th class="money">Dépenses directes</th><th class="money">Résultat direct</th><th class="money">Reste</th></tr></thead><tbody>${fr.length?fr.map(x=>`<tr><td>${esc(x.program)}</td><td><span class="status ${assignment==='assigned'?'valid':assignment==='unassigned'?'pending':'valid'}">${esc(assignmentLabelFromFilter(assignment))}</span></td><td><b>${esc(x.track)}</b></td><td>${x.students}</td><td class="money">${fmt(x.billed)}</td><td class="money">${fmt(x.paid)}</td><td class="money">${fmt(x.other)}</td><td class="money">${fmt(x.expenses)}</td><td class="money"><b>${fmt(x.net)}</b></td><td class="money">${fmt(x.rest)}</td></tr>`).join(""):`<tr><td colspan="10" class="empty">Aucune filière pour ce périmètre</td></tr>`}</tbody>`;annualMonths.innerHTML=`<thead><tr><th>Période</th><th>Effectif périmètre</th><th class="money">Paiements</th><th class="money">Autres recettes</th><th class="money">Dépenses</th><th class="money">Résultat</th></tr></thead><tbody>${reportPeriods().map(m=>monthlySummary(m,program,track,assignment)).map(x=>`<tr><td>${x.month}</td><td>${x.students}</td><td class="money">${fmt(x.pay)}</td><td class="money">${fmt(x.other)}</td><td class="money">${fmt(x.exp)}</td><td class="money"><b>${fmt(x.net)}</b></td></tr>`).join("")}</tbody>`}
 function annualPrintHTML(){const program=annualProgramFilter?.value||"",assignment=annualAssignmentFilter?.value||"",track=annualTrackFilter?.value||"",a=annualSummaryData(program,track,assignment),months=reportPeriods().map(m=>monthlySummary(m,program,track,assignment)),fr=track?[filiereSummary(program,track,"",assignment)]:filiereSummaryRows(program,"",assignment),ar=filiereAssignmentRows("",program),ai=assignment?{products:0,charges:0,result:0}:accIncomeData("",program,track),ab=assignment?{assets:0,liabilities:0}:accBalanceData("",program,track),sv=supplyValuation(),sst=studentScope(program,track,assignment),rgot=sst.reduce((n,s)=>n+Math.min(1,Number(s.reamReceived||0)),0),mgot=sst.reduce((n,s)=>n+Math.min(3,Number(s.markersReceived||0)),0);return `<div style="text-align:center"><h2 style="margin:0;color:var(--navy)">${esc(activeSchool().name)}</h2>${activeSchool().city?`<div>${esc(activeSchool().city)}</div>`:""}<h3>BILAN ANNUEL — ${esc(program||"TOUTE L'ÉCOLE")} — ${esc(assignmentLabelFromFilter(assignment))}${track?" / "+esc(track):""}</h3><p>Année académique <b>${activeYear()}</b></p></div><div class="notice"><b>Document interne :</b> bilan analytique direct. Les étudiants Affectés de l’État et Non affectés sont séparés ; les deux catégories paient leur scolarité selon leur fiche financière. Les charges communes ne sont jamais réparties arbitrairement. Validation du comptable requise pour les états légaux.</div><h3>1. Gestion financière</h3><table><tbody><tr><th>Effectif</th><td>${a.students}</td></tr><tr><th>Facturation</th><td class="money">${fmt(a.billed)}</td></tr><tr><th>Encaissements étudiants</th><td class="money">${fmt(a.school)}</td></tr><tr><th>Autres recettes directes</th><td class="money">${fmt(a.other)}</td></tr><tr><th>Dépenses directes</th><td class="money">${fmt(a.expenses)}</td></tr><tr><th>Résultat direct</th><td class="money"><b>${fmt(a.result)}</b></td></tr><tr><th>Créances restantes</th><td class="money">${fmt(a.receivables)}</td></tr><tr><th>Impayés échus</th><td class="money">${fmt(a.overdue)}</td></tr></tbody></table><h3>2. Contrôle Affectés de l’État / Non affectés par filière</h3><table><thead><tr><th>Programme</th><th>Filière</th><th>Statut d’affectation</th><th>Effectif</th><th class="money">Facturé</th><th class="money">Paiements</th><th class="money">Reste</th><th class="money">Échu</th></tr></thead><tbody>${ar.map(x=>`<tr><td>${esc(x.program)}</td><td>${esc(x.track)}</td><td>${x.label}</td><td>${x.students}</td><td class="money">${fmt(x.billed)}</td><td class="money">${fmt(x.paid)}</td><td class="money">${fmt(x.rest)}</td><td class="money">${fmt(x.overdue)}</td></tr>`).join("")}</tbody></table><h3>3. Comptabilité analytique</h3>${assignment?'<div class="notice">Les charges comptables directes ne sont pas ventilées automatiquement entre Affectés de l’État et Non affectés. Les deux statuts restent toutefois séparés pour la facturation, les paiements, les créances et les impayés.</div>':`<table><tbody><tr><th>Produits comptables directs</th><td class="money">${fmt(ai.products)}</td></tr><tr><th>Charges comptables directes</th><td class="money">${fmt(ai.charges)}</td></tr><tr><th>Résultat comptable direct</th><td class="money"><b>${fmt(ai.result)}</b></td></tr><tr><th>Actif simplifié</th><td class="money">${fmt(ab.assets)}</td></tr><tr><th>Passif + résultat</th><td class="money">${fmt(ab.liabilities)}</td></tr></tbody></table>`}<h3>4. Filières / centres de coût</h3><table><thead><tr><th>Programme</th><th>Statut d’affectation</th><th>Filière</th><th>Effectif</th><th class="money">Recettes</th><th class="money">Dépenses</th><th class="money">Résultat</th></tr></thead><tbody>${fr.map(x=>`<tr><td>${esc(x.program)}</td><td>${assignmentLabelFromFilter(assignment)}</td><td>${esc(x.track)}</td><td>${x.students}</td><td class="money">${fmt(x.paid+x.other)}</td><td class="money">${fmt(x.expenses)}</td><td class="money">${fmt(x.net)}</td></tr>`).join("")}</tbody></table><h3>5. Fournitures étudiants</h3><table><tbody><tr><th>Rames attendues / reçues</th><td>${sst.length} / ${rgot}</td></tr><tr><th>Marqueurs attendus / reçus</th><td>${sst.length*3} / ${mgot}</td></tr><tr><th>Valeur estimative reçue</th><td class="money">${fmt(rgot*sv.ream+mgot*sv.marker)}</td></tr></tbody></table><h3>6. Détail mensuel</h3><table><thead><tr><th>Période</th><th class="money">Paiements</th><th class="money">Autres recettes</th><th class="money">Dépenses</th><th class="money">Résultat</th></tr></thead><tbody>${months.map(x=>`<tr><td>${x.month}</td><td class="money">${fmt(x.pay)}</td><td class="money">${fmt(x.other)}</td><td class="money">${fmt(x.exp)}</td><td class="money">${fmt(x.net)}</td></tr>`).join("")}</tbody></table><div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-top:50px;text-align:center"><div><b>Le Comptable</b><br><br><br>Signature</div><div><b>Le Fondateur</b><br><br><br>Signature / Cachet</div></div>`}
 function printAnnualBalance(){annualBalancePrint.innerHTML=annualPrintHTML();annualBalanceModal.classList.add("show")}
 function doPrintAnnualBalance(){document.body.classList.add("print-annual");window.print();setTimeout(()=>document.body.classList.remove("print-annual"),300)}
