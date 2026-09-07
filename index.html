@@ -2,17 +2,17 @@
 <html lang="fr">
 <head>
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
 <meta name="theme-color" content="#111827">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de l’Université privée EIAFC.">
+<meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-05-v11-4-evening-handover">
-<meta name="author" content="Université privée EIAFC">
+<meta name="eiafc-web-build" content="2026-09-07-v11-5-security-hardening">
+<meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
 <meta property="og:type" content="website">
@@ -1066,7 +1066,7 @@ body[data-role-theme="secretariat"] .production-hero{
         </select>
       </div>
       <div class="field"><label>École</label><select id="signupSchool"></select></div>
-      <div class="field"><label>Mot de passe du nouveau compte</label><input id="signupPassword" type="password" minlength="6" autocomplete="new-password"></div>
+      <div class="field"><label>Mot de passe du nouveau compte</label><input id="signupPassword" type="password" minlength="12" autocomplete="new-password"></div>
       <hr>
       <div class="field"><label>Utilisateur Fondateur</label><input id="signupOwnerUsername" autocomplete="username"></div>
       <div class="field"><label>Mot de passe Fondateur</label><input id="signupOwnerPassword" type="password" autocomplete="current-password"></div>
@@ -1144,7 +1144,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.4 • CLÔTURE + REMISE DU SOIR • CAISSE FONDATEUR • CLOUD</span></div>
+    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.5.1 • SÉCURITÉ RENFORCÉE • FILE D’ATTENTE PROTÉGÉE • CLOUD</span></div>
     <div class="user-mini"><b id="currentUserName">Non connecté</b><span id="currentUserRole"></span><br><button class="btn btn-light btn-sm" onclick="logout()">Déconnexion</button></div>
     <div class="nav">
       <button class="nav-btn active" data-view="dashboard" data-perm="dashboard">📊 Tableau de bord</button>
@@ -1177,7 +1177,7 @@ body[data-role-theme="secretariat"] .production-hero{
   <main class="main">
     <div class="install-banner" id="installBanner"><div><b>📲 Installer EIAFC sur ce poste</b><div class="small">Installez EIAFC comme une application sur ce poste. Les données restent synchronisées avec le Cloud et le mode hors connexion est conservé.</div></div><button class="btn btn-primary" id="installAppBtn" type="button">Installer EIAFC</button></div>
     <div class="topbar">
-      <div><h2 id="pageTitle">Tableau de bord</h2><div class="small" id="schoolSubtitle">Université privée EIAFC — centre de pilotage Cloud</div></div>
+      <div><h2 id="pageTitle">Tableau de bord</h2><div class="small" id="schoolSubtitle">Grande école privée EIAFC — centre de pilotage Cloud</div></div>
       <div class="toolbar"><span class="small"><b>École active</b></span><select id="schoolSwitcher" onchange="switchSchool(this.value)"></select><span class="badge" id="schoolBadge">École</span><span class="small"><b>Année active</b></span><select id="yearSwitcher" onchange="switchAcademicYear(this.value)"></select><span class="badge" id="yearBadge">Année 2026-2027</span><span class="badge" id="syncBadge">☁ Mode local</span></div>
     </div>
 
@@ -1973,7 +1973,7 @@ body[data-role-theme="secretariat"] .production-hero{
             <div class="field"><label>E-mail personnel</label><input id="userEmail" type="email" required autocomplete="email" placeholder="nom@exemple.com"><div class="small">Adresse personnelle et unique de cet utilisateur. Elle sert aux invitations et à la récupération de son accès.</div></div>
             <div class="field"><label>Rôle</label><select id="userRole"><option>Comptable</option><option>Directeur des études</option><option>Éducateur</option><option>Enseignant</option><option>RH</option><option>Caissier</option><option>Secrétariat</option><option>Secrétariat &amp; Caisse</option></select></div>
             <div class="field"><label>Périmètre</label><select id="userScope" disabled><option value="active">École active uniquement</option></select></div>
-            <div class="field span-2"><label>Mot de passe provisoire</label><input id="userPassword" type="password" minlength="6" required></div>
+            <div class="field span-2"><label>Mot de passe provisoire</label><input id="userPassword" type="password" minlength="12" required></div>
             <div class="field span-2"><label>Invitation</label><label class="check-item"><input id="userSendInvite" type="checkbox" checked> Envoyer l’e-mail d’installation après création</label></div>
             <div class="field span-4"><button class="btn btn-primary" type="submit">Créer l'utilisateur</button><div id="userInviteStatus" class="small" style="margin-top:8px"></div></div>
           </form>
@@ -2180,7 +2180,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.4.0";
+const APP_VERSION="11.5.1";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -2234,8 +2234,8 @@ let deferredInstallPrompt=null;
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstallPrompt=e;document.getElementById("installBanner")?.classList.add("show")});
 window.addEventListener("appinstalled",()=>{deferredInstallPrompt=null;document.getElementById("installBanner")?.classList.remove("show")});
 function compareAppVersions(a,b){const A=String(a||"").split(".").map(Number),B=String(b||"").split(".").map(Number);for(let i=0;i<Math.max(A.length,B.length);i++){const x=A[i]||0,y=B[i]||0;if(x!==y)return x>y?1:-1}return 0}
-async function autoLoadLatestRelease(){if(navigator.onLine===false||!(db?.users?.length||cloudConfigured()||lanConfigured()))return false;try{if(sessionStorage.getItem("eiafc_release_boot")==="1")return false;const r=await fetch(EIAFC_RELEASE_ENDPOINT,{cache:"no-store"});if(!r.ok)return false;const meta=await r.json();if(!meta?.version||compareAppVersions(meta.version,APP_VERSION)<=0)return false;sessionStorage.setItem("eiafc_release_boot","1");const pr=await fetch(EIAFC_RELEASE_ENDPOINT+"?payload=1",{cache:"no-store"}),j=await pr.json();if(!pr.ok||!j?.b64)throw new Error(j?.error||"Version Cloud indisponible");const raw=Uint8Array.from(atob(j.b64),c=>c.charCodeAt(0));const html=await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream("gzip"))).text();if(!html.includes("<html"))throw new Error("Version Cloud invalide");document.open();document.write(html);document.close();return true}catch(e){console.warn("Mise à jour automatique EIAFC",e);try{sessionStorage.removeItem("eiafc_release_boot")}catch(_e){}return false}}
-async function checkForAppUpdate(){try{if(navigator.onLine===false)return;const r=await fetch(EIAFC_RELEASE_ENDPOINT,{cache:"no-store"}),m=await r.json();if(r.ok&&m?.version&&compareAppVersions(m.version,APP_VERSION)>0)showToast(`<b>Nouvelle version EIAFC ${esc(m.version)}</b><br>Elle sera chargée automatiquement à la prochaine ouverture.`)}catch(e){}}
+async function autoLoadLatestRelease(){return false}
+async function checkForAppUpdate(){return false}
 async function installEiafcPwa(){if(!deferredInstallPrompt)return alert("L’installation automatique n’est pas disponible ici. Ouvrez le logiciel depuis son adresse HTTPS dans Chrome ou Edge, puis utilisez l’option Installer l’application.");await deferredInstallPrompt.prompt();deferredInstallPrompt=null}
 document.addEventListener("DOMContentLoaded",()=>document.getElementById("installAppBtn")?.addEventListener("click",installEiafcPwa));
 const YEAR_RE=/^(\d{4})-(\d{4})$/;
@@ -2498,7 +2498,7 @@ function currentUserLabel(){return currentUser?.fullname||currentUser?.username|
 function deviceName(){const l=loadLanConfig?.()||{},c=loadCloudConfig?.()||{};return String(l.device||c.device||"").trim()||`Poste ${getDeviceId()}`}
 function auditFingerprint(entry,prevHash=""){return hashText([prevHash,entry.time,entry.schoolId,entry.academicYear,entry.user,entry.role,entry.device,entry.action,entry.details].join("|"))}
 function logAction(action,details){const time=new Date().toISOString(),sch=activeSchool(),device=deviceName(),prevHash=(db.audit||[]).find(e=>e?.hash&&e.device===device)?.hash||"",entry={eventId:`AUD-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,time,schoolId:activeSchoolId(),schoolName:schoolLabel(sch),academicYear:activeYear(),user:currentUserLabel(),role:currentUser?.role||"Système",device,action,details:String(details||""),prevHash,auditVersion:2};entry.hash=auditFingerprint(entry,prevHash);db.audit.unshift(entry);if(db.audit.length>10000)db.audit=db.audit.slice(0,10000)}
-function verifyAuditChain(){const arr=db.audit||[],byHash=new Map(arr.filter(e=>e?.hash).map(e=>[e.hash,e]));let checked=0,broken=0;for(const e of arr){if(!e?.hash)continue;checked++;if(auditFingerprint(e,e.prevHash||"")!==e.hash){broken++;continue}if(e.prevHash){const prev=byHash.get(e.prevHash);if(!prev)broken++;else if(Number(e.auditVersion||1)>=2&&(prev.device!==e.device||String(prev.time||"")>String(e.time||"")))broken++}}return{checked,broken,ok:broken===0}}
+function verifyAuditChain(){const arr=db.audit||[],byHash=new Map(arr.filter(e=>e?.hash).map(e=>[e.hash,e]));let checked=0,broken=0;for(const e of arr){if(!e?.hash)continue;checked++;if(String(e.hash).startsWith("srv$"))continue;if(auditFingerprint(e,e.prevHash||"")!==e.hash){broken++;continue}if(e.prevHash){const prev=byHash.get(e.prevHash);if(!prev)broken++;else if(Number(e.auditVersion||1)>=2&&(prev.device!==e.device||String(prev.time||"")>String(e.time||"")))broken++}}return{checked,broken,ok:broken===0}}
 
 let lanBase=null,lanRevision=0,lanTimer=null,lanPushChain=Promise.resolve(),lanConnected=false,lanConnecting=false;
 function loadLanConfig(){try{return JSON.parse(localStorage.getItem(LAN_KEY)||"null")}catch(e){return null}}
@@ -2834,10 +2834,10 @@ function disconnectCloud(){if(currentUser&&!requireOwner("la déconnexion Cloud"
 function isOwner(u=currentUser){return !!u&&u.deleted!==true&&u.active!==false&&String(u.username||"")===String(db?.settings?.ownerUsername||"")}
 function requireOwner(action="cette action"){if(isOwner())return true;alert(`Accès refusé : seul le Fondateur / propriétaire peut effectuer ${action}.`);return false}
 function permissions(role){
- const all=["dashboard","students","attendance","academic","timetable","discipline","inventory","staff","payroll","payments","schedule","studentFinance","other","expenses","purchases","cash","closing","journal","accounting","reconciliation","reports","direction","audit","users","settings","validate","cancel","discount","transfer"];
+ const all=["dashboard","students","attendance","academic","timetable","discipline","inventory","staff","payroll","payments","schedule","studentFinance","other","expenses","purchases","cash","closing","journal","accounting","reconciliation","reports","direction","users","settings","validate","cancel","discount","transfer"];
  const map={
   "Fondateur":all,
-  "Comptable":["dashboard","students","inventory","staff","payroll","payments","schedule","studentFinance","other","expenses","purchases","cash","closing","journal","accounting","reconciliation","reports","direction","audit","validate","cancel","discount","transfer"],
+  "Comptable":["dashboard","students","inventory","staff","payroll","payments","schedule","studentFinance","other","expenses","purchases","cash","closing","journal","accounting","reconciliation","reports","direction","validate","cancel","discount","transfer"],
   "Directeur des études":["dashboard","students","attendance","academic","timetable","discipline","purchases"],
   "Éducateur":["dashboard","students","attendance","timetable","discipline"],
   "Enseignant":["dashboard","students","attendance","academic","timetable"],
@@ -3176,7 +3176,7 @@ async function createAccountFromPortal(){
  if(!db.users.length)return alert("Initialisez d'abord le logiciel avec le compte Fondateur.");
  const fullname=signupFullname.value.trim(),username=signupUsername.value.trim().toLowerCase(),email=normalizeEmail(signupEmail.value),pwd=signupPassword.value,role=signupRole.value,sid=signupSchool.value,ownerName=signupOwnerUsername.value.trim().toLowerCase(),ownerPwd=signupOwnerPassword.value;
  const allowed=["Comptable","Directeur des études","Éducateur","Enseignant","RH","Caissier","Secrétariat","Secrétariat & Caisse"];
- if(!fullname||!username||!validEmail(email)||pwd.length<6)return alert("Nom complet, utilisateur, e-mail personnel valide et mot de passe d’au moins 6 caractères sont obligatoires.");
+ if(!fullname||!username||!validEmail(email)||pwd.length<12)return alert("Nom complet, utilisateur, e-mail personnel valide et mot de passe d’au moins 12 caractères sont obligatoires.");
  if(!allowed.includes(role))return alert("Rôle non autorisé.");
  if(!schoolsActive().some(s=>s.id===sid))return alert("École invalide.");
  if(db.users.some(u=>String(u.username).toLowerCase()===username))return alert("Ce nom d’utilisateur a déjà été utilisé et reste réservé pour l’audit.");if(userEmailConflict(email))return alert("Cet e-mail personnel est déjà associé à un autre utilisateur actif.");
@@ -3385,7 +3385,7 @@ function renderRoleDashboardHeader(){
  if(!roleDashboardTitle)return;
  updatePremiumContext();
  const role=roleName(),school=schoolLabel(),defs={
-  "Fondateur":{title:"👑 Tableau de bord Fondateur",intro:`Pilotage global de ${school} : gestion, finances, utilisateurs, audit et contrôle du réseau.`,actions:[["Rapports","reports"],["Audit","audit"],["Utilisateurs","users"],["Paramètres","settings"]]},
+  "Fondateur":{title:"👑 Tableau de bord Fondateur",intro:`Pilotage global de ${school} : gestion, finances, utilisateurs, audit et contrôle du réseau.`,actions:[["Rapports","reports"],["Audit"],["Utilisateurs","users"],["Paramètres","settings"]]},
   "Comptable":{title:"🧮 Tableau de bord Comptable",intro:`Suivi financier et comptable de ${school} : encaissements, dépenses, trésorerie, validations et rapports.`,actions:[["Paiements","payments"],["Dépenses","expenses"],["Comptabilité","accounting"],["Rapports","reports"]]},
   "Directeur des études":{title:"📚 Tableau de bord Directeur des études",intro:`Pilotage pédagogique de ${school} : matières, enseignants, notes, emplois du temps, assiduité et discipline. Aucun montant financier.`,actions:[["Pédagogie & Notes","academic"],["Emploi du temps","timetable"],["Présence","attendance"],["Discipline","discipline"]]},
   "Éducateur":{title:"🛡 Tableau de bord Éducateur",intro:`Vie scolaire de ${school} : présence, retards, absences, discipline et suivi quotidien des étudiants. Aucun montant financier.`,actions:[["Présence","attendance"],["Discipline","discipline"],["Emploi du temps","timetable"],["Étudiants","students"]]},
@@ -3753,7 +3753,7 @@ function renderPowerCenter(){
   ["Paie non réglée du mois",fmt(f.payrollDue)],
   ["Projection à 30 jours",fmt(f.projected)],
   ["Impayés déjà échus",fmt(f.overdueStudents)]
- ].map(x=>`<div><span class="small">${x[0]}</span><b>${x[1]}</b></div>`).join("");
+ ].map(x=>`<div><span class="small">${x[0]}</span><b>${esc(String(x[1]))}</b></div>`).join("");
 
  powerAuditCount.textContent=`${audit.length} alerte${audit.length>1?"s":""}`;
  powerAuditList.innerHTML=audit.length?audit.slice(0,12).map(r=>`<div class="power-alert ${r.severity}"><span class="power-severity">${r.severity==="critical"?"CRITIQUE":r.severity==="high"?"IMPORTANT":r.severity==="medium"?"MOYEN":"INFO"}</span><div><b>${esc(r.label)}</b><div class="small">${esc(r.area)}${r.details?" — "+esc(r.details):""}${r.amount?` — ${fmt(r.amount)}`:""}</div></div><button class="btn btn-light btn-sm" type="button" onclick="goToView('${r.view}')">${r.count||"Voir"}</button></div>`).join(""):`<div class="ok notice"><b>✅ Aucun contrôle bloquant détecté.</b></div>`;
@@ -4550,7 +4550,7 @@ function closeAnnualBalance(){annualBalanceModal.classList.remove("show")}
 function showReceipt(id){
  const p=db.payments.find(x=>x.receipt===id);if(!p)return;const s=studentByMat(p.student),pschool=schoolById(recordSchoolId(p))||activeSchool(),paid=studentAllPaid(p.student),debtPaid=studentDebtPaid(p.student),rest=s?studentRest(s):0,sticker=p.status==="Validé"?"PAYÉ":p.status.toUpperCase();
  receiptPrint.innerHTML=`<div class="receipt"><div class="receipt-sticker ${p.status==="Validé"?"":"pending-sticker"}">${esc(sticker)}</div><h2>REÇU DE PAIEMENT</h2><div class="school">${esc(pschool.name)}${pschool.city?` — ${esc(pschool.city)}`:""}<br><span class="small">Année académique ${p.academicYear||activeYear()}</span></div>
- <div class="receipt-row"><b>École</b><span>${esc(pschool.code)} — ${esc(pschool.name)}${pschool.city?" — "+esc(pschool.city):""}</span></div><div class="receipt-row"><b>N° reçu</b><span>${p.receipt}</span></div><div class="receipt-row"><b>Date</b><span>${p.date}</span></div><div class="receipt-row"><b>Matricule</b><span>${p.student}</span></div><div class="receipt-row"><b>Nom & Prénoms</b><span>${esc(s?.name||"")}</span></div><div class="receipt-row"><b>Programme / Affectation / Filière / Niveau</b><span>${esc((s?.program||"")+" / "+studentAssignmentLabel(s)+" / "+(s?.track||"—")+" / "+(s?.level||""))}</span></div><div class="receipt-row"><b>Type de paiement</b><span>${p.type}</span></div><div class="receipt-row"><b>Mode de paiement</b><span>${p.mode}</span></div><div class="receipt-row"><b>Montant de ce versement</b><span><b>${fmt(p.amount)}</b></span></div><div class="receipt-row"><b>Total versé validé (tous frais)</b><span><b>${fmt(paid)}</b></span></div><div class="receipt-row"><b>Payé inscription / scolarité</b><span><b>${fmt(debtPaid)}</b></span></div><div class="receipt-row"><b>Reste inscription / scolarité</b><span><b>${fmt(rest)}</b></span></div><div class="receipt-row"><b>Référence</b><span>${esc(p.ref)}</span></div><div class="receipt-row"><b>Agent</b><span>${esc(p.agent)}</span></div><div class="receipt-row"><b>Statut</b><span>${p.status}</span></div>${p.cancelReason?`<div class="receipt-row"><b>Motif annulation</b><span>${esc(p.cancelReason)}</span></div>`:""}<div class="receipt-sign"><div>Signature du payeur</div><div>Visa / Cachet ${esc(pschool.code)}</div></div></div>`;
+ <div class="receipt-row"><b>École</b><span>${esc(pschool.code)} — ${esc(pschool.name)}${pschool.city?" — "+esc(pschool.city):""}</span></div><div class="receipt-row"><b>N° reçu</b><span>${esc(p.receipt)}</span></div><div class="receipt-row"><b>Date</b><span>${esc(p.date)}</span></div><div class="receipt-row"><b>Matricule</b><span>${esc(p.student)}</span></div><div class="receipt-row"><b>Nom & Prénoms</b><span>${esc(s?.name||"")}</span></div><div class="receipt-row"><b>Programme / Affectation / Filière / Niveau</b><span>${esc((s?.program||"")+" / "+studentAssignmentLabel(s)+" / "+(s?.track||"—")+" / "+(s?.level||""))}</span></div><div class="receipt-row"><b>Type de paiement</b><span>${esc(p.type)}</span></div><div class="receipt-row"><b>Mode de paiement</b><span>${esc(p.mode)}</span></div><div class="receipt-row"><b>Montant de ce versement</b><span><b>${fmt(p.amount)}</b></span></div><div class="receipt-row"><b>Total versé validé (tous frais)</b><span><b>${fmt(paid)}</b></span></div><div class="receipt-row"><b>Payé inscription / scolarité</b><span><b>${fmt(debtPaid)}</b></span></div><div class="receipt-row"><b>Reste inscription / scolarité</b><span><b>${fmt(rest)}</b></span></div><div class="receipt-row"><b>Référence</b><span>${esc(p.ref)}</span></div><div class="receipt-row"><b>Agent</b><span>${esc(p.agent)}</span></div><div class="receipt-row"><b>Statut</b><span>${esc(p.status)}</span></div>${p.cancelReason?`<div class="receipt-row"><b>Motif annulation</b><span>${esc(p.cancelReason)}</span></div>`:""}<div class="receipt-sign"><div>Signature du payeur</div><div>Visa / Cachet ${esc(pschool.code)}</div></div></div>`;
  receiptModal.classList.add("show")
 }
 function printReceipt(){document.body.classList.add("print-receipt");window.print();setTimeout(()=>document.body.classList.remove("print-receipt"),300)}
@@ -4564,7 +4564,7 @@ function auditFilteredRows(){const from=auditFrom?.value||"",to=auditTo?.value||
 function renderAudit(){if(!auditTable)return;let arr=auditFilteredRows();const creations=arr.filter(x=>/création|inscription|nouveau|initialisation/i.test(x.action)).length,changes=arr.filter(x=>/modification|changement|validation|réouverture|clôture/i.test(x.action)).length,cancels=arr.filter(x=>/annulation|rejet/i.test(x.action)).length,deletes=arr.filter(x=>/suppression/i.test(x.action)).length;if(auditKpis)auditKpis.innerHTML=[["Actions filtrées",arr.length],["Créations / inscriptions",creations],["Modifications / contrôles",changes],["Annulations / rejets",cancels],["Suppressions",deletes]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");const i=auditFinancialIntegrity(),treasuryOk=i.treasuryDiff<0.5;if(auditIntegrityBox)auditIntegrityBox.innerHTML=`<b>${i.doubleEntryOk&&treasuryOk&&!i.orphanPayments.length&&!i.orphanAttendance.length&&!i.negativeStock.length&&!i.duplicates.length&&i.chain.ok?"✅ Contrôles d’intégrité satisfaisants":"⚠ Contrôles à examiner"}</b> — Partie double : <b>${i.doubleEntryOk?"équilibrée":"déséquilibrée"}</b> (${fmt(i.debit)} / ${fmt(i.credit)}). Trésorerie ↔ comptabilité : <b>${treasuryOk?"rapprochée":"écart "+fmt(i.treasuryDiff)}</b>. Paiements orphelins : <b>${i.orphanPayments.length}</b>. Présences orphelines : <b>${i.orphanAttendance.length}</b>. Règlements fournisseurs orphelins : <b>${i.orphanExpensePayments?.length||0}</b>. Stocks négatifs : <b>${i.negativeStock.length}</b>. Pièces en doublon : <b>${i.duplicates.length}</b>. Clôtures devenues différentes du théorique recalculé : <b>${i.staleClosings.length}</b>. Contrôles financiers : <b>${esc(activeSchoolCode())}</b>. Chaînes d’audit multi-postes : <b>${i.chain.checked?`${i.chain.broken?"anomalie":"OK"} (${i.chain.checked} empreinte(s))`:"aucune empreinte encore"}</b>.`;auditTable.innerHTML=`<thead><tr><th>Date/heure</th><th>École</th><th>Année</th><th>Utilisateur</th><th>Rôle</th><th>Poste</th><th>Action</th><th>Détails</th><th>Empreinte</th></tr></thead><tbody>${arr.length?arr.map(x=>`<tr><td>${new Date(x.time).toLocaleString("fr-FR")}</td><td>${esc(x.schoolName||schoolLabel(schoolById(recordSchoolId(x))))}</td><td>${esc(x.academicYear||activeYear())}</td><td>${esc(x.user)}</td><td>${esc(x.role)}</td><td>${esc(x.device||"—")}</td><td><span class="action-tag">${esc(x.action)}</span></td><td>${esc(x.details)}</td><td><span class="small">${x.hash?esc(x.hash.slice(0,12)):"ancien / non chaîné"}</span></td></tr>`).join(""):`<tr><td colspan="9" class="empty">Aucune action pour ces filtres</td></tr>`}</tbody>`}
 
 userForm.addEventListener("submit",async e=>{
- e.preventDefault();if(!requireOwner("la gestion des utilisateurs"))return;const username=userUsername.value.trim().toLowerCase(),email=normalizeEmail(userEmail.value),fullname=userFullname.value.trim();if(db.users.some(u=>String(u.username||"").toLowerCase()===username))return alert("Ce nom d’utilisateur a déjà été utilisé et reste réservé pour l’audit.");if(!validEmail(email))return alert("Saisissez un e-mail personnel valide.");const conflict=userEmailConflict(email);if(conflict)return alert(`Cet e-mail personnel est déjà utilisé par ${conflict.fullname||conflict.username}.`);
+ e.preventDefault();if(!requireOwner("la gestion des utilisateurs"))return;const username=userUsername.value.trim().toLowerCase(),email=normalizeEmail(userEmail.value),fullname=userFullname.value.trim();if(db.users.some(u=>String(u.username||"").toLowerCase()===username))return alert("Ce nom d’utilisateur a déjà été utilisé et reste réservé pour l’audit.");if(!validEmail(email))return alert("Saisissez un e-mail personnel valide.");if(String(userPassword.value||"").length<12)return alert("Le mot de passe du personnel doit contenir au moins 12 caractères.");const conflict=userEmailConflict(email);if(conflict)return alert(`Cet e-mail personnel est déjà utilisé par ${conflict.fullname||conflict.username}.`);
  const role=userRole.value;if(role==="Fondateur")return alert("Un seul compte Fondateur / propriétaire est autorisé.");const allSchools=false,schoolIds=[activeSchoolId()];const nu={username,fullname,email,role,passwordHash:await makePasswordHash(userPassword.value),active:true,allSchools,schoolIds,inviteStatus:"À envoyer",created:new Date().toISOString(),createdBy:currentUserLabel()};db.users.push(nu);queueIdentityJob({type:"sync",username,email,fullname,role,schoolId:schoolIds[0]});logAction("Création utilisateur",`${username} - ${role} - école ${activeSchoolCode()}`);saveDB();const sendInvite=!!userSendInvite.checked;userForm.reset();userSendInvite.checked=true;if(sendInvite){await flushIdentityQueue(false);await sendUserInviteEmail(username)}else await flushIdentityQueue(false)
 });
 function renderUsers(){if(!usersTable)return;if(!isOwner()){usersTable.innerHTML="";return;}const arr=db.users.filter(u=>u.deleted!==true),active=arr.filter(u=>u.active!==false),withoutEmail=active.filter(u=>!validEmail(u.email)),seen={},dups=[];active.forEach(u=>{const e=normalizeEmail(u.email);if(!e)return;if(seen[e])dups.push(e);else seen[e]=u.username});const q=(db.settings.identityQueue||[]).length;if(userIdentityQuality)userIdentityQuality.innerHTML=`<b>Contrôle identités :</b> ${active.length} compte(s) actif(s) — ${withoutEmail.length} sans e-mail valide — ${[...new Set(dups)].length} doublon(s) e-mail — ${q} opération(s) Cloud en attente.${withoutEmail.length||dups.length?'<br><span style="color:#9b1c1c"><b>À corriger :</b> chaque utilisateur actif doit avoir une adresse personnelle unique.</span>':''}`;usersTable.innerHTML=`<thead><tr><th>Nom complet</th><th>Utilisateur</th><th>E-mail personnel</th><th>Rôle</th><th>Périmètre écoles</th><th>Invitation</th><th>Statut</th><th>Actions</th></tr></thead><tbody>${arr.map(u=>{const scope=isOwner(u)||u.allSchools?"Toutes les écoles":(u.schoolIds||[]).map(id=>schoolById(id)?.code||id).join(", ")||"Aucune école";const inv=u.inviteStatus||"—";return`<tr><td>${esc(u.fullname)}</td><td>${esc(u.username)}</td><td>${esc(u.email||"—")}</td><td>${isOwner(u)?"Fondateur / Propriétaire":`<select onchange="changeUserRole('${u.username}',this.value)"><option ${u.role==="Comptable"?"selected":""}>Comptable</option><option ${u.role==="Directeur des études"?"selected":""}>Directeur des études</option><option ${u.role==="Éducateur"?"selected":""}>Éducateur</option><option ${u.role==="Enseignant"?"selected":""}>Enseignant</option><option ${u.role==="RH"?"selected":""}>RH</option><option ${u.role==="Caissier"?"selected":""}>Caissier</option><option ${u.role==="Secrétariat"?"selected":""}>Secrétariat</option><option ${u.role==="Secrétariat & Caisse"?"selected":""}>Secrétariat &amp; Caisse</option></select>`}</td><td><span class="scope-pill">${esc(scope)}</span></td><td><span class="invite-state ${/envoy/i.test(inv)?"invite-sent":/erreur/i.test(inv)?"invite-error":"invite-pending"}">${esc(inv)}</span></td><td>${u.active===false?'<span class="status rejected">Désactivé</span>':'<span class="status valid">Actif</span>'}</td><td>${can("users")&&u.username!==currentUser?.username?`<button class="btn btn-light btn-sm" onclick="assignUserToActiveSchool('${u.username}')">Affecter ici</button> <button class="btn btn-light btn-sm" onclick="toggleUser('${u.username}')">${u.active===false?"Activer":"Désactiver"}</button> <button class="btn btn-light btn-sm" onclick="resetUserPassword('${u.username}')">Mot de passe</button> <button class="btn btn-light btn-sm" onclick="changeUserEmail('${u.username}')">E-mail</button> ${u.email?`<button class="btn btn-gold btn-sm" onclick="sendUserInviteEmail('${u.username}')">E-mail installation</button>`:""} ${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="deleteUser('${u.username}')">Supprimer</button>`:""}`:""}</td></tr>`}).join("")}</tbody>`}
@@ -4588,7 +4588,7 @@ function assignUserToActiveSchool(username){
 function toggleUser(username){if(!requireOwner("la modification des utilisateurs"))return;const u=db.users.find(x=>x.username===username);if(!u)return;if(isOwner(u))return alert("Le compte principal ne peut pas être désactivé.");u.active=u.active===false;if(!u.active)queueIdentityJob({type:"revoke",username:u.username});else queueIdentityJob({type:"sync",username:u.username,email:u.email,fullname:u.fullname,role:u.role,schoolId:(u.schoolIds||[])[0],active:true});logAction("Statut utilisateur",`${username} - ${u.active?"activé":"désactivé"}`);saveDB();flushIdentityQueue(false)}
 async function changeUserEmail(username){if(!requireOwner("la modification de l’e-mail utilisateur"))return;const u=db.users.find(x=>x.username===username&&x.deleted!==true);if(!u)return;const email=normalizeEmail(prompt(`Nouvel e-mail personnel pour ${u.fullname||u.username} :`,u.email||"")||"");if(!email)return;if(!validEmail(email))return alert("Adresse e-mail invalide.");const conflict=userEmailConflict(email,u.username);if(conflict)return alert(`Cet e-mail est déjà utilisé par ${conflict.fullname||conflict.username}.`);if(email===normalizeEmail(u.email))return;u.email=email;u.inviteStatus="À renvoyer";u.inviteSentAt="";u.updatedAt=new Date().toISOString();u.updatedBy=currentUserLabel();queueIdentityJob({type:"sync",username:u.username,email:u.email,fullname:u.fullname,role:u.role,schoolId:(u.schoolIds||[])[0],active:u.active!==false});logAction("Modification e-mail utilisateur",`${username} — adresse personnelle mise à jour`);saveDB();await flushIdentityQueue(false);if(confirm("E-mail mis à jour. Envoyer maintenant une nouvelle invitation d’installation à cette adresse ?"))await sendUserInviteEmail(username)}
 async function deleteUser(username){if(!canFounderDelete())return alert("Suppression réservée au Fondateur.");if(username===currentUser?.username)return alert("Vous ne pouvez pas supprimer le compte actuellement connecté.");const u=db.users.find(x=>x.username===username);if(!u||u.deleted===true)return;const owner=db.users.find(x=>x.username===db.settings.ownerUsername&&x.deleted!==true);const pwd=prompt("Confirmez votre mot de passe Fondateur pour supprimer définitivement l’accès de cet utilisateur :");if(!pwd||!owner||!(await verifyPassword(pwd,owner.passwordHash)))return alert("Mot de passe Fondateur incorrect. Suppression annulée.");const reason=prompt(`Motif obligatoire pour supprimer l’utilisateur ${username} :`);if(!reason?.trim())return;if(!confirm(`Supprimer l’utilisateur ${username} ? Son e-mail personnel sera effacé, ses invitations seront révoquées et la trace d’audit restera conservée.`))return;const hadEmail=!!u.email;u.deleted=true;u.active=false;u.email="";u.authUserId="";u.inviteStatus="Révoquée";u.inviteSentAt="";u.emailPurgedAt=new Date().toISOString();u.deletedAt=new Date().toISOString();u.deletedBy=currentUserLabel();u.deleteReason=reason.trim();queueIdentityJob({type:"purge",username:u.username});logAction("SUPPRESSION FONDATEUR",`Utilisateur ${username} — e-mail purgé : ${hadEmail?"oui":"non"} — ${reason.trim()}`);saveDB();const ok=await flushIdentityQueue(false);alert(ok?`Utilisateur ${username} supprimé. Son e-mail et ses invitations Cloud ont été purgés.`:`Utilisateur ${username} supprimé localement. Le nettoyage Cloud est en attente et sera repris automatiquement à la prochaine connexion du Fondateur.`)}
-async function resetUserPassword(username){if(!requireOwner("la réinitialisation du mot de passe d’un utilisateur"))return;const u=db.users.find(x=>x.username===username);if(!u)return;if(isOwner(u))return alert("Utilisez la section « Sécurité du compte principal » pour modifier votre mot de passe.");const p=prompt("Nouveau mot de passe (6 caractères minimum) :");if(!p||p.length<6)return;u.passwordHash=await makePasswordHash(p);logAction("Mot de passe utilisateur",`${username} - mot de passe modifié`);saveDB()}
+async function resetUserPassword(username){if(!requireOwner("la réinitialisation du mot de passe d’un utilisateur"))return;const u=db.users.find(x=>x.username===username);if(!u)return;if(isOwner(u))return alert("Utilisez la section « Sécurité du compte principal » pour modifier votre mot de passe.");const p=prompt("Nouveau mot de passe (12 caractères minimum) :");if(!p||p.length<12)return;u.passwordHash=await makePasswordHash(p);logAction("Mot de passe utilisateur",`${username} - mot de passe modifié`);saveDB()}
 
 function schoolDataCount(id){const cols=[db.students,db.payments,db.other,db.expenses,db.closings,db.transfers,db.manualEntries,db.budgets,db.assets,db.periodLocks,db.attendance,db.inventory,db.inventoryMoves,db.staff,db.staffAttendance,db.staffLoans,db.payroll];return cols.reduce((n,arr)=>n+(arr||[]).filter(x=>x.deleted!==true&&recordSchoolId(x)===id).length,0)}
 function clearSchoolForm(){if(!schoolForm)return;schoolEditId.value="";schoolForm.reset()}
@@ -4774,7 +4774,7 @@ function exportCSV(kind){
  if(kind==="budget")rows=currentRecords(db.budgets).map(x=>({...x,Realise:budgetActual(x),Ecart:x.type==="Dépense"?Number(x.amount)-budgetActual(x):budgetActual(x)-Number(x.amount)}));
  if(kind==="assets")rows=currentRecords(db.assets).map(x=>{const d=assetDepreciation(x);return{...x,Amortissement_estime:d.accum,VNC_estimee:d.nbv}});
  if(kind==="network")rows=accessibleSchools().map(sc=>{const x=networkSchoolSummary(sc.id);return{Ecole_code:sc.code,Ecole:sc.name,Ville:sc.city||"",Annee:activeYear(),Effectif:x.students,Affectes:x.assigned,Non_affectes:x.unassigned,Facture:x.billed,Paiements:x.paid,Autres_recettes:x.other,Depenses:x.expenses,Flux_net:x.net,Reste_etudiants:x.rest}});
- if(!rows.length)return alert("Aucune donnée à exporter.");if(!["network","audit"].includes(kind)){const schExp=activeSchool();rows=rows.map(r=>({Ecole_code:schExp.code,Ecole:schExp.name,Ville:schExp.city||"",...r}))}
+ if(!rows.length)return alert("Aucune donnée à exporter.");if(!["network"].includes(kind)){const schExp=activeSchool();rows=rows.map(r=>({Ecole_code:schExp.code,Ecole:schExp.name,Ville:schExp.city||"",...r}))}
  const headers=[...new Set(rows.flatMap(r=>Object.keys(r)))],q=v=>`"${String(v??"").replace(/"/g,'""')}"`,csv="\ufeff"+headers.map(q).join(";")+"\n"+rows.map(r=>headers.map(h=>q(r[h])).join(";")).join("\n"),blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);const exportCode=kind==="network"||(kind==="audit"&&auditSchoolFilter?.value==="all")?"RESEAU":activeSchoolCode();a.download=`EIAFC_${exportCode}_${name}_${activeYear().replace("-","_")}_${today()}.csv`;a.click();URL.revokeObjectURL(a.href)
 }
 
@@ -4808,7 +4808,38 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   const WEB_APIKEY='sb_publishable_gAPfLd6okuu42hvOwQp35Q_L87JA22Q';
   const WEB_WORKSPACE='EIAFC_V7';
   const WEB_TOKEN_KEY='eiafc_web_secure_session_v4';
-  const WEB_BUILD='2026-09-04-v11-1-final-cloud-portal';
+  const WEB_BUILD='2026-09-07-v11-5-1-security-pending-migration';
+
+  const WEB_PUBLIC_HOST=String(location.hostname||'').endsWith('.vercel.app');
+  if(WEB_PUBLIC_HOST){
+    try{
+      // Migration sécurisée V11.5.1 : conserver les vraies saisies en attente,
+      // mais retirer les anciens événements d'audit client désormais générés côté serveur.
+      Object.keys(localStorage).filter(k=>k.startsWith('eiafc_web_pending_v102_')).forEach(k=>{
+        try{
+          const legacy=JSON.parse(localStorage.getItem(k)||'null')||{};
+          if(legacy&&typeof legacy==='object')delete legacy.audit;
+          const has=Object.keys(legacy||{}).some(x=>x==='settings'||x==='counters'||x==='users'||Array.isArray(legacy[x])&&legacy[x].length);
+          if(has){
+            sessionStorage.setItem(k,JSON.stringify(legacy));
+            localStorage.setItem(k,JSON.stringify(legacy)); // copie temporaire de secours jusqu'à synchronisation complète
+          }else{
+            sessionStorage.removeItem(k);localStorage.removeItem(k);
+          }
+        }catch(_e){}
+      });
+      localStorage.removeItem(KEY);
+      localStorage.removeItem(OWNER_RECOVERY_KEY);
+      localStorage.removeItem(LAN_KEY);
+      const oldCloud=JSON.parse(localStorage.getItem(CLOUD_KEY)||'null');
+      if(oldCloud){delete oldCloud.secret;localStorage.setItem(CLOUD_KEY,JSON.stringify(oldCloud))}
+      sessionStorage.removeItem('eiafc_release_boot');
+    }catch(_e){}
+    window.persist=persist=function(){return undefined};
+    window.loadOwnerRecovery=loadOwnerRecovery=function(){return null};
+    window.saveOwnerRecovery=saveOwnerRecovery=function(){return undefined};
+    window.ownerRecoveryLogin=ownerRecoveryLogin=async function(){return null};
+  }
   (async()=>{
     if(!String(location.hostname).endsWith('.vercel.app'))return;
     try{
@@ -4850,6 +4881,22 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   function studentStoredData(){try{return JSON.parse(sessionStorage.getItem(STUDENT_DATA_KEY)||'null')}catch(_e){return null}}
   function clearStudentSession(){sessionStorage.removeItem(STUDENT_TOKEN_KEY);sessionStorage.removeItem(STUDENT_DATA_KEY)}
 
+  window.callDocumentService=callDocumentService=async function(action,extra={}){
+    if(WEB_PUBLIC_HOST){
+      if(!webToken())throw new Error('Reconnectez-vous à EIAFC avant de gérer les documents.');
+      const fd=new FormData();fd.append('action','document_'+String(action||''));
+      Object.entries(extra).forEach(([k,v])=>{if(v!==undefined&&v!==null)fd.append(k,v)});
+      const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),20000);
+      try{
+        const r=await fetch(WEB_API,{method:'POST',body:fd,headers:{apikey:WEB_APIKEY,'x-eiafc-session':webToken()},cache:'no-store',signal:ctl.signal});
+        let j={};try{j=await r.json()}catch(_e){}
+        if(!r.ok||j?.ok===false)throw new Error(j?.error||`Service documents indisponible (${r.status})`);
+        return j
+      }finally{clearTimeout(tm)}
+    }
+    throw new Error('Pour la sécurité, les anciens accès documents par secret de synchronisation sont désactivés. Utilisez le portail Web sécurisé.');
+  };
+
   function showStudentPortalLogin(){
     hideLegacyPortal();
     loginOverlay?.classList.remove('hidden');
@@ -4887,14 +4934,14 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
     studentPortalWelcome.textContent=`Bienvenue ${st.name||st.matricule}`;
     studentPortalSchool.textContent=`${data.school?.name||'EIAFC'} • ${data.year||''} • ${st.program||''} ${st.track||''}`;
     studentPortalKpis.innerHTML=[
-      ['Matricule',st.matricule||'—'],['Reste scolarité',studentMoney(rest)],['Moyenne générale',general===null?'—':general.toFixed(2)+'/20'],['Assiduité',rate===null?'—':rate.toFixed(1)+'%']
+      ['Matricule',esc(st.matricule||'—')],['Reste scolarité',studentMoney(rest)],['Moyenne générale',general===null?'—':general.toFixed(2)+'/20'],['Assiduité',rate===null?'—':rate.toFixed(1)+'%']
     ].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value" style="font-size:20px!important">${x[1]}</div></div>`).join('');
     studentPortalFinance.innerHTML=`<div class="student-portal-finance-grid"><div><span>Total dû</span><b>${studentMoney(due)}</b></div><div><span>Total payé</span><b>${studentMoney(paid)}</b></div><div><span>Reste</span><b>${studentMoney(rest)}</b></div></div><div class="student-portal-security-note" style="margin-top:12px">Ces informations concernent uniquement votre dossier EIAFC.</div>`;
-    studentPortalGrades.innerHTML=avgs.length?avgs.map(x=>`<div class="student-grade-row"><div><b>${x.s.name||x.s.code||'Matière'}</b><div class="small">${x.count} évaluation(s)</div></div><div><b>${x.avg.toFixed(2)}/20</b></div></div>`).join(''):'<div class="empty">Aucune note disponible.</div>';
+    studentPortalGrades.innerHTML=avgs.length?avgs.map(x=>`<div class="student-grade-row"><div><b>${esc(x.s.name||x.s.code||'Matière')}</b><div class="small">${x.count} évaluation(s)</div></div><div><b>${x.avg.toFixed(2)}/20</b></div></div>`).join(''):'<div class="empty">Aucune note disponible.</div>';
     studentPortalAttendance.innerHTML=`<div class="student-portal-finance-grid"><div><span>Saisies</span><b>${att.length}</b></div><div><span>Présent / Retard</span><b>${present}</b></div><div><span>Taux</span><b>${rate===null?'—':rate.toFixed(1)+'%'}</b></div></div>`;
     const tt=data.timetable||[];
-    studentPortalTimetable.innerHTML=`<thead><tr><th>Jour</th><th>Heure</th><th>Matière</th><th>Salle</th></tr></thead><tbody>${tt.length?tt.map(x=>{const s=(data.subjects||[]).find(z=>String(z.id)===String(x.subjectId));return`<tr><td><b>${x.day||''}</b></td><td>${x.start||''}–${x.end||''}</td><td>${s?.name||x.subjectId||'—'}</td><td>${x.room||'—'}</td></tr>`}).join(''):'<tr><td colspan="4" class="empty">Aucun cours planifié.</td></tr>'}</tbody>`;
-    studentPortalPayments.innerHTML=`<thead><tr><th>Date</th><th>Reçu</th><th>Mode</th><th>Statut</th><th class="money">Montant</th></tr></thead><tbody>${pays.length?pays.sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>`<tr><td>${studentDate(x.date)}</td><td><b>${x.receipt||'—'}</b></td><td>${x.mode||'—'}</td><td>${x.status||'—'}</td><td class="money">${studentMoney(x.amount)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">Aucun paiement disponible.</td></tr>'}</tbody>`
+    studentPortalTimetable.innerHTML=`<thead><tr><th>Jour</th><th>Heure</th><th>Matière</th><th>Salle</th></tr></thead><tbody>${tt.length?tt.map(x=>{const s=(data.subjects||[]).find(z=>String(z.id)===String(x.subjectId));return`<tr><td><b>${esc(x.day||'')}</b></td><td>${esc(x.start||'')}–${esc(x.end||'')}</td><td>${esc(s?.name||x.subjectId||'—')}</td><td>${esc(x.room||'—')}</td></tr>`}).join(''):'<tr><td colspan="4" class="empty">Aucun cours planifié.</td></tr>'}</tbody>`;
+    studentPortalPayments.innerHTML=`<thead><tr><th>Date</th><th>Reçu</th><th>Mode</th><th>Statut</th><th class="money">Montant</th></tr></thead><tbody>${pays.length?pays.sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>`<tr><td>${studentDate(x.date)}</td><td><b>${esc(x.receipt||'—')}</b></td><td>${esc(x.mode||'—')}</td><td>${esc(x.status||'—')}</td><td class="money">${studentMoney(x.amount)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">Aucun paiement disponible.</td></tr>'}</tbody>`
   }
 
   async function studentPortalLogin(){
@@ -4935,7 +4982,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
         serverSecurityBox.className='server-good';
         serverSecurityBox.innerHTML=`<b>Supabase sécurisé :</b> API serveur V${j.serverVersion||'?'} active • rôle ${j.role||roleName()} • portail étudiant ${p} • ${j.readCollections?.length||0} collection(s) en lecture / ${j.writeCollections?.length||0} en écriture.`
       }
-      if(interactive)showToast(`<b>Sécurité Cloud OK</b><br>Serveur V${j.serverVersion||'?'}.`);
+      if(Number(j.serverVersion||0)<4.3){if(serverSecurityBox){serverSecurityBox.className='server-pending';serverSecurityBox.innerHTML='<b>Mise à niveau sécurité requise :</b> API serveur V4.3 attendue.'}if(interactive)alert('Le logiciel fonctionne, mais la sécurité serveur V4.3 doit encore être déployée dans Supabase.');return false}if(interactive)showToast(`<b>Sécurité Cloud OK</b><br>Serveur V${j.serverVersion||'?'}.`);
       return true
     }catch(e){
       if(serverSecurityBox){serverSecurityBox.className='server-pending';serverSecurityBox.innerHTML=`<b>Cloud à vérifier :</b> ${esc(e?.message||e)}`}
@@ -4986,8 +5033,10 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
 
   async function retryCloudPending(){
     try{
+      const before=pendingChangesCount();
       await securePush();await securePull(true);
-      showToast(`<b>Synchronisation terminée</b><br>${pendingChangesCount()} élément(s) encore en attente.`)
+      const after=pendingChangesCount();
+      showToast(`<b>Synchronisation sécurisée terminée</b><br>${after} élément(s) métier encore en attente${before>after?` • ${before-after} élément(s) nettoyé(s)/confirmé(s)`:''}.`)
     }catch(e){alert(e?.message||e)}
   }
 
@@ -5003,8 +5052,31 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   function webToken(){return sessionStorage.getItem(WEB_TOKEN_KEY)||''}
   function webStoredUser(){try{return JSON.parse(sessionStorage.getItem(WEB_USER_KEY)||'null')}catch(_e){return null}}
   function webPendingKey(user=currentUser||webStoredUser()){return `eiafc_web_pending_v102_${String(user?.username||'anonymous').toLowerCase()}`}
-  function loadWebPending(user=currentUser||webStoredUser()){try{return JSON.parse(localStorage.getItem(webPendingKey(user))||'null')||{}}catch(_e){return{}}}
-  function saveWebPending(p,user=currentUser||webStoredUser()){try{const k=webPendingKey(user);if(patchHasChanges(p))localStorage.setItem(k,JSON.stringify(p));else localStorage.removeItem(k)}catch(_e){}updateOfflineQueueUI()}
+  function cleanPendingPatch(p){
+    const x=deepClone(p||{});delete x.audit;
+    return x
+  }
+  function loadWebPending(user=currentUser||webStoredUser()){
+    try{
+      const k=webPendingKey(user);
+      const s=JSON.parse(sessionStorage.getItem(k)||'null');
+      const l=JSON.parse(localStorage.getItem(k)||'null');
+      return cleanPendingPatch(s||l||{})
+    }catch(_e){return{}}
+  }
+  function saveWebPending(p,user=currentUser||webStoredUser()){
+    try{
+      const k=webPendingKey(user),clean=cleanPendingPatch(p);
+      if(patchHasChanges(clean)){
+        sessionStorage.setItem(k,JSON.stringify(clean));
+        // Tant qu'il existe des saisies non confirmées, garder une copie de secours durable.
+        localStorage.setItem(k,JSON.stringify(clean));
+      }else{
+        sessionStorage.removeItem(k);localStorage.removeItem(k)
+      }
+    }catch(_e){}
+    updateOfflineQueueUI()
+  }
 
   function clearWebSession(clearCache=true){
     sessionStorage.removeItem(WEB_TOKEN_KEY);sessionStorage.removeItem(WEB_USER_KEY);sessionStorage.removeItem(SESSION_KEY);
@@ -5026,7 +5098,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
     hideLegacyPortal();
     loginOverlay?.classList.remove('hidden');
     authChoiceBox?.classList.remove('hidden');loginBox?.classList.add('hidden');signupBox?.classList.add('hidden');studentPortalLoginBox?.classList.add('hidden');
-    if(bootStatus){bootStatus.textContent='Connexion Cloud sécurisée — aucun paramètre réseau à saisir.';bootStatus.classList.remove('hidden')}
+    if(bootStatus){bootStatus.textContent='Connexion Cloud sécurisée — données sensibles non conservées durablement dans ce navigateur.';bootStatus.classList.remove('hidden')}
     loginPassword.value='';if(signupOwnerPassword)signupOwnerPassword.value='';
   }
   function resetLoginCardScroll(){
@@ -5051,24 +5123,25 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   function allowedWriteCollections(){
     if(isOwner())return new Set(Object.keys(CLOUD_COLLECTION_KEYS));
     const map={
-      'Comptable':['payments','other','expenses','expensePayments','purchaseRequests','reconciliations','closings','transfers','manualEntries','budgets','assets','periodLocks','inventory','inventoryMoves','payroll','audit'],
-      'Directeur des études':['subjects','timetable','grades','discipline','lessonLogs','attendance','purchaseRequests','audit'],
-      'Éducateur':['attendance','discipline','audit'],
-      'Enseignant':['grades','lessonLogs','attendance','audit'],
-      'RH':['staff','staffAttendance','staffLoans','payroll','purchaseRequests','audit'],
-      'Caissier':['payments','closings','audit'],
-      'Secrétariat':['students','attendance','audit'],
-      'Secrétariat & Caisse':['students','attendance','payments','closings','audit']
+      'Comptable':['payments','other','expenses','expensePayments','purchaseRequests','reconciliations','closings','transfers','manualEntries','budgets','assets','periodLocks','inventory','inventoryMoves','payroll'],
+      'Directeur des études':['subjects','timetable','grades','discipline','lessonLogs','attendance','purchaseRequests'],
+      'Éducateur':['attendance','discipline'],
+      'Enseignant':['grades','lessonLogs','attendance'],
+      'RH':['staff','staffAttendance','staffLoans','payroll','purchaseRequests'],
+      'Caissier':['payments','closings'],
+      'Secrétariat':['students','attendance'],
+      'Secrétariat & Caisse':['students','attendance','payments','closings']
     };
     return new Set(map[activeRole()]||[]);
   }
   function securePatch(base,current){
     const p=buildCloudPatch(base,current);
+    delete p.audit;
     if(isOwner())return p;
     delete p.settings;delete p.counters;delete p.users;
     const allowed=allowedWriteCollections();
     Object.keys(CLOUD_COLLECTION_KEYS).forEach(k=>{if(!allowed.has(k))delete p[k]});
-    return p;
+    return p
   }
   async function securePush(){
     if(!currentUser||!webToken()||!webBase||navigator.onLine===false)return false;
@@ -5218,7 +5291,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   window.createAccountFromPortal=createAccountFromPortal=async function(){
     const fullname=signupFullname.value.trim(),username=signupUsername.value.trim().toLowerCase(),email=normalizeEmail(signupEmail.value),pwd=signupPassword.value,role=signupRole.value,founderName=signupOwnerUsername.value.trim().toLowerCase(),founderPwd=signupOwnerPassword.value;
     const allowed=['Comptable','Directeur des études','Éducateur','Enseignant','RH','Caissier','Secrétariat','Secrétariat & Caisse'];
-    if(!fullname||!username||!validEmail(email)||pwd.length<6)return alert('Nom complet, utilisateur, e-mail personnel valide et mot de passe d’au moins 6 caractères sont obligatoires.');
+    if(!fullname||!username||!validEmail(email)||pwd.length<12)return alert('Nom complet, utilisateur, e-mail personnel valide et mot de passe d’au moins 12 caractères sont obligatoires.');
     if(!allowed.includes(role))return alert('Rôle non autorisé.');
     if(!founderName||!founderPwd)return alert('Le Fondateur doit saisir son utilisateur et son mot de passe pour autoriser la création.');
     const btn=signupBox?.querySelector('.btn-gold'),old=btn?.textContent;if(btn){btn.disabled=true;btn.textContent='Autorisation…'}
