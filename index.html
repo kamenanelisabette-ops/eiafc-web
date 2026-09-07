@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-07-v11-5-security-hardening">
+<meta name="eiafc-web-build" content="2026-09-07-v11-5-3-granular-sync-repair">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -1144,7 +1144,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.5.2 • SÉCURITÉ RENFORCÉE • SYNCHRONISATION CORRIGÉE • CLOUD</span></div>
+    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.5.3 • SÉCURITÉ RENFORCÉE • SYNCHRONISATION RÉPARÉE • CLOUD</span></div>
     <div class="user-mini"><b id="currentUserName">Non connecté</b><span id="currentUserRole"></span><br><button class="btn btn-light btn-sm" onclick="logout()">Déconnexion</button></div>
     <div class="nav">
       <button class="nav-btn active" data-view="dashboard" data-perm="dashboard">📊 Tableau de bord</button>
@@ -2027,7 +2027,7 @@ body[data-role-theme="secretariat"] .production-hero{
           <div id="serverSecurityBox" class="server-good"><b>Protection serveur Supabase :</b> vérification en cours…</div>
           <div class="toolbar" style="margin:12px 0">
             <button class="btn btn-primary btn-sm" type="button" onclick="checkCloudSecurityNow()">Vérifier sécurité Cloud</button>
-            <button class="btn btn-light btn-sm" type="button" onclick="retryCloudPending()">🔄 Synchroniser les éléments en attente</button>
+            <button class="btn btn-light btn-sm" type="button" onclick="retryCloudPending()">🔄 Réparer / synchroniser les éléments en attente</button>
             <button class="btn btn-gold btn-sm" type="button" onclick="toggleStudentPortalCloud()">🎓 Activer / désactiver le portail étudiant</button>
           </div>
           <div class="section-title" style="margin-top:14px"><h3>☁️ Sauvegardes Cloud</h3><button class="btn btn-light btn-sm" type="button" onclick="loadCloudBackups(true)">Actualiser</button></div>
@@ -2180,7 +2180,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.5.1";
+const APP_VERSION="11.5.3";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -5034,9 +5034,21 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   async function retryCloudPending(){
     try{
       const before=pendingChangesCount();
-      await securePush();await securePull(true);
+      const ok=await securePush(true);
+      await securePull(false);
       const after=pendingChangesCount();
-      showToast(`<b>Synchronisation sécurisée terminée</b><br>${after} élément(s) métier encore en attente${before>after?` • ${before-after} élément(s) nettoyé(s)/confirmé(s)`:''}.`)
+      const failures=Array.isArray(window.eiafcLastSyncFailures)?window.eiafcLastSyncFailures:[];
+      if(after===0){
+        showToast(`<b>Synchronisation Cloud terminée</b><br>Tout est confirmé. La file d'attente est vide.`);
+        return
+      }
+      const detail=failures.slice(0,5).map(x=>`${x.label}: ${x.error}`).join("\n");
+      alert(
+        `Synchronisation partielle.\n\n`+
+        `${after} élément(s) restent en attente sur ce poste.`+
+        (before>after?`\n${before-after} élément(s) ont été confirmés/nettoyés.`:'')+
+        (failures.length?`\n\nÉlément(s) bloquant(s) identifié(s) :\n${detail}`:'\n\nLes éléments restants sont conservés sans être supprimés.')
+      )
     }catch(e){alert(e?.message||e)}
   }
 
@@ -5144,71 +5156,200 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
     return p
   }
 
-  // V11.5.2 : le serveur masque volontairement certains secrets dans les réponses.
-  // Après un envoi réussi, ces champs masqués ne doivent PAS être interprétés comme
-  // des données non confirmées, sinon la file d'attente reste bloquée indéfiniment.
+  // V11.5.3 : synchronisation granulaire et réparation sûre de la file.
+  // Une seule opération invalide ne bloque plus toutes les autres.
+  let webGranularSyncBusy=false;
+  window.eiafcLastSyncFailures=[];
+
   function serverVisibleRecord(name,row){
     const x=deepClone(row||{});
     if(name==='students'){delete x.portalPinHash;delete x.portalPinUpdatedAt}
     if(name==='users'){delete x.passwordHash;delete x.sessionVersion}
     return x
   }
-  function confirmationPatch(base,current){
-    const p=securePatch(base,current);
-    for(const [name,key] of Object.entries(CLOUD_COLLECTION_KEYS)){
-      if(!Array.isArray(p?.[name])||!['students','users'].includes(name))continue;
-      const bm=new Map((base?.[name]||[]).map(r=>[String(r?.[key]??''),r]));
-      p[name]=p[name].filter(r=>{
-        const id=String(r?.[key]??''),b=bm.get(id);
-        if(!b)return true; // nouvel enregistrement : il doit rester à synchroniser
-        return JSON.stringify(serverVisibleRecord(name,b))!==JSON.stringify(serverVisibleRecord(name,r));
+  function canonicalForSync(v){
+    if(Array.isArray(v))return v.map(canonicalForSync);
+    if(v&&typeof v==='object'){
+      const o={};
+      Object.keys(v).sort().forEach(k=>{
+        if(v[k]!==undefined)o[k]=canonicalForSync(v[k])
       });
-      if(!p[name].length)delete p[name]
+      return o
     }
-    return p
+    return v
   }
-  async function securePush(){
-    if(!currentUser||!webToken()||!webBase||navigator.onLine===false)return false;
-    const snapshot=deepClone(db);
-    const localDiff=securePatch(webBase,snapshot);
-    const patch=mergeCloudPatches(loadWebPending(),localDiff);
-    if(!patchHasChanges(patch)){
-      saveWebPending({});
-      cloudConnected=true;setUnifiedStatus('Cloud Web synchronisé','ok');updateOfflineQueueUI();return true
+  function sameForSync(a,b){
+    return JSON.stringify(canonicalForSync(a))===JSON.stringify(canonicalForSync(b))
+  }
+  function reconcilePendingWithRemote(patch,remote){
+    const out=cleanPendingPatch(patch||{});
+    if(out.settings&&sameForSync(out.settings,remote?.settings||{}))delete out.settings;
+    if(out.counters){
+      const all=Object.entries(out.counters).every(([k,v])=>sameForSync(v,remote?.counters?.[k]));
+      if(all)delete out.counters
     }
+    for(const [name,key] of Object.entries(CLOUD_COLLECTION_KEYS)){
+      if(name==='audit'||!Array.isArray(out?.[name]))continue;
+      const rm=new Map((remote?.[name]||[]).map(r=>[String(r?.[key]??''),r]));
+      out[name]=out[name].filter(local=>{
+        const id=String(local?.[key]??''),rr=rm.get(id);
+        if(!rr)return true;
+        return !sameForSync(serverVisibleRecord(name,local),serverVisibleRecord(name,rr))
+      });
+      if(!out[name].length)delete out[name]
+    }
+    return out
+  }
+  function syncUnitLabel(name,row,key){
+    const labels={
+      students:'Étudiant',payments:'Paiement',other:'Autre recette',expenses:'Dépense',
+      expensePayments:'Règlement dépense',closings:'Clôture de caisse',transfers:'Transfert',
+      manualEntries:'Écriture comptable',budgets:'Budget',assets:'Immobilisation',
+      periodLocks:'Période',attendance:'Présence',subjects:'Matière',timetable:'Emploi du temps',
+      grades:'Note',discipline:'Discipline',lessonLogs:'Cahier de texte',
+      purchaseRequests:'Demande achat',reconciliations:'Rapprochement',inventory:'Stock',
+      inventoryMoves:'Mouvement stock',staff:'Personnel',staffAttendance:'Présence personnel',
+      staffLoans:'Avance personnel',payroll:'Paie',users:'Utilisateur'
+    };
+    const id=String(row?.[key]??'').trim();
+    return `${labels[name]||name}${id?` ${id}`:''}`
+  }
+  function buildSyncUnits(patch){
+    const units=[];
+    if(patch?.settings)units.push({type:'settings',label:'Paramètres',patch:{settings:deepClone(patch.settings)}});
+    if(patch?.counters)units.push({type:'counters',label:'Compteurs',patch:{counters:deepClone(patch.counters)}});
+    for(const [name,key] of Object.entries(CLOUD_COLLECTION_KEYS)){
+      if(name==='audit')continue;
+      const rows=Array.isArray(patch?.[name])?patch[name]:[];
+      // Par petits groupes pour éviter qu'une seule pièce bloque toute une collection.
+      for(let i=0;i<rows.length;i+=8){
+        const chunk=rows.slice(i,i+8).map(deepClone);
+        units.push({type:'rows',name,key,rows:chunk,label:`${name} (${chunk.length})`,patch:{[name]:chunk}})
+      }
+    }
+    return units
+  }
+  function removeConfirmedRows(pending,name,key,rows){
+    const out=deepClone(pending||{});
+    const ids=new Set((rows||[]).map(r=>String(r?.[key]??'')));
+    out[name]=(out[name]||[]).filter(r=>!ids.has(String(r?.[key]??'')));
+    if(!out[name]?.length)delete out[name];
+    return out
+  }
+  async function sendSyncUnit(unit,remaining,failures){
     try{
-      const j=await webApi('apply_patch',{patch,source:`${currentUserLabel()} — Web ${getDeviceId()}`},webToken());
+      const j=await webApi('apply_patch',{patch:unit.patch,source:`${currentUserLabel()} — Web ${getDeviceId()} — sync granulaire`},webToken());
       webRevision=Number(j.revision||webRevision);
+      if(unit.type==='settings')delete remaining.settings;
+      else if(unit.type==='counters')delete remaining.counters;
+      else remaining=removeConfirmedRows(remaining,unit.name,unit.key,unit.rows);
+      return {remaining,state:j.state||null}
+    }catch(e){
+      // Si le groupe contient plusieurs pièces, on le divise pour identifier précisément la pièce bloquante.
+      if(unit.type==='rows'&&unit.rows.length>1){
+        const mid=Math.ceil(unit.rows.length/2),parts=[unit.rows.slice(0,mid),unit.rows.slice(mid)];
+        let lastState=null;
+        for(const rows of parts){
+          const child={type:'rows',name:unit.name,key:unit.key,rows,label:`${unit.name} (${rows.length})`,patch:{[unit.name]:rows}};
+          const r=await sendSyncUnit(child,remaining,failures);
+          remaining=r.remaining;if(r.state)lastState=r.state
+        }
+        return {remaining,state:lastState}
+      }
+      let label=unit.label;
+      if(unit.type==='rows'&&unit.rows[0])label=syncUnitLabel(unit.name,unit.rows[0],unit.key);
+      failures.push({label,error:String(e?.message||e).slice(0,240)});
+      return {remaining,state:null}
+    }
+  }
+  function pendingBreakdown(patch){
+    const p=cleanPendingPatch(patch||{}),parts=[];
+    if(p.settings)parts.push('Paramètres: 1');
+    if(p.counters)parts.push('Compteurs: 1');
+    for(const [name] of Object.entries(CLOUD_COLLECTION_KEYS)){
+      const n=Array.isArray(p?.[name])?p[name].length:0;
+      if(n)parts.push(`${name}: ${n}`)
+    }
+    return parts
+  }
 
-      // IMPORTANT V10.2:
-      // Le serveur devient la nouvelle base de référence, MAIS toute donnée du snapshot
-      // que le serveur n'a pas encore renvoyée reste locale et "À synchroniser".
-      const remote=normalizeDB(sanitizeRemoteStateForRole(deepClone(j.state||{}),currentUser));
-      const unconfirmed=confirmationPatch(remote,snapshot);
+  async function securePush(interactive=false){
+    if(!currentUser||!webToken()||!webBase||navigator.onLine===false)return false;
+    if(webGranularSyncBusy)return false;
+    webGranularSyncBusy=true;
+    window.eiafcLastSyncFailures=[];
+    const snapshot=deepClone(db);
+    let pending=mergeCloudPatches(loadWebPending(),securePatch(webBase,snapshot));
+    try{
+      // Nettoyage préalable : retirer uniquement ce qui est déjà strictement confirmé par le Cloud.
+      try{
+        const check=await webApi('get_state',{},webToken());
+        if(check?.state){
+          const remoteCheck=normalizeDB(sanitizeRemoteStateForRole(deepClone(check.state),currentUser));
+          webRevision=Number(check.revision||webRevision);
+          webBase=deepClone(remoteCheck);
+          pending=reconcilePendingWithRemote(pending,remoteCheck);
+          saveWebPending(pending)
+        }
+      }catch(_e){}
+
+      if(!patchHasChanges(pending)){
+        saveWebPending({});
+        cloudConnected=true;setUnifiedStatus('Cloud Web synchronisé','ok');updateOfflineQueueUI();
+        return true
+      }
+
+      let remaining=deepClone(pending),lastRemote=null;
+      const failures=[];
+      for(const unit of buildSyncUnits(pending)){
+        const r=await sendSyncUnit(unit,remaining,failures);
+        remaining=r.remaining;if(r.state)lastRemote=r.state
+      }
+
+      // Toujours terminer par une lecture autoritaire du Cloud.
+      try{
+        const j=await webApi('get_state',{},webToken());
+        if(j?.state){lastRemote=j.state;webRevision=Number(j.revision||webRevision)}
+      }catch(_e){}
+
+      const remote=lastRemote
+        ? normalizeDB(sanitizeRemoteStateForRole(deepClone(lastRemote),currentUser))
+        : deepClone(webBase);
+
+      // Une modification créée pendant la réparation ne doit jamais être perdue.
       const newer=securePatch(snapshot,db);
-      const remain=mergeCloudPatches(unconfirmed,newer);
+      remaining=reconcilePendingWithRemote(remaining,remote);
+      remaining=mergeCloudPatches(remaining,newer);
 
       webBase=deepClone(remote);
-      db=patchHasChanges(remain)?applyCloudPatchJS(remote,remain):remote;
+      db=patchHasChanges(remaining)?applyCloudPatchJS(remote,remaining):deepClone(remote);
       persist();localSessionBase=deepClone(db);
-      saveWebPending(remain);
+      saveWebPending(remaining);
+      window.eiafcLastSyncFailures=failures;
 
       cloudConnected=true;
-      setUnifiedStatus(patchHasChanges(remain)?'Cloud Web — éléments en attente':'Cloud Web synchronisé',patchHasChanges(remain)?'warn':'ok');
-      setLastSync(`Dernier envoi Web : ${new Date().toLocaleString('fr-FR')} — révision ${webRevision}`);
+      const left=pendingChangesCount();
+      setUnifiedStatus(left?`Cloud Web — ${left} en attente`:'Cloud Web synchronisé',left?'warn':'ok');
+      setLastSync(`Dernier contrôle Web : ${new Date().toLocaleString('fr-FR')} — révision ${webRevision}`);
       refreshAll();
 
-      if(patchHasChanges(remain)){
-        showToast(`<b>Données conservées</b><br>${pendingChangesCount()} élément(s) attendent encore la confirmation du Cloud.`);
+      if(interactive){
+        if(!left)showToast('<b>Synchronisation réparée</b><br>Toutes les données sont confirmées dans le Cloud.');
+        else{
+          const parts=pendingBreakdown(loadWebPending()).slice(0,8).join(' • ');
+          showToast(`<b>Synchronisation partielle</b><br>${left} élément(s) conservé(s). ${esc(parts)}`);
+        }
       }
-      return true;
+      return failures.length===0&&left===0
     }catch(e){
-      console.error('EIAFC Web push',e);
-      const pending=mergeCloudPatches(loadWebPending(),securePatch(webBase,db));
-      saveWebPending(pending);
+      console.error('EIAFC Web push granulaire',e);
+      saveWebPending(mergeCloudPatches(loadWebPending(),securePatch(webBase,db)));
       cloudConnected=false;setUnifiedStatus('Synchronisation Web en attente','bad');
-      showToast(`<b>Données conservées localement</b><br>${esc(e?.message||e)}`);
-      return false;
+      window.eiafcLastSyncFailures=[{label:'Synchronisation',error:String(e?.message||e)}];
+      if(interactive)alert(`Synchronisation interrompue : ${e?.message||e}`);
+      return false
+    }finally{
+      webGranularSyncBusy=false
     }
   }
   function queueSecurePush(){webPushChain=webPushChain.then(()=>securePush()).catch(e=>console.error('EIAFC Web queue',e))}
@@ -5225,9 +5366,10 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
       if(!j?.state)throw new Error('La base centrale EIAFC n’a pas été reçue. Les données locales restent inchangées.');
       const remote=normalizeDB(sanitizeRemoteStateForRole(deepClone(j.state),currentUser));
 
-      // Fusionner la nouvelle base Cloud avec les saisies locales non encore confirmées.
-      const merged=patchHasChanges(localPending)?applyCloudPatchJS(remote,localPending):remote;
-      const remain=mergeCloudPatches(loadWebPending(),confirmationPatch(remote,merged));
+      // Fusionner la nouvelle base Cloud avec les saisies locales réellement non confirmées.
+      const cleanedPending=reconcilePendingWithRemote(localPending,remote);
+      const merged=patchHasChanges(cleanedPending)?applyCloudPatchJS(remote,cleanedPending):remote;
+      const remain=deepClone(cleanedPending);
 
       webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(merged);
       persist();localSessionBase=deepClone(db);saveWebPending(remain);
