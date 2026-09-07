@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-07-v11-5-4-login-sync-hotfix">
+<meta name="eiafc-web-build" content="2026-09-07-v11-5-5-founder-cash-detail">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -1144,7 +1144,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.5.4 • SÉCURITÉ RENFORCÉE • CONNEXION CORRIGÉE • CLOUD</span></div>
+    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.5.5 • DÉTAIL CAISSE FONDATEUR • SÉCURITÉ • CLOUD</span></div>
     <div class="user-mini"><b id="currentUserName">Non connecté</b><span id="currentUserRole"></span><br><button class="btn btn-light btn-sm" onclick="logout()">Déconnexion</button></div>
     <div class="nav">
       <button class="nav-btn active" data-view="dashboard" data-perm="dashboard">📊 Tableau de bord</button>
@@ -1817,6 +1817,16 @@ body[data-role-theme="secretariat"] .production-hero{
         </div>
       </div>
       <div class="card" style="margin-top:16px"><div class="section-title"><h3>Historique des clôtures</h3></div><div class="table-wrap"><table id="closingsTable"></table></div></div>
+
+      <div class="card" style="margin-top:16px" data-owner-only="true">
+        <div class="section-title">
+          <div><h3>💼 Détail des sommes reçues par le Fondateur</h3><div class="small">Remises main à main enregistrées pendant les clôtures de caisse de l'école active.</div></div>
+          <div class="toolbar"><button class="btn btn-light btn-sm" type="button" onclick="renderFounderCashReceipts()">Actualiser</button><button class="btn btn-light btn-sm" type="button" onclick="exportFounderCashReceiptsCSV()">Exporter CSV</button></div>
+        </div>
+        <div class="grid kpis" id="founderCashReceiptKpis" style="margin-bottom:12px"></div>
+        <div class="info" style="margin-bottom:12px"><b>Lecture :</b> chaque ligne correspond à une somme réellement enregistrée comme remise <b>Espèces → Caisse Fondateur</b>. Le solde Fondateur tient aussi compte des sorties ultérieures vers Banque, Wave, MTN, Orange Money ou la caisse comptable.</div>
+        <div class="table-wrap"><table id="founderCashReceiptsTable"></table></div>
+      </div>
     </section>
 
     <section id="journal" class="view">
@@ -2180,7 +2190,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.5.4";
+const APP_VERSION="11.5.5";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -3606,7 +3616,7 @@ function refreshAll(){
  if(isOwner()||roleName()==="Comptable")renderManagementCenter();else{if(managementAlerts)managementAlerts.innerHTML="";if(agentActivity)agentActivity.innerHTML="";if(!["Caissier","Secrétariat & Caisse"].includes(roleName())&&topArrearsTable)topArrearsTable.innerHTML=""}
  if(can("students")){renderStudents();renderSupplies();renderClasses()}
  if(can("attendance"))renderAttendance();if(can("academic"))renderAcademic();if(can("timetable"))renderTimetable();if(can("discipline"))renderDiscipline();if(can("purchases"))renderPurchases();if(can("inventory"))renderInventory();if(can("staff")){renderStaff();renderStaffAttendance();renderStaffLoans();renderPayroll()}
- if(can("payments")){updateStudentSelect();renderPayments()}if(can("schedule")){renderSchedule();renderReminderCenter();}if(can("other"))renderOther();if(can("expenses"))renderExpenses();if(can("cash")){renderCash();renderTransfers()}if(can("closing")){renderClosings();updateClosingPreview()}if(can("journal"))renderJournal();if(can("accounting")){updateAccountingTrackOptions();renderAccounting()}if(can("reconciliation"))renderReconciliation();if(can("reports")){updateReportAssignmentControls();updateAnnualAssignmentControls();renderReports();renderAnnualBalance()}if(can("direction"))renderDirectionNetwork();if(can("audit"))renderAudit();
+ if(can("payments")){updateStudentSelect();renderPayments()}if(can("schedule")){renderSchedule();renderReminderCenter();}if(can("other"))renderOther();if(can("expenses"))renderExpenses();if(can("cash")){renderCash();renderTransfers()}if(can("closing")){renderClosings();updateClosingPreview();if(isOwner())renderFounderCashReceipts()}if(can("journal"))renderJournal();if(can("accounting")){updateAccountingTrackOptions();renderAccounting()}if(can("reconciliation"))renderReconciliation();if(can("reports")){updateReportAssignmentControls();updateAnnualAssignmentControls();renderReports();renderAnnualBalance()}if(can("direction"))renderDirectionNetwork();if(can("audit"))renderAudit();
  if(isOwner()){renderUsers();renderSchools();loadSettings();loadNotificationSettings();renderTrackCatalog();payrollSettingsLoad();renderDataQuality();populateRemoteKeySchools();populateCopyAppSchools();renderBackupTimeline()}else{if(usersTable)usersTable.innerHTML="";if(schoolsTable)schoolsTable.innerHTML="";if(trackCatalogTable)trackCatalogTable.innerHTML="";if(dataQualityBox)dataQualityBox.innerHTML=""}
  updateOfflineQueueUI();forceAllowedView();if(currentUser){if(payAgent)payAgent.value=currentUserLabel();if(otherAgent)otherAgent.value=currentUserLabel();if(expAgent)expAgent.value=currentUserLabel();if(closingAgent)closingAgent.value=currentUserLabel();if(attendanceAgent)attendanceAgent.value=currentUserLabel()}
 }
@@ -4204,7 +4214,7 @@ function cancelExpense(id){const x=db.expenses.find(a=>a.id===id),r=prompt("Moti
 transferForm?.addEventListener("submit",e=>{e.preventDefault();if(!can("transfer"))return alert("Transfert réservé au Fondateur / Comptable.");if(!requireManagementDate(transferDate.value,"La date du transfert")||!requireOpenPeriod(transferDate.value,"Le transfert"))return;const from=transferFrom.value,to=transferTo.value,amount=Number(transferAmount.value||0);if(from===to)return alert("Le compte source et le compte destination doivent être différents.");if(amount<=0)return alert("Montant du transfert invalide.");if(!transferRef.value.trim())return alert("La référence / bordereau du transfert est obligatoire pour l’audit.");if(!requireTreasuryFunds(from,amount,transferDate.value,"Le transfert"))return;const x={id:makeUniqueId("TRF"),schoolId:activeSchoolId(),academicYear:activeYear(),date:transferDate.value,from,to,amount,ref:transferRef.value.trim(),obs:transferObs.value.trim(),status:"Validé",agent:currentUserLabel(),device:deviceName(),createdAt:new Date().toISOString()};db.transfers.unshift(x);logAction("Transfert trésorerie",`${x.id} — ${from} → ${to} — ${fmt(amount)}`);saveDB();transferForm.reset();transferDate.value=defaultManagementDate();transferFrom.value="Espèces";transferTo.value="Banque"});
 function renderTransfers(){if(!transfersTable)return;const arr=currentRecords(db.transfers).sort((a,b)=>String(b.date).localeCompare(String(a.date)));transfersTable.innerHTML=`<thead><tr><th>Date</th><th>N°</th><th>Depuis</th><th>Vers</th><th class="money">Montant</th><th>Référence</th><th>Agent</th><th>Action</th></tr></thead><tbody>${arr.length?arr.map(x=>`<tr><td>${x.date}</td><td>${esc(x.id)}</td><td>${esc(x.from)}</td><td>${esc(x.to)}</td><td class="money"><b>${fmt(x.amount)}</b></td><td>${esc(x.ref||"")}</td><td>${esc(x.agent||"")}</td><td>${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="founderDeleteOperation('transfers','${x.id}')">Supprimer</button>`:""}</td></tr>`).join(""):`<tr><td colspan="8" class="empty">Aucun transfert</td></tr>`}</tbody>`}
 function treasuryBalanceAt(date,channel){
- const op=openingForYear(),out={"Espèces":Number(op.cash||0),"Wave":Number(op.wave||0),"MTN Mobile Money":Number(op.mtn||0),"Banque":Number(op.bank||0),"Orange Money":Number(op.orange||0)};
+ const op=openingForYear(),out={"Espèces":Number(op.cash||0),"Caisse Fondateur":Number(op.founderCash||0),"Wave":Number(op.wave||0),"MTN Mobile Money":Number(op.mtn||0),"Banque":Number(op.bank||0),"Orange Money":Number(op.orange||0)};
  [...validPayments(),...validOther()].filter(x=>String(x.date)<=String(date)).forEach(x=>{const ch=treasuryChannel(x.mode);if(out[ch]!==undefined)out[ch]+=Number(x.amount||0)});
  expenseCashMovements().filter(x=>String(x.date)<=String(date)).forEach(x=>{const ch=treasuryChannel(x.mode);if(out[ch]!==undefined)out[ch]-=Number(x.amount||0)});
  payrollPaid().filter(x=>String(x.payDate)<=String(date)).forEach(x=>{const ch=treasuryChannel(x.mode);if(out[ch]!==undefined)out[ch]-=Number(x.net||0)});
@@ -4480,6 +4490,58 @@ function renderClosings(){
   </tr>`
  }).join(""):`<tr><td colspan="14" class="empty">Aucune clôture</td></tr>`}</tbody>`
 }
+
+
+function founderCashLedger(){
+ const op=openingForYear(),opening=Number(op.founderCash||0);
+ const rows=validTransfers().filter(x=>x.from==="Caisse Fondateur"||x.to==="Caisse Fondateur").map(x=>({
+  id:String(x.id||""),date:String(x.date||""),time:String(x.createdAt||""),from:String(x.from||""),to:String(x.to||""),
+  amount:Number(x.amount||0),ref:String(x.ref||""),obs:String(x.obs||""),agent:String(x.agent||""),receiver:String(x.receiver||"")
+ })).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time)||a.id.localeCompare(b.id));
+ let balance=opening;const after={};
+ rows.forEach(x=>{if(x.to==="Caisse Fondateur")balance+=x.amount;if(x.from==="Caisse Fondateur")balance-=x.amount;after[x.id]=balance});
+ return{opening,rows,after,balance}
+}
+function founderCashReceiptRows(){
+ const ledger=founderCashLedger();
+ return currentRecords(db.closings).filter(x=>{
+  const c=closingRowCalculation(x);return c.remittanceTo==="Caisse Fondateur"&&Number(c.remittance||0)>0
+ }).map(x=>{
+  const c=closingRowCalculation(x),tr=(db.transfers||[]).find(t=>String(t.id||"")===String(x.remittanceTransferId||""));
+  const transferId=String(x.remittanceTransferId||tr?.id||"");
+  return{
+   date:String(x.date||""),closingId:String(x.id||""),transferId,
+   amount:Number(c.remittance||0),available:Number(c.available||0),counted:Number(c.counted||0),remaining:Number(c.remaining||0),
+   receiver:String(x.receiver||tr?.receiver||"Fondateur / Direction"),
+   remittedBy:String(x.agent||tr?.agent||"—"),
+   ref:String(x.remittanceRef||tr?.ref||(`REMISE-${x.id||""}`)),
+   obs:String(tr?.obs||"Remise main à main du soir"),time:String(x.time||tr?.createdAt||""),
+   balanceAfter:transferId&&Object.prototype.hasOwnProperty.call(ledger.after,transferId)?Number(ledger.after[transferId]):null
+  }
+ }).sort((a,b)=>b.date.localeCompare(a.date)||b.time.localeCompare(a.time)||b.closingId.localeCompare(a.closingId))
+}
+function renderFounderCashReceipts(){
+ if(!isOwner())return;
+ const table=document.getElementById("founderCashReceiptsTable"),kpis=document.getElementById("founderCashReceiptKpis");if(!table||!kpis)return;
+ const rows=founderCashReceiptRows(),ledger=founderCashLedger(),totalReceived=rows.reduce((z,x)=>z+x.amount,0),out=ledger.rows.filter(x=>x.from==="Caisse Fondateur").reduce((z,x)=>z+x.amount,0),otherIn=ledger.rows.filter(x=>x.to==="Caisse Fondateur"&&!rows.some(r=>r.transferId===x.id)).reduce((z,x)=>z+x.amount,0),current=Number(balances()["Caisse Fondateur"]||0);
+ kpis.innerHTML=[
+  ["Remises reçues",rows.length+" opération(s)"],
+  ["Total reçu en clôture",fmt(totalReceived)],
+  ["Sorties Caisse Fondateur",fmt(out)],
+  ["Solde actuel Fondateur",fmt(current)]
+ ].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value" style="font-size:20px">${x[1]}</div></div>`).join("");
+ table.innerHTML=`<thead><tr><th>Date</th><th>N° clôture</th><th>Remis par</th><th>Reçu par</th><th class="money">Montant reçu</th><th>Référence</th><th class="money">Disponible avant remise</th><th class="money">Compté</th><th class="money">Reste caisse comptable</th><th class="money">Solde Fondateur après mouvement</th><th>Observation</th></tr></thead><tbody>${rows.length?rows.map(x=>`<tr><td>${esc(x.date)}</td><td><b>${esc(x.closingId)}</b></td><td>${esc(x.remittedBy||"—")}</td><td>${esc(x.receiver||"—")}</td><td class="money"><b>${fmt(x.amount)}</b></td><td>${esc(x.ref||"—")}</td><td class="money">${fmt(x.available)}</td><td class="money">${fmt(x.counted)}</td><td class="money">${fmt(x.remaining)}</td><td class="money"><b>${x.balanceAfter==null?"—":fmt(x.balanceAfter)}</b></td><td>${esc(x.obs||"—")}</td></tr>`).join(""):`<tr><td colspan="11" class="empty">Aucune remise au Fondateur enregistrée pour cette école et cette année.</td></tr>`}</tbody>`;
+}
+function exportFounderCashReceiptsCSV(){
+ if(!isOwner())return alert("Fondateur uniquement.");
+ const rows=founderCashReceiptRows();if(!rows.length)return alert("Aucune remise au Fondateur à exporter.");
+ const head=["Date","N° clôture","Remis par","Reçu par","Montant reçu","Référence","Disponible avant remise","Compté","Reste caisse comptable","Solde Fondateur après mouvement","Observation"];
+ const data=rows.map(x=>[x.date,x.closingId,x.remittedBy,x.receiver,x.amount,x.ref,x.available,x.counted,x.remaining,x.balanceAfter==null?"":x.balanceAfter,x.obs]);
+ const q=v=>`"${String(v??"").replace(/"/g,'""')}"`,csv='\ufeff'+[head,...data].map(r=>r.map(q).join(';')).join('\n');
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`EIAFC_Caisse_Fondateur_${activeSchoolCode()}_${activeYear()}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500)
+}
+window.renderFounderCashReceipts=renderFounderCashReceipts;
+window.exportFounderCashReceiptsCSV=exportFounderCashReceiptsCSV;
 
 function deleteClosingWithRemittance(id){
  if(!canFounderDelete())return alert("Fondateur uniquement.");
@@ -5514,6 +5576,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   };
   window.pendingChangesCount=pendingChangesCount=function(){
     if(!webBase||!currentUser)return 0;
+    // V11.5.5 : détail des remises reçues dans Caisse Fondateur + correction du solde historique Caisse Fondateur.
     // V11.5.4 : confirmationPatch appartenait à l'ancien moteur et n'existe plus.
     // On utilise le nouveau rapprochement serveur pour compter uniquement les vraies données non confirmées.
     const raw=mergeCloudPatches(loadWebPending(),securePatch(webBase,db));
