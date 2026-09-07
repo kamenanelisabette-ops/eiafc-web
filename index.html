@@ -1144,7 +1144,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.5.1 • SÉCURITÉ RENFORCÉE • FILE D’ATTENTE PROTÉGÉE • CLOUD</span></div>
+    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.5.2 • SÉCURITÉ RENFORCÉE • SYNCHRONISATION CORRIGÉE • CLOUD</span></div>
     <div class="user-mini"><b id="currentUserName">Non connecté</b><span id="currentUserRole"></span><br><button class="btn btn-light btn-sm" onclick="logout()">Déconnexion</button></div>
     <div class="nav">
       <button class="nav-btn active" data-view="dashboard" data-perm="dashboard">📊 Tableau de bord</button>
@@ -4808,7 +4808,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   const WEB_APIKEY='sb_publishable_gAPfLd6okuu42hvOwQp35Q_L87JA22Q';
   const WEB_WORKSPACE='EIAFC_V7';
   const WEB_TOKEN_KEY='eiafc_web_secure_session_v4';
-  const WEB_BUILD='2026-09-07-v11-5-1-security-pending-migration';
+  const WEB_BUILD='2026-09-07-v11-5-2-pending-redaction-fix';
 
   const WEB_PUBLIC_HOST=String(location.hostname||'').endsWith('.vercel.app');
   if(WEB_PUBLIC_HOST){
@@ -5143,6 +5143,30 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
     Object.keys(CLOUD_COLLECTION_KEYS).forEach(k=>{if(!allowed.has(k))delete p[k]});
     return p
   }
+
+  // V11.5.2 : le serveur masque volontairement certains secrets dans les réponses.
+  // Après un envoi réussi, ces champs masqués ne doivent PAS être interprétés comme
+  // des données non confirmées, sinon la file d'attente reste bloquée indéfiniment.
+  function serverVisibleRecord(name,row){
+    const x=deepClone(row||{});
+    if(name==='students'){delete x.portalPinHash;delete x.portalPinUpdatedAt}
+    if(name==='users'){delete x.passwordHash;delete x.sessionVersion}
+    return x
+  }
+  function confirmationPatch(base,current){
+    const p=securePatch(base,current);
+    for(const [name,key] of Object.entries(CLOUD_COLLECTION_KEYS)){
+      if(!Array.isArray(p?.[name])||!['students','users'].includes(name))continue;
+      const bm=new Map((base?.[name]||[]).map(r=>[String(r?.[key]??''),r]));
+      p[name]=p[name].filter(r=>{
+        const id=String(r?.[key]??''),b=bm.get(id);
+        if(!b)return true; // nouvel enregistrement : il doit rester à synchroniser
+        return JSON.stringify(serverVisibleRecord(name,b))!==JSON.stringify(serverVisibleRecord(name,r));
+      });
+      if(!p[name].length)delete p[name]
+    }
+    return p
+  }
   async function securePush(){
     if(!currentUser||!webToken()||!webBase||navigator.onLine===false)return false;
     const snapshot=deepClone(db);
@@ -5160,7 +5184,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
       // Le serveur devient la nouvelle base de référence, MAIS toute donnée du snapshot
       // que le serveur n'a pas encore renvoyée reste locale et "À synchroniser".
       const remote=normalizeDB(sanitizeRemoteStateForRole(deepClone(j.state||{}),currentUser));
-      const unconfirmed=securePatch(remote,snapshot);
+      const unconfirmed=confirmationPatch(remote,snapshot);
       const newer=securePatch(snapshot,db);
       const remain=mergeCloudPatches(unconfirmed,newer);
 
@@ -5203,7 +5227,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
 
       // Fusionner la nouvelle base Cloud avec les saisies locales non encore confirmées.
       const merged=patchHasChanges(localPending)?applyCloudPatchJS(remote,localPending):remote;
-      const remain=securePatch(remote,merged);
+      const remain=mergeCloudPatches(loadWebPending(),confirmationPatch(remote,merged));
 
       webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(merged);
       persist();localSessionBase=deepClone(db);saveWebPending(remain);
@@ -5348,7 +5372,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   };
   window.pendingChangesCount=pendingChangesCount=function(){
     if(!webBase||!currentUser)return 0;
-    const p=mergeCloudPatches(loadWebPending(),securePatch(webBase,db));
+    const p=mergeCloudPatches(loadWebPending(),confirmationPatch(webBase,db));
     let n=0;for(const k of Object.keys(CLOUD_COLLECTION_KEYS))n+=(p?.[k]||[]).length;if(p.settings)n++;return n
   };
   window.queueNetworkPush=queueNetworkPush=function(){queueSecurePush()};
