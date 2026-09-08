@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-08-v11-7-3-clean-dashboard">
+<meta name="eiafc-web-build" content="2026-09-08-v11-8-0-stabilization">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -1310,6 +1310,27 @@ body[data-role-theme="secretariat"] .production-hero{
 }
 </style>
 
+
+<style id="eiafc-v1180-stabilization">
+.section-subnav{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 14px;padding:10px;border:1px solid #dce5eb;border-radius:14px;background:linear-gradient(135deg,#fbfdff,#f5f8fa);box-shadow:0 8px 22px rgba(18,48,74,.05)}
+.section-subnav .section-subnav-title{font-size:10px;font-weight:900;color:#17364d;margin-right:4px;padding:7px 5px}
+.section-subnav button{border:1px solid #dbe4ea;background:#fff;color:#365467;border-radius:10px;padding:8px 10px;font-size:10px;font-weight:800;cursor:pointer;transition:.15s ease}
+.section-subnav button:hover{transform:translateY(-1px);border-color:#becfd9}
+.section-subnav button.active{background:#173f5a;color:#fff;border-color:#173f5a;box-shadow:0 6px 14px rgba(23,63,90,.16)}
+.section-panel-hidden{display:none!important}
+.legacy-supply-card{border:1px solid #ecdcb0!important;border-top:4px solid #c69a27!important;background:linear-gradient(180deg,#fffdf7,#fff)}
+.legacy-supply-warning{border-left:4px solid #c69a27;background:#fff8e9;border-radius:9px;padding:10px 12px;font-size:10px;color:#665522;margin-bottom:12px}
+.legacy-supply-count{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#fff3cf;border:1px solid #ead49a;color:#7a5d0b;font-weight:900;font-size:9px}
+.stability-card{border:1px solid #dce6ec!important;border-top:4px solid #355f7c!important;background:linear-gradient(180deg,#fbfdff,#fff)}
+.stability-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stability-item{border:1px solid #e0e8ed;border-radius:12px;background:#fff;padding:11px}
+.stability-item .st-title{font-size:9.5px;color:#667a88;font-weight:800}.stability-item .st-value{font-size:20px;font-weight:900;color:#17364d;margin:4px 0}.stability-item .st-sub{font-size:9px;color:#758590;line-height:1.35}
+.stability-item.good{border-color:#cfe6da;background:#fbfffd}.stability-item.warn{border-color:#eadcb0;background:#fffdf7}.stability-item.bad{border-color:#efcccc;background:#fffafa}
+.stability-summary{margin-top:12px;padding:10px 12px;border-radius:10px;background:#f6f9fb;border:1px solid #e1e8ed;font-size:10px;color:#4d6474}
+@media(max-width:850px){.stability-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.section-subnav{display:grid;grid-template-columns:1fr 1fr}.section-subnav .section-subnav-title{grid-column:1/-1}.stability-grid{grid-template-columns:1fr}}
+</style>
+
 </head>
 <body>
 
@@ -1529,7 +1550,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.7.3 • TABLEAU DE BORD ÉPURÉ • CLOUD</span></div>
+    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.8.0 • STABILISATION • ORGANISATION • CLOUD</span></div>
     <div class="user-mini"><b id="currentUserName">Non connecté</b><span id="currentUserRole"></span><br><button class="btn btn-light btn-sm" onclick="logout()">Déconnexion</button></div>
     <div class="nav">
       <div class="nav-group-title" data-nav-group="home">Accueil</div>
@@ -1578,7 +1599,7 @@ body[data-role-theme="secretariat"] .production-hero{
     <section id="dashboard" class="view active">
       <div class="production-hero">
         <div><span class="prod-eyebrow">CENTRE DE PILOTAGE EIAFC</span><h2 id="homeWelcomeTitle">Votre école, organisée dans un seul espace.</h2><p id="homeWelcomeText">Accédez rapidement aux étudiants, paiements, caisse, pédagogie, personnel, rapports et contrôles, avec une lecture claire de ce qui demande votre attention.</p></div>
-        <div class="prod-hero-badge"><b>11.7.3</b><span>TABLEAU DE BORD ÉPURÉ • CLOUD</span></div>
+        <div class="prod-hero-badge"><b>11.8</b><span>STABILISATION • ORGANISATION • CLOUD</span></div>
       </div>
       <div class="premium-context-strip">
         <div class="premium-context-card role-context">
@@ -1597,7 +1618,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
       <div class="home-command-strip" id="homeCommandStrip">
         <div class="home-command-intro"><b>⚡ Actions fréquentes</b><span>Les raccourcis s’adaptent automatiquement aux droits du compte connecté.</span></div>
-        <button class="home-command-btn" type="button" data-home-perm="students" onclick="goToView('students')"><strong>🎓 Nouvel étudiant</strong><span>Inscription / dossier</span></button>
+        <button class="home-command-btn" type="button" data-home-perm="students" onclick="goToView('students');setTimeout(()=>showStudentArea('registration'),0)"><strong>🎓 Nouvel étudiant</strong><span>Inscription / dossier</span></button>
         <button class="home-command-btn" type="button" data-home-perm="payments" onclick="goToView('payments')"><strong>💳 Encaisser</strong><span>Paiement étudiant</span></button>
         <button class="home-command-btn" type="button" data-home-perm="closing" onclick="goToView('closing')"><strong>🔒 Clôturer la caisse</strong><span>Fin de journée</span></button>
         <button class="home-command-btn" type="button" data-home-perm="reports" onclick="goToView('reports')"><strong>📈 Ouvrir les rapports</strong><span>Pilotage & bilan</span></button>
@@ -1727,7 +1748,15 @@ body[data-role-theme="secretariat"] .production-hero{
     </section>
 
     <section id="students" class="view">
-      <div class="card">
+      <div class="section-subnav" id="studentSectionNav">
+        <span class="section-subnav-title">🎓 ESPACE ÉTUDIANTS</span>
+        <button type="button" data-student-area="overview" onclick="showStudentArea('overview')">Aperçu</button>
+        <button type="button" data-student-area="registration" onclick="showStudentArea('registration')">Nouvelle inscription</button>
+        <button type="button" data-student-area="register" onclick="showStudentArea('register')">Registre</button>
+        <button type="button" data-student-area="supplies" onclick="showStudentArea('supplies')">Rames & marqueurs</button>
+        <button type="button" data-student-area="documents" onclick="showStudentArea('documents')">Documents</button>
+      </div>
+      <div class="card" id="studentPanelRegistration">
         <div class="section-title"><h3>Inscription / mise à jour étudiant</h3><button class="btn btn-light" onclick="clearStudentForm()">Nouvelle fiche</button></div>
         <div id="studentEditBanner" class="student-edit-banner">
           <span id="studentEditBannerText">✏️ Modification d’un dossier étudiant</span>
@@ -1783,16 +1812,26 @@ body[data-role-theme="secretariat"] .production-hero{
           <button class="student-doc-btn academic-doc" type="button" onclick="printStudentAdministrativeDocument('card')"><span class="doc-ico">🪪</span><strong>Carte / fiche étudiant</strong><span>Matricule, filière, niveau et année académique.</span></button>
         </div><div class="student-doc-preview"><b>Impression / PDF :</b> le document s'ouvre dans une page propre. Utilisez ensuite l'impression du navigateur pour l'imprimer ou l'enregistrer en PDF.</div></div></div>
       </div>
-      <div class="card" style="margin-top:16px">
+      <div class="card" style="margin-top:16px" id="studentPanelRegister">
         <div class="section-title"><h3>Registre étudiants</h3><div class="toolbar"><input id="studentSearch" placeholder="Rechercher nom, matricule, téléphone..." oninput="renderStudents()"><select id="studentProgramFilter" onchange="renderStudents()"><option value="">Tous programmes</option><option>Formation qualifiante</option><option>BTS 1</option><option>BTS 2</option><option>Licence</option><option>Master</option><option value="BTS à classer">⚠ BTS à classer</option></select><select id="studentAssignmentFilter" onchange="renderStudents()"><option value="">Tous statuts d’affectation</option><option value="assigned">Affectés de l’État</option><option value="unassigned">Non affectés</option><option value="unspecified">⚠ À préciser</option></select><button class="btn btn-light btn-sm" onclick="exportCSV('students')">Exporter CSV</button></div></div>
         <div class="small" style="margin:6px 0 8px;color:#536473"><b>Astuce :</b> le bouton <b>Modifier / Documents</b> reste maintenant visible à droite du tableau.</div>
         <div class="table-wrap student-table-wrap"><table id="studentsTable"></table></div>
       </div>
-      <div class="card" style="margin-top:16px">
+      <div class="card" style="margin-top:16px" id="studentPanelSuppliesSummary">
         <div class="section-title"><h3>📦 Rames & marqueurs remis par les étudiants</h3><div class="toolbar"><select id="supplyProgramFilter" onchange="renderSupplies()"><option value="">Tous programmes</option><option>Formation qualifiante</option><option>BTS 1</option><option>BTS 2</option><option>Licence</option><option>Master</option></select><select id="supplyTrackFilter" onchange="renderSupplies()"><option value="">Toutes filières</option></select><select id="supplyAssignmentFilter" onchange="renderSupplies()"><option value="">Tous statuts d’affectation</option><option value="assigned">Affectés de l’État</option><option value="unassigned">Non affectés</option><option value="unspecified">⚠ À préciser</option></select><select id="supplyStatusFilter" onchange="renderSupplies()"><option value="">Tous</option><option value="missing">Fournitures manquantes</option><option value="complete">Complet</option></select><button class="btn btn-light btn-sm" onclick="exportCSV('supplies')">Exporter bilan fournitures</button></div></div>
         <div class="notice">Règle EIAFC : chaque étudiant doit remettre <b>1 rame</b> et <b>3 marqueurs</b>. La valorisation éventuelle est un indicateur de gestion et n'est pas comptabilisée automatiquement comme recette.</div>
         <div class="grid kpis" id="supplyKpis" style="margin-top:12px"></div>
         <div class="table-wrap" style="margin-top:12px"><table id="suppliesTable"></table></div>
+      </div>
+
+      <div class="card legacy-supply-card" style="margin-top:16px" id="legacySupplyRepairCard">
+        <div class="section-title">
+          <div><h3>⚠️ Anciennes remises sans date précise</h3><span class="small">Aucune date d'inscription n'est utilisée comme fausse date de remise.</span></div>
+          <button class="btn btn-light btn-sm" type="button" onclick="renderUndatedSupplyRepair()">Actualiser</button>
+        </div>
+        <div class="legacy-supply-warning">Les anciennes quantités restent conservées. Si la date réelle n'était pas enregistrée, elles restent classées <b>date à préciser</b> et ne sont pas comptées dans une journée précise tant que vous ne corrigez pas la date.</div>
+        <div id="legacySupplyRepairSummary"></div>
+        <div class="table-wrap" style="margin-top:10px"><table id="legacySupplyRepairTable"></table></div>
       </div>
 
       <div class="card today-supply-card" style="margin-top:16px" id="todaySupplyReceiptsCard">
@@ -2305,7 +2344,14 @@ body[data-role-theme="secretariat"] .production-hero{
     </section>
 
     <section id="closing" class="view">
-      <div class="grid two-col">
+      <div class="section-subnav" id="closingSectionNav">
+        <span class="section-subnav-title">🔒 CLÔTURE & REMISES</span>
+        <button type="button" data-closing-area="close" onclick="showClosingArea('close')">Faire la clôture</button>
+        <button type="button" data-closing-area="history" onclick="showClosingArea('history')">Historique</button>
+        <button type="button" data-closing-area="verification" data-owner-only="true" onclick="showClosingArea('verification')">Versements à confirmer</button>
+        <button type="button" data-closing-area="founder" data-owner-only="true" onclick="showClosingArea('founder')">Caisse Fondateur</button>
+      </div>
+      <div class="grid two-col" id="closingPanelClose">
         <div class="card">
           <div class="section-title"><h3>🌙 Clôture + remise du soir</h3><span class="badge">Routine EIAFC</span></div>
           <div class="closing-workflow"><b>1. Calcul du disponible → 2. Comptage physique → 3. Remise au Fondateur / dépôt → 4. Reste caisse → 5. Ouverture du lendemain.</b></div>
@@ -2390,7 +2436,7 @@ body[data-role-theme="secretariat"] .production-hero{
           <div class="info" style="margin-top:12px"><b>Plus tard :</b> si le Fondateur dépose l’argent à la banque, utilisez « Caisse Fondateur → Banque ». Ce mouvement reste un transfert interne, jamais une dépense.</div>
         </div>
       </div>
-      <div class="card" style="margin-top:16px"><div class="section-title"><h3>Historique des clôtures</h3></div><div class="table-wrap"><table id="closingsTable"></table></div></div>
+      <div class="card" style="margin-top:16px" id="closingPanelHistory"><div class="section-title"><h3>Historique des clôtures</h3></div><div class="table-wrap"><table id="closingsTable"></table></div></div>
 
       <div class="card" id="endDayDepositControlCard" style="margin-top:16px" data-owner-only="true">
         <div class="section-title">
@@ -2435,7 +2481,7 @@ body[data-role-theme="secretariat"] .production-hero{
         <div class="table-wrap"><table id="endDayDepositTable"></table></div>
       </div>
 
-      <div class="card" style="margin-top:16px" data-owner-only="true">
+      <div class="card" style="margin-top:16px" data-owner-only="true" id="closingPanelFounder">
         <div class="section-title">
           <div><h3>💼 Détail des sommes reçues par le Fondateur</h3><div class="small">Remises main à main enregistrées pendant les clôtures de caisse de l'école active.</div></div>
           <div class="toolbar"><button class="btn btn-light btn-sm" type="button" onclick="renderFounderCashReceipts()">Actualiser</button><button class="btn btn-light btn-sm" type="button" onclick="exportFounderCashReceiptsCSV()">Exporter CSV</button></div>
@@ -2794,6 +2840,15 @@ body[data-role-theme="secretariat"] .production-hero{
         <div class="section-title"><h3>Contrôle qualité des données</h3><button class="btn btn-light btn-sm" onclick="renderDataQuality()">Actualiser le contrôle</button></div>
         <div id="dataQualityBox"></div>
       </div>
+
+      <div class="card stability-card" style="margin-top:16px" data-owner-only="true">
+        <div class="section-title">
+          <div><h3>🛠️ Contrôle de stabilité V11.8</h3><span class="small">Vérifications techniques rapides avant les prochaines évolutions.</span></div>
+          <button class="btn btn-primary btn-sm" type="button" onclick="renderStabilityAudit()">Lancer le contrôle</button>
+        </div>
+        <div class="stability-grid" id="stabilityAuditGrid"></div>
+        <div class="stability-summary" id="stabilityAuditSummary">Le contrôle vérifie les points essentiels sans modifier les données.</div>
+      </div>
     </section>
   </main>
 </div>
@@ -2807,7 +2862,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.7.3";
+const APP_VERSION="11.8.0";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -3892,6 +3947,61 @@ function enterApp(){
 
 function roleName(){return isOwner()?"Fondateur":String(currentUser?.role||"")}
 
+
+window.eiafcStudentArea=window.eiafcStudentArea||"overview";
+window.eiafcClosingArea=window.eiafcClosingArea||"close";
+
+function showStudentArea(area="overview"){
+ const allowed=["overview","registration","register","supplies","documents"];if(!allowed.includes(area))area="overview";
+ window.eiafcStudentArea=area;
+ const groups={overview:["studentsDailyMonitorCard","todaySupplyReceiptsCard"],registration:["studentPanelRegistration"],register:["studentPanelRegister"],supplies:["studentPanelSuppliesSummary","legacySupplyRepairCard","todaySupplyReceiptsCard","dailySupplyTrackingCard"],documents:["studentAdministrativeDocumentsCard"]};
+ const all=["studentPanelRegistration","studentsDailyMonitorCard","studentAdministrativeDocumentsCard","studentPanelRegister","studentPanelSuppliesSummary","legacySupplyRepairCard","todaySupplyReceiptsCard","dailySupplyTrackingCard"];
+ all.forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle("section-panel-hidden",!groups[area].includes(id))});
+ document.querySelectorAll("[data-student-area]").forEach(b=>b.classList.toggle("active",b.dataset.studentArea===area));
+ if(area==="supplies"){renderUndatedSupplyRepair();renderTodaySupplyReceipts();renderDailySupplyTracking()}
+ if(area==="documents")updateStudentAdministrativeDocumentCenter();
+ if(area==="overview"){renderEnrollmentMonitor();renderTodaySupplyReceipts()}
+}
+window.showStudentArea=showStudentArea;
+
+function showClosingArea(area="close"){
+ if(["verification","founder"].includes(area)&&!isOwner())area="close";
+ window.eiafcClosingArea=area;
+ const map={close:["closingPanelClose"],history:["closingPanelHistory"],verification:["endDayDepositControlCard"],founder:["closingPanelFounder"]};
+ ["closingPanelClose","closingPanelHistory","endDayDepositControlCard","closingPanelFounder"].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle("section-panel-hidden",!(map[area]||[]).includes(id))});
+ document.querySelectorAll("[data-closing-area]").forEach(b=>b.classList.toggle("active",b.dataset.closingArea===area));
+ if(area==="history")renderClosings();if(area==="verification"&&isOwner())renderEndDayDepositControl();if(area==="founder"&&isOwner())renderFounderCashReceipts();if(area==="close")updateClosingPreview()
+}
+window.showClosingArea=showClosingArea;
+
+function openPriorityItem(view,area=""){goToView(view);setTimeout(()=>{if(view==="closing"&&area)showClosingArea(area);if(view==="students"&&area)showStudentArea(area)},0)}
+window.openPriorityItem=openPriorityItem;
+
+function renderStabilityAudit(){
+ const grid=document.getElementById("stabilityAuditGrid"),summary=document.getElementById("stabilityAuditSummary");if(!grid||!summary||!isOwner())return;
+ const undated=typeof undatedSupplyStudents==="function"?undatedSupplyStudents().length:0;
+ const unconfirmed=typeof endDayDepositRows==="function"?endDayDepositRows().filter(x=>x.verificationStatus!=="Confirmé").length:0;
+ const closings=currentRecords(db.closings);
+ const orphanRemittances=validTransfers().filter(t=>isClosingRemittanceTransfer(t)&&(!t.closingId||!closings.some(c=>String(c.id)===String(t.closingId)))).length;
+ const validRoles=new Set(roles),invalidRoles=(db.users||[]).filter(u=>u.deleted!==true&&u.active!==false&&!validRoles.has(String(u.role||""))).length;
+ const duplicateStudents=(()=>{const m={};currentStudents().forEach(s=>{const k=String(s.matricule||"");if(k)m[k]=(m[k]||0)+1});return Object.values(m).filter(n=>n>1).length})();
+ const pending=typeof pendingChangesCount==="function"?Number(pendingChangesCount()||0):0;
+ const expectedBuild="2026-09-08-v11-8-0-stabilization";let cacheOk=true;try{const stored=localStorage.getItem("eiafc_web_cache_build");cacheOk=!stored||stored===expectedBuild}catch(_e){}
+ const checks=[
+  {title:"Version / cache Web",value:cacheOk?"OK":"À actualiser",sub:cacheOk?"Build V11.8 cohérent":"Ancien identifiant de cache détecté",cls:cacheOk?"good":"warn"},
+  {title:"Anciennes fournitures sans date",value:undated,sub:undated?"À corriger dans Étudiants → Rames & marqueurs":"Aucune date de remise inventée",cls:undated?"warn":"good"},
+  {title:"Versements à confirmer",value:unconfirmed,sub:unconfirmed?"À vérifier dans Clôture":"Toutes les remises sont confirmées",cls:unconfirmed?"warn":"good"},
+  {title:"Remises orphelines",value:orphanRemittances,sub:orphanRemittances?"Transfert sans clôture liée":"Liaisons clôture / transfert cohérentes",cls:orphanRemittances?"bad":"good"},
+  {title:"Rôles utilisateurs invalides",value:invalidRoles,sub:invalidRoles?"Compte avec rôle non reconnu":"Tous les rôles actifs sont reconnus",cls:invalidRoles?"bad":"good"},
+  {title:"Matricules dupliqués",value:duplicateStudents,sub:duplicateStudents?"Doublon technique à examiner":"Aucun doublon détecté",cls:duplicateStudents?"bad":"good"},
+  {title:"Éléments Cloud en attente",value:pending,sub:pending?"Synchronisation encore incomplète":"Aucun élément en attente détecté",cls:pending?"warn":"good"}
+ ];
+ grid.innerHTML=checks.map(x=>`<div class="stability-item ${x.cls}"><div class="st-title">${esc(x.title)}</div><div class="st-value">${esc(x.value)}</div><div class="st-sub">${esc(x.sub)}</div></div>`).join("");
+ const bad=checks.filter(x=>x.cls==="bad").length,warn=checks.filter(x=>x.cls==="warn").length;
+ summary.innerHTML=bad?`<b>🔴 ${bad} anomalie(s) importante(s)</b> et ${warn} point(s) à vérifier. Ne réinitialisez rien.`:warn?`<b>🟠 Structure stable.</b> ${warn} point(s) de suivi restent à traiter, sans perte de données.`:`<b>✅ Contrôle de stabilité réussi.</b> Aucun problème structurel détecté par les vérifications V11.8.`
+}
+window.renderStabilityAudit=renderStabilityAudit;
+
 function goToView(view){
  const b=document.querySelector(`.nav-btn[data-view="${view}"]`);if(!b)return;
  if(!can(b.dataset.perm))return alert("Votre rôle ne permet pas cet accès.");
@@ -3901,7 +4011,7 @@ function goToView(view){
 
 
 function directionPriorityData(){const unconfirmed=endDayDepositRows().filter(x=>x.verificationStatus!=="Confirmé"),closingDiff=currentRecords(db.closings).filter(x=>Math.abs(Number(x.difference||0))>=0.01),incomplete=currentStudents().filter(s=>s.status==="Actif"&&studentDocsCount(s)<4),overdueStudents=currentStudents().filter(s=>s.status==="Actif"&&overdueAmount(s)>0),pendingPayments=currentRecords(db.payments).filter(p=>p.status==="En attente"),supplierOverdue=validExpenses().filter(x=>expenseRest(x)>0&&String(x.dueDate||x.date||"")<today());return{unconfirmed,closingDiff,incomplete,overdueStudents,pendingPayments,supplierOverdue}}
-function renderDirectionPriorityCenter(){const card=document.getElementById("directionPriorityCard"),grid=document.getElementById("directionPriorityGrid"),summary=document.getElementById("directionPrioritySummary");if(!card||!grid||!summary)return;if(!isOwner()){card.classList.add("hidden");return}card.classList.remove("hidden");const d=directionPriorityData(),defs=[{icon:"💼",title:"Versements fin de journée",value:d.unconfirmed.length,sub:d.unconfirmed.length?"réception(s) / dépôt(s) à confirmer":"Tout est confirmé",view:"closing",cls:d.unconfirmed.length?"urgent":"ok"},{icon:"⚖️",title:"Écarts de clôture",value:d.closingDiff.length,sub:d.closingDiff.length?"clôture(s) avec écart à examiner":"Aucun écart signalé",view:"closing",cls:d.closingDiff.length?"urgent":"ok"},{icon:"📄",title:"Dossiers étudiants incomplets",value:d.incomplete.length,sub:d.incomplete.length?"étudiant(s) avec moins de 4 pièces":"Dossiers administratifs complets",view:"students",cls:d.incomplete.length?"warn":"ok"},{icon:"⏰",title:"Étudiants en retard",value:d.overdueStudents.length,sub:d.overdueStudents.length?"échéance(s) de scolarité à relancer":"Aucun retard détecté",view:"schedule",cls:d.overdueStudents.length?"warn":"ok"},{icon:"💳",title:"Paiements en attente",value:d.pendingPayments.length,sub:d.pendingPayments.length?"paiement(s) à valider / contrôler":"Aucun paiement en attente",view:"payments",cls:d.pendingPayments.length?"warn":"ok"},{icon:"🧾",title:"Fournisseurs échus",value:d.supplierOverdue.length,sub:d.supplierOverdue.length?"facture(s) arrivée(s) à échéance":"Aucune dette fournisseur échue",view:"expenses",cls:d.supplierOverdue.length?"warn":"ok"}];grid.innerHTML=defs.map(x=>`<div class="direction-priority-item ${x.cls}"><div class="pri-icon">${x.icon}</div><div class="pri-body"><div class="pri-title">${esc(x.title)}</div><div class="pri-value">${x.value}</div><div class="pri-sub">${esc(x.sub)}</div><button class="pri-action" type="button" onclick="goToView('${x.view}')">Ouvrir le module →</button></div></div>`).join("");const critical=d.unconfirmed.length+d.closingDiff.length,follow=d.incomplete.length+d.overdueStudents.length+d.pendingPayments.length+d.supplierOverdue.length;summary.innerHTML=`<span>${critical?"🔴":"✅"} ${critical} contrôle(s) financier(s) prioritaire(s)</span><span>🟠 ${follow} suivi(s) administratif(s) / opérationnel(s)</span><span>🕒 Actualisé ${new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})}</span>`}
+function renderDirectionPriorityCenter(){const card=document.getElementById("directionPriorityCard"),grid=document.getElementById("directionPriorityGrid"),summary=document.getElementById("directionPrioritySummary");if(!card||!grid||!summary)return;if(!isOwner()){card.classList.add("hidden");return}card.classList.remove("hidden");const d=directionPriorityData(),defs=[{icon:"💼",title:"Versements fin de journée",value:d.unconfirmed.length,sub:d.unconfirmed.length?"réception(s) / dépôt(s) à confirmer":"Tout est confirmé",view:"closing",area:"verification",cls:d.unconfirmed.length?"urgent":"ok"},{icon:"⚖️",title:"Écarts de clôture",value:d.closingDiff.length,sub:d.closingDiff.length?"clôture(s) avec écart à examiner":"Aucun écart signalé",view:"closing",area:"history",cls:d.closingDiff.length?"urgent":"ok"},{icon:"📄",title:"Dossiers étudiants incomplets",value:d.incomplete.length,sub:d.incomplete.length?"étudiant(s) avec moins de 4 pièces":"Dossiers administratifs complets",view:"students",area:"register",cls:d.incomplete.length?"warn":"ok"},{icon:"⏰",title:"Étudiants en retard",value:d.overdueStudents.length,sub:d.overdueStudents.length?"échéance(s) de scolarité à relancer":"Aucun retard détecté",view:"schedule",cls:d.overdueStudents.length?"warn":"ok"},{icon:"💳",title:"Paiements en attente",value:d.pendingPayments.length,sub:d.pendingPayments.length?"paiement(s) à valider / contrôler":"Aucun paiement en attente",view:"payments",cls:d.pendingPayments.length?"warn":"ok"},{icon:"🧾",title:"Fournisseurs échus",value:d.supplierOverdue.length,sub:d.supplierOverdue.length?"facture(s) arrivée(s) à échéance":"Aucune dette fournisseur échue",view:"expenses",cls:d.supplierOverdue.length?"warn":"ok"}];grid.innerHTML=defs.map(x=>`<div class="direction-priority-item ${x.cls}"><div class="pri-icon">${x.icon}</div><div class="pri-body"><div class="pri-title">${esc(x.title)}</div><div class="pri-value">${x.value}</div><div class="pri-sub">${esc(x.sub)}</div><button class="pri-action" type="button" onclick="openPriorityItem('${x.view}','${x.area||""}')">Ouvrir le module →</button></div></div>`).join("");const critical=d.unconfirmed.length+d.closingDiff.length,follow=d.incomplete.length+d.overdueStudents.length+d.pendingPayments.length+d.supplierOverdue.length;summary.innerHTML=`<span>${critical?"🔴":"✅"} ${critical} contrôle(s) financier(s) prioritaire(s)</span><span>🟠 ${follow} suivi(s) administratif(s) / opérationnel(s)</span><span>🕒 Actualisé ${new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})}</span>`}
 window.renderDirectionPriorityCenter=renderDirectionPriorityCenter;
 const HOME_MODULE_GROUPS=[
  {key:"school",title:"Scolarité & pédagogie",icon:"🎓",tone:"school",items:[
@@ -4346,9 +4456,9 @@ function refreshAll(){
  clearRestrictedViews();applyRoleSensitiveVisibility();
  if(can("dashboard")){renderDashboard();renderEnrollmentMonitor();renderDirectionPriorityCenter();}
  if(isOwner()||roleName()==="Comptable")renderManagementCenter();else{if(managementAlerts)managementAlerts.innerHTML="";if(agentActivity)agentActivity.innerHTML="";if(!["Caissier","Secrétariat & Caisse"].includes(roleName())&&topArrearsTable)topArrearsTable.innerHTML=""}
- if(can("students")){renderStudents();renderSupplies();renderTodaySupplyReceipts();renderDailySupplyTracking();renderClasses();renderEnrollmentMonitor();updateStudentAdministrativeDocumentCenter()}
+ if(can("students")){renderStudents();renderSupplies();renderUndatedSupplyRepair();renderTodaySupplyReceipts();renderDailySupplyTracking();renderClasses();renderEnrollmentMonitor();updateStudentAdministrativeDocumentCenter();showStudentArea(window.eiafcStudentArea||"overview")}
  if(can("attendance"))renderAttendance();if(can("academic"))renderAcademic();if(can("timetable"))renderTimetable();if(can("discipline"))renderDiscipline();if(can("purchases"))renderPurchases();if(can("inventory"))renderInventory();if(can("staff")){renderStaff();renderStaffAttendance();renderStaffLoans();renderPayroll()}
- if(can("payments")){updateStudentSelect();renderPayments()}if(can("schedule")){renderSchedule();renderReminderCenter();}if(can("other"))renderOther();if(can("expenses"))renderExpenses();if(can("cash")){renderCash();renderTransfers()}if(can("closing")){renderClosings();updateClosingPreview();if(isOwner()){renderEndDayDepositControl();renderFounderCashReceipts()}}if(can("journal"))renderJournal();if(can("accounting")){updateAccountingTrackOptions();renderAccounting()}if(can("reconciliation"))renderReconciliation();if(can("reports")){updateReportAssignmentControls();updateAnnualAssignmentControls();renderReports();renderAnnualBalance()}if(can("direction"))renderDirectionNetwork();if(can("audit"))renderAudit();
+ if(can("payments")){updateStudentSelect();renderPayments()}if(can("schedule")){renderSchedule();renderReminderCenter();}if(can("other"))renderOther();if(can("expenses"))renderExpenses();if(can("cash")){renderCash();renderTransfers()}if(can("closing")){renderClosings();updateClosingPreview();if(isOwner()){renderEndDayDepositControl();renderFounderCashReceipts()}showClosingArea(window.eiafcClosingArea||"close")}if(can("journal"))renderJournal();if(can("accounting")){updateAccountingTrackOptions();renderAccounting()}if(can("reconciliation"))renderReconciliation();if(can("reports")){updateReportAssignmentControls();updateAnnualAssignmentControls();renderReports();renderAnnualBalance()}if(can("direction"))renderDirectionNetwork();if(can("audit"))renderAudit();
  if(isOwner()){renderUsers();renderSchools();loadSettings();loadNotificationSettings();renderTrackCatalog();payrollSettingsLoad();renderDataQuality();populateRemoteKeySchools();populateCopyAppSchools();renderBackupTimeline()}else{if(usersTable)usersTable.innerHTML="";if(schoolsTable)schoolsTable.innerHTML="";if(trackCatalogTable)trackCatalogTable.innerHTML="";if(dataQualityBox)dataQualityBox.innerHTML=""}
  updateOfflineQueueUI();forceAllowedView();if(currentUser){if(payAgent)payAgent.value=currentUserLabel();if(otherAgent)otherAgent.value=currentUserLabel();if(expAgent)expAgent.value=currentUserLabel();if(closingAgent)closingAgent.value=currentUserLabel();if(attendanceAgent)attendanceAgent.value=currentUserLabel()}
 }
@@ -4710,7 +4820,7 @@ studentForm.addEventListener("submit",async e=>{
  saveDB();clearStudentForm()
 });
 function clearStudentForm(){if(studentEditBanner)studentEditBanner.classList.remove("show");studentEditId.value="";studentForm.reset();studentBirthDate.value="";studentBirthPlace.value="";studentEmail.value="";studentAddress.value="";studentGuardianName.value="";studentGuardianPhone.value="";studentGuardianEmail.value="";studentIdentityRef.value="";studentDocBirth.checked=false;studentDocId.checked=false;studentDocDiploma.checked=false;studentDocPhotos.checked=false;studentProgram.value="Formation qualifiante";studentTrackAssigned.value="Non affecté";studentTrack.value="";updateStudentTrackState();studentDate.value=defaultManagementDate();studentFirstDue.value=academicBounds().firstDue;studentRegFee.value=0;studentTuition.value=0;studentInstallments.value=9;studentDiscount.value=0;studentReamReceived.value=0;studentMarkersReceived.value=0;studentSupplyDate.value="";studentSupplyObs.value="";renderStudentDigitalDocs()}
-function editStudent(mat){if(!canEditStudents())return alert("Votre rôle est en lecture seule sur les dossiers étudiants.");const s=studentByMat(mat);if(!s)return;studentEditId.value=s.matricule;studentName.value=s.name;studentSex.value=s.sex;studentPhone.value=s.phone;studentBirthDate.value=s.birthDate||"";studentBirthPlace.value=s.birthPlace||"";studentEmail.value=s.email||"";studentAddress.value=s.address||"";studentGuardianName.value=s.guardianName||"";studentGuardianPhone.value=s.guardianPhone||"";studentGuardianEmail.value=s.guardianEmail||"";studentIdentityRef.value=s.identityRef||"";studentDocBirth.checked=!!s.docs?.birth;studentDocId.checked=!!s.docs?.id;studentDocDiploma.checked=!!s.docs?.diploma;studentDocPhotos.checked=!!s.docs?.photos;studentProgram.value=s.program;studentTrackAssigned.value=studentAdmissionStatus(s);studentTrack.value=s.track||"";updateStudentTrackState();studentTrack.value=s.track||"";studentLevel.value=s.level;studentDate.value=s.date;studentRegFee.value=s.regFee;studentTuition.value=s.tuition;studentInstallments.value=s.installments||9;studentFirstDue.value=s.firstDue||s.date;studentDiscount.value=s.discount||0;studentDiscountReason.value=s.discountReason||"";studentReamReceived.value=Number(s.reamReceived||0);studentMarkersReceived.value=Number(s.markersReceived||0);studentSupplyDate.value=s.supplyDate||"";studentSupplyObs.value=s.supplyObs||"";studentStatus.value=s.status;renderStudentDigitalDocs();document.querySelector('[data-view="students"]').click();
+function editStudent(mat){if(!canEditStudents())return alert("Votre rôle est en lecture seule sur les dossiers étudiants.");const s=studentByMat(mat);if(!s)return;studentEditId.value=s.matricule;studentName.value=s.name;studentSex.value=s.sex;studentPhone.value=s.phone;studentBirthDate.value=s.birthDate||"";studentBirthPlace.value=s.birthPlace||"";studentEmail.value=s.email||"";studentAddress.value=s.address||"";studentGuardianName.value=s.guardianName||"";studentGuardianPhone.value=s.guardianPhone||"";studentGuardianEmail.value=s.guardianEmail||"";studentIdentityRef.value=s.identityRef||"";studentDocBirth.checked=!!s.docs?.birth;studentDocId.checked=!!s.docs?.id;studentDocDiploma.checked=!!s.docs?.diploma;studentDocPhotos.checked=!!s.docs?.photos;studentProgram.value=s.program;studentTrackAssigned.value=studentAdmissionStatus(s);studentTrack.value=s.track||"";updateStudentTrackState();studentTrack.value=s.track||"";studentLevel.value=s.level;studentDate.value=s.date;studentRegFee.value=s.regFee;studentTuition.value=s.tuition;studentInstallments.value=s.installments||9;studentFirstDue.value=s.firstDue||s.date;studentDiscount.value=s.discount||0;studentDiscountReason.value=s.discountReason||"";studentReamReceived.value=Number(s.reamReceived||0);studentMarkersReceived.value=Number(s.markersReceived||0);studentSupplyDate.value=s.supplyDate||"";studentSupplyObs.value=s.supplyObs||"";studentStatus.value=s.status;renderStudentDigitalDocs();document.querySelector('[data-view="students"]').click();showStudentArea("registration");
  if(studentEditBanner&&studentEditBannerText){
    studentEditBannerText.textContent=`✏️ Modification : ${s.name} — ${s.matricule}`;
    studentEditBanner.classList.add("show")
@@ -4761,13 +4871,12 @@ function storedSupplyHistory(s){
 function legacySupplyHistory(s){
  const r=Math.max(0,Math.min(1,Number(s?.reamReceived||0))),m=Math.max(0,Math.min(3,Number(s?.markersReceived||0)));
  if(!r&&!m)return[];
+ const knownDate=String(s?.supplyDate||"").trim();
  return[normalizeSupplyEvent({
-  id:`SUP-LEGACY-${s.matricule}`,
-  date:s.supplyDate||s.date||"",
-  reams:r,markers:m,obs:s.supplyObs||"Reprise de l'ancienne saisie",
-  agent:s.updatedBy||s.createdBy||"Ancienne saisie",
-  createdAt:s.updatedAt||s.createdAt||"",
-  kind:"Historique repris"
+  id:`SUP-LEGACY-${s.matricule}`,date:knownDate,reams:r,markers:m,
+  obs:s.supplyObs||(knownDate?"Reprise de l'ancienne saisie":"Ancienne remise — date à préciser"),
+  agent:s.updatedBy||s.createdBy||"Ancienne saisie",createdAt:s.updatedAt||s.createdAt||"",
+  kind:knownDate?"Historique repris":"Ancienne remise — date à préciser"
  },s)]
 }
 function studentSupplyHistory(s){
@@ -4792,6 +4901,28 @@ function supplyReceiptStatsForDate(date){
   markers:rows.reduce((z,x)=>z+Math.max(0,Number(x.markers||0)),0)
  }
 }
+
+function undatedSupplyStudents(){return currentStudents().filter(s=>studentSupplyHistory(s).some(e=>(Number(e.reams||0)>0||Number(e.markers||0)>0)&&!String(e.date||"").trim()))}
+function renderUndatedSupplyRepair(){
+ const table=document.getElementById("legacySupplyRepairTable"),sum=document.getElementById("legacySupplyRepairSummary");if(!table||!sum)return;
+ const rows=undatedSupplyStudents().sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"fr"));
+ sum.innerHTML=rows.length?`<span class="legacy-supply-count">⚠ ${rows.length} ancien(s) dossier(s) à dater</span>`:'<span class="status valid">✅ Toutes les anciennes remises ont une date exploitable.</span>';
+ table.innerHTML=`<thead><tr><th>Matricule</th><th>Étudiant</th><th>Programme</th><th>Filière</th><th>Quantité conservée</th><th>Statut</th><th>Action</th></tr></thead><tbody>${rows.length?rows.map(s=>{const h=studentSupplyHistory(s).filter(e=>!String(e.date||"").trim()),r=h.reduce((z,e)=>z+Math.max(0,Number(e.reams||0)),0),m=h.reduce((z,e)=>z+Math.max(0,Number(e.markers||0)),0);return`<tr><td>${esc(s.matricule)}</td><td><b>${esc(s.name)}</b></td><td>${esc(s.program)}</td><td>${esc(studentTrackValue(s)||"—")}</td><td>${r} rame(s) • ${m} marqueur(s)</td><td><span class="status pending">Date à préciser</span></td><td>${canEditStudents()?`<button class="btn btn-light btn-sm" type="button" onclick="repairLegacySupplyDate('${s.matricule}')">Préciser la date</button>`:"—"}</td></tr>`}).join(""):`<tr><td colspan="7" class="empty">Aucune ancienne remise sans date.</td></tr>`}</tbody>`
+}
+function repairLegacySupplyDate(mat){
+ if(!canEditStudents())return alert("Votre rôle ne peut pas corriger les fournitures étudiants.");const s=studentByMat(mat);if(!s)return;
+ const undated=studentSupplyHistory(s).filter(e=>!String(e.date||"").trim()&&(Number(e.reams||0)>0||Number(e.markers||0)>0));if(!undated.length)return alert("Aucune remise sans date pour cet étudiant.");
+ const date=prompt(`Date réelle de remise des anciennes fournitures\n\n${s.name} — ${s.matricule}\nFormat : AAAA-MM-JJ`,today());if(date===null)return;
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!dateInManagementYear(date))return alert(`Date invalide. Utilisez une date de la période ${activeYear()} au format AAAA-MM-JJ.`);
+ if(!confirm(`Attribuer la date ${date} à l'ancienne remise de ${s.name} ?`))return;
+ let hist=storedSupplyHistory(s);
+ if(!hist.length)hist=legacySupplyHistory(s).map(e=>({...e,date,kind:"Historique repris — date confirmée",obs:e.obs==="Ancienne remise — date à préciser"?"Date ancienne confirmée manuellement":e.obs}));
+ else hist=hist.map(e=>(!String(e.date||"").trim()&&(Number(e.reams||0)>0||Number(e.markers||0)>0))?{...e,date,kind:"Historique repris — date confirmée",updatedAt:new Date().toISOString(),updatedBy:currentUserLabel()}:e);
+ s.supplyHistory=hist;s.supplyDate=date;s.updatedAt=new Date().toISOString();s.updatedBy=currentUserLabel();
+ logAction("Correction date ancienne remise fournitures",`${s.matricule} — ${s.name} — ${date}`);saveDB();renderUndatedSupplyRepair();renderSupplies();renderTodaySupplyReceipts();renderDailySupplyTracking();renderDashboard()
+}
+window.renderUndatedSupplyRepair=renderUndatedSupplyRepair;window.repairLegacySupplyDate=repairLegacySupplyDate;
+
 function updateDailySupplyStudentSelect(){
  const sel=document.getElementById("dailySupplyStudent");if(!sel)return;
  const old=sel.value,rows=currentStudents().filter(s=>s.status==="Actif").sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"fr"));
@@ -4897,7 +5028,7 @@ function renderDailySupplyTracking(){
  const totalR=positive.reduce((z,x)=>z+Math.max(0,Number(x.reams||0)),0),totalM=positive.reduce((z,x)=>z+Math.max(0,Number(x.markers||0)),0);
  const todayR=todayRows.reduce((z,x)=>z+Math.max(0,Number(x.reams||0)),0),todayM=todayRows.reduce((z,x)=>z+Math.max(0,Number(x.markers||0)),0);
  const todayStudents=new Set(todayRows.filter(x=>x.reams>0||x.markers>0).map(x=>x.student)).size;
- const corrections=rows.filter(x=>Number(x.reams||0)<0||Number(x.markers||0)<0).length;
+ const corrections=rows.filter(x=>Number(x.reams||0)<0||Number(x.markers||0)<0).length,undatedCount=undatedSupplyStudents().length;
  kpis.innerHTML=[
   ["Rames reçues aujourd'hui",todayR],
   ["Marqueurs reçus aujourd'hui",todayM],
@@ -4905,6 +5036,7 @@ function renderDailySupplyTracking(){
   ["Rames sur la période",totalR],
   ["Marqueurs sur la période",totalM],
   ["Jours avec remise",new Set(positive.map(x=>x.date)).size],
+  ["Anciennes remises sans date",undatedCount],
   ["Corrections historiques",corrections]
  ].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");
 
@@ -5880,7 +6012,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   const WEB_APIKEY='sb_publishable_gAPfLd6okuu42hvOwQp35Q_L87JA22Q';
   const WEB_WORKSPACE='EIAFC_V7';
   const WEB_TOKEN_KEY='eiafc_web_secure_session_v4';
-  const WEB_BUILD='2026-09-07-v11-5-2-pending-redaction-fix';
+  const WEB_BUILD='2026-09-08-v11-8-0-stabilization';
 
   const WEB_PUBLIC_HOST=String(location.hostname||'').endsWith('.vercel.app');
   if(WEB_PUBLIC_HOST){
