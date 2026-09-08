@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-07-v11-5-5-founder-cash-detail">
+<meta name="eiafc-web-build" content="2026-09-08-v11-5-9-end-day-deposit-monitoring">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -924,6 +924,72 @@ body[data-role-theme="secretariat"] .production-hero{
   background:#fff9e8;
 }
 
+
+
+/* ===== EIAFC V11.5.8 — Répartition de fin de journée + suivi inscriptions ===== */
+.closing-split-box{grid-column:1/-1;border:1px solid #d8e3ea;border-radius:14px;padding:14px;background:#fbfdff}
+.closing-split-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.closing-split-title h4{margin:0;color:var(--navy)}
+.closing-split-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.closing-split-row{border:1px solid #e2e8ee;border-radius:11px;padding:12px;background:white}
+.closing-split-row.founder{border-color:#ead590;background:#fffdf4}
+.closing-split-row.bank{border-color:#bfd6ea;background:#f7fbff}
+.closing-split-row h5{margin:0 0 8px;color:var(--navy);font-size:14px}
+.closing-split-row .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.closing-split-row .mini-grid .full{grid-column:1/-1}
+.closing-split-total{margin-top:12px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.closing-split-total>div{padding:11px;border-radius:10px;background:#f3f7fa;border:1px solid #dde6ec}
+.closing-split-total b{display:block;margin-top:4px;font-size:18px;color:var(--navy)}
+@media(max-width:760px){.closing-split-grid,.closing-split-total{grid-template-columns:1fr}.closing-split-row .mini-grid{grid-template-columns:1fr}.closing-split-row .mini-grid .full{grid-column:auto}}
+
+/* ===== EIAFC V11.5.6 — Suivi inscriptions + tableau de bord réorganisé ===== */
+.login-overlay{
+  background:
+    radial-gradient(circle at 15% 18%,rgba(212,166,46,.20),transparent 26%),
+    radial-gradient(circle at 88% 78%,rgba(56,142,186,.20),transparent 30%),
+    linear-gradient(145deg,#061520 0%,#0b2a40 48%,#123b57 100%);
+}
+.login-card{
+  border:1px solid rgba(255,255,255,.30);
+  box-shadow:0 34px 110px rgba(0,0,0,.42);
+  position:relative;
+  overflow:auto;
+}
+.login-card:before{
+  content:"";position:absolute;left:0;right:0;top:0;height:6px;
+  background:linear-gradient(90deg,#d4a62e,#f1cf69,#d4a62e);
+}
+.login-card .prod-mark{letter-spacing:.12em;font-weight:900;color:#9a6f00;margin-top:4px}
+.login-card>h1{font-size:38px;letter-spacing:-.04em;margin-top:6px}
+.login-card .prod-subtitle{font-weight:700;color:#425466;margin-top:2px}
+.login-card .prod-chips{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0 16px}
+.login-card .prod-chips span{background:#f4f7fa;border:1px solid #dfe7ed;border-radius:999px;padding:6px 9px;font-size:11px;color:#34495a;font-weight:700}
+.login-card #loginIntro{font-size:14px;line-height:1.45;margin:9px 0 4px}
+.auth-choice button{border:1px solid rgba(18,48,74,.10);box-shadow:0 7px 16px rgba(18,48,74,.07);transition:.18s transform,.18s box-shadow}
+.auth-choice button:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(18,48,74,.12)}
+
+.dashboard-section-label{margin:18px 0 10px;display:flex;align-items:center;gap:10px;color:var(--navy);font-weight:900;font-size:13px;letter-spacing:.02em;text-transform:uppercase}
+.dashboard-section-label:after{content:"";height:1px;background:#dfe7ed;flex:1}
+.enrollment-monitor-card{border-top:4px solid var(--gold);background:linear-gradient(180deg,#fff,#fbfdff)}
+.enrollment-toolbar{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+.enrollment-toolbar .mini-field{min-width:140px}
+.enrollment-toolbar label{display:block;font-size:10px;font-weight:900;color:#667085;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.enrollment-toolbar input,.enrollment-toolbar select{padding:8px 9px;border:1px solid #cfd9e2;border-radius:8px;background:#fff}
+.enrollment-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+.enrollment-kpis .card{box-shadow:none;border-color:#e3eaf0;background:#fff}
+.enrollment-kpis .value{font-size:22px}
+.enrollment-split{display:grid;grid-template-columns:1.35fr .65fr;gap:14px;margin-top:14px}
+.enrollment-day-list{display:grid;gap:7px}
+.enrollment-day-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:9px 10px;border:1px solid #e4eaf0;border-radius:9px;background:#fff}
+.enrollment-day-row b{color:var(--navy)}
+.enrollment-day-row span{font-size:12px;color:#667085}
+.enrollment-new-badge{display:inline-block;padding:3px 7px;border-radius:999px;background:#e9f8ef;color:#166534;font-size:10px;font-weight:900}
+.dashboard .card{} /* harmless anchor for older browsers */
+.topbar{background:rgba(255,255,255,.78);backdrop-filter:blur(8px);border:1px solid #e3eaf0;border-radius:14px;padding:12px 14px;box-shadow:0 5px 18px rgba(18,48,74,.05)}
+.production-hero{box-shadow:0 12px 32px rgba(18,48,74,.10)}
+@media(max-width:900px){.enrollment-split{grid-template-columns:1fr}.enrollment-kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.enrollment-kpis{grid-template-columns:1fr}.login-card>h1{font-size:32px}.topbar{align-items:flex-start}}
+
 </style>
 </head>
 <body>
@@ -932,8 +998,8 @@ body[data-role-theme="secretariat"] .production-hero{
   <div class="login-card">
     <div class="prod-mark">EIAFC • GESTION CLOUD</div>
     <h1>EIAFC</h1>
-    <div class="prod-subtitle">Scolaire • Comptabilité • Finance • RH • Caisse • Stock</div>
-    <p id="loginIntro">EIAFC Gestion Cloud — Pilotage 360° de votre établissement</p>
+    <div class="prod-subtitle">Grande école privée EIAFC • Gestion scolaire • Finance • RH • Caisse • Stock</div>
+    <p id="loginIntro">EIAFC Gestion Cloud — votre centre de pilotage scolaire, administratif et financier</p>
     <div id="bootStatus" class="boot-note">Connexion sécurisée à EIAFC…</div>
     <div class="prod-chips"><span>☁ Cloud multi-postes</span><span>🔐 Accès par rôle</span><span>📊 Pilotage temps réel</span></div>
     <div id="emptyInstallBox" class="hidden">
@@ -1144,7 +1210,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.5.5 • DÉTAIL CAISSE FONDATEUR • SÉCURITÉ • CLOUD</span></div>
+    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.5.9 • CONTRÔLE VERSEMENTS • FIN DE JOURNÉE • CLOUD</span></div>
     <div class="user-mini"><b id="currentUserName">Non connecté</b><span id="currentUserRole"></span><br><button class="btn btn-light btn-sm" onclick="logout()">Déconnexion</button></div>
     <div class="nav">
       <button class="nav-btn active" data-view="dashboard" data-perm="dashboard">📊 Tableau de bord</button>
@@ -1210,6 +1276,46 @@ body[data-role-theme="secretariat"] .production-hero{
         <div><b>Tableau de bord sécurisé par rôle</b><div class="small" id="dashboardPrivacyText">Les informations visibles dépendent de votre fonction.</div></div>
       </div>
       <div class="grid kpis" id="kpiGrid"></div>
+      <div class="dashboard-section-label">🎓 Suivi des inscriptions</div>
+      <div class="card enrollment-monitor-card" id="enrollmentMonitorCard">
+        <div class="section-title">
+          <div><h3>🗓️ Étudiants inscrits / ajoutés par date</h3><span class="small">Consultez rapidement qui a été ajouté au logiciel et à quelle date l'inscription a été enregistrée.</span></div>
+          <button class="btn btn-light btn-sm" type="button" onclick="renderEnrollmentMonitor()">Actualiser</button>
+        </div>
+        <div class="enrollment-toolbar">
+          <div class="mini-field"><label>Afficher selon</label><select id="enrollmentDateMode" onchange="renderEnrollmentMonitor()"><option value="created">Date d'ajout au logiciel</option><option value="registration">Date officielle d'inscription</option></select></div>
+          <div class="mini-field"><label>Du</label><input type="date" id="enrollmentFrom" onchange="renderEnrollmentMonitor()"></div>
+          <div class="mini-field"><label>Au</label><input type="date" id="enrollmentTo" onchange="renderEnrollmentMonitor()"></div>
+          <div class="mini-field" style="min-width:210px"><label>Recherche</label><input id="enrollmentSearch" placeholder="Nom, matricule, filière..." oninput="renderEnrollmentMonitor()"></div>
+          <button class="btn btn-gold btn-sm" type="button" onclick="setEnrollmentToday()">Aujourd'hui</button>
+          <button class="btn btn-light btn-sm" type="button" onclick="setEnrollmentLast7Days()">7 derniers jours</button>
+        </div>
+        <div class="grid kpis enrollment-kpis" id="enrollmentKpis" style="margin-top:14px"></div>
+        <div class="enrollment-split">
+          <div>
+            <div class="section-title"><h3 style="font-size:15px">Dernières inscriptions</h3><span class="small" id="enrollmentRangeLabel"></span></div>
+            <div class="table-wrap"><table id="enrollmentStudentsTable"></table></div>
+          </div>
+          <div>
+            <div class="section-title"><h3 style="font-size:15px">Résumé par jour</h3><span class="small">Nombre d'ajouts</span></div>
+            <div id="enrollmentDailySummary" class="enrollment-day-list"></div>
+          </div>
+        </div>
+      </div>
+      <div class="dashboard-section-label">💰 Pilotage financier & activité quotidienne</div>
+      <div class="grid two-col" style="margin-top:16px">
+        <div class="card"><div class="section-title"><h3>Trésorerie par canal</h3></div><div id="channelBalances"></div></div>
+        <div class="card"><div class="section-title"><h3>Recouvrement & alertes</h3></div><div id="recoveryBox"></div></div>
+      </div>
+      <div class="grid two-col" style="margin-top:16px">
+        <div class="card"><div class="section-title"><h3>Activité aujourd'hui</h3></div><div id="todayActivity" class="metric-list"></div></div>
+        <div class="card"><div class="section-title"><h3>Dernière clôture</h3></div><div id="lastClosing" class="metric-list"></div></div>
+      </div>
+      <div class="grid two-col" style="margin-top:16px">
+        <div class="card"><div class="section-title"><h3>🚦 Centre de contrôle</h3><button class="btn btn-light btn-sm" onclick="syncNow()">Synchroniser</button></div><div id="managementAlerts"></div></div>
+        <div class="card"><div class="section-title"><h3>👥 Activité des utilisateurs</h3></div><div id="agentActivity"></div></div>
+      </div>
+      <div class="dashboard-section-label">⚡ Contrôle, recherche & intelligence</div>
       <div class="card" id="powerCenterCard" style="margin-top:16px">
         <div class="section-title">
           <div><h3>⚡ EIAFC Intelligence 360°</h3><span class="small">Contrôle automatique • prévisions • anomalies • recherche globale</span></div>
@@ -1243,18 +1349,7 @@ body[data-role-theme="secretariat"] .production-hero{
           </div>
         </div>
       </div>
-      <div class="grid two-col" style="margin-top:16px">
-        <div class="card"><div class="section-title"><h3>Trésorerie par canal</h3></div><div id="channelBalances"></div></div>
-        <div class="card"><div class="section-title"><h3>Recouvrement & alertes</h3></div><div id="recoveryBox"></div></div>
-      </div>
-      <div class="grid two-col" style="margin-top:16px">
-        <div class="card"><div class="section-title"><h3>Activité aujourd'hui</h3></div><div id="todayActivity" class="metric-list"></div></div>
-        <div class="card"><div class="section-title"><h3>Dernière clôture</h3></div><div id="lastClosing" class="metric-list"></div></div>
-      </div>
-      <div class="grid two-col" style="margin-top:16px">
-        <div class="card"><div class="section-title"><h3>🚦 Centre de contrôle</h3><button class="btn btn-light btn-sm" onclick="syncNow()">Synchroniser</button></div><div id="managementAlerts"></div></div>
-        <div class="card"><div class="section-title"><h3>👥 Activité des utilisateurs</h3></div><div id="agentActivity"></div></div>
-      </div>
+      <div class="dashboard-section-label">🏫 Analyse détaillée & réseau</div>
       <div class="card" id="networkOverviewCard" style="margin-top:16px"><div class="section-title"><h3>🌐 Pilotage consolidé du réseau d’écoles</h3><div class="toolbar"><span class="small">Année active : <b id="networkYearLabel"></b></span><button class="btn btn-light btn-sm" onclick="exportCSV('network')">Exporter consolidation</button></div></div><div class="info">Vue de contrôle de toutes les écoles auxquelles votre compte a accès. Les chiffres restent calculés école par école puis consolidés, sans mélanger les dossiers étudiants.</div><div class="table-wrap" style="margin-top:12px"><table id="networkSchoolsTable"></table></div></div>
       <div class="card" style="margin-top:16px"><div class="section-title"><h3>📞 Étudiants prioritaires à relancer</h3><button class="btn btn-light btn-sm" onclick="exportCSV('arrears')">Exporter les impayés</button></div><div class="table-wrap"><table id="topArrearsTable"></table></div></div>
       <div class="card" style="margin-top:16px"><div class="section-title"><h3>🏫 Vue séparée par pôle</h3><span class="small">BTS regroupé • Formation qualifiante • Licence • Master • Administration</span></div><div class="info" style="margin-bottom:12px">Les effectifs et les montants sont calculés séparément. Le BTS regroupe BTS 1 + BTS 2, sans mélanger les dossiers avec les formations qualifiantes.</div><div class="table-wrap"><table id="dashboardPoles"></table></div></div><div class="card" style="margin-top:16px"><div class="section-title"><h3>Opérations séparées par programme</h3><span class="small">Formation qualifiante • BTS 1 • BTS 2 • Licence • Master</span></div><div class="table-wrap"><table id="dashboardPrograms"></table></div></div><div class="card" style="margin-top:16px"><div class="section-title"><h3>🎯 Statut d’affectation État par programme</h3><span class="small">Sépare les étudiants Affectés de l’État et Non affectés, indépendamment de leur filière</span></div><div class="table-wrap"><table id="dashboardAssignments"></table></div></div><div class="card" style="margin-top:16px"><div class="section-title"><h3>Pré-rentrée + année académique — recettes et dépenses</h3></div><div class="table-wrap"><table id="dashboardMonthly"></table></div></div>
@@ -1301,6 +1396,11 @@ body[data-role-theme="secretariat"] .production-hero{
           <div class="field span-4"><button class="btn btn-primary" type="submit" id="studentSaveBtn">Enregistrer l'étudiant</button></div>
         </form>
         <div class="info" style="margin-top:12px"><b>Important :</b> « Affecté de l’État » et « Non affecté » sont des statuts d’orientation/admission. <b>Les deux paient leur scolarité.</b> La filière est un champ séparé et doit être renseignée pour chaque étudiant.</div>
+      </div>
+      <div class="card enrollment-monitor-card" style="margin-top:16px" id="studentsDailyMonitorCard">
+        <div class="section-title"><div><h3>📅 Suivi quotidien des nouvelles inscriptions</h3><span class="small">Les étudiants les plus récemment ajoutés apparaissent en premier.</span></div><button class="btn btn-light btn-sm" type="button" onclick="renderEnrollmentMonitor()">Actualiser</button></div>
+        <div class="grid kpis enrollment-kpis" id="studentDailyKpis"></div>
+        <div class="table-wrap" style="margin-top:12px"><table id="studentDailyTable"></table></div>
       </div>
       <div class="card" style="margin-top:16px">
         <div class="section-title"><h3>Registre étudiants</h3><div class="toolbar"><input id="studentSearch" placeholder="Rechercher nom, matricule, téléphone..." oninput="renderStudents()"><select id="studentProgramFilter" onchange="renderStudents()"><option value="">Tous programmes</option><option>Formation qualifiante</option><option>BTS 1</option><option>BTS 2</option><option>Licence</option><option>Master</option><option value="BTS à classer">⚠ BTS à classer</option></select><select id="studentAssignmentFilter" onchange="renderStudents()"><option value="">Tous statuts d’affectation</option><option value="assigned">Affectés de l’État</option><option value="unassigned">Non affectés</option><option value="unspecified">⚠ À préciser</option></select><button class="btn btn-light btn-sm" onclick="exportCSV('students')">Exporter CSV</button></div></div>
@@ -1777,25 +1877,61 @@ body[data-role-theme="secretariat"] .production-hero{
             <div class="field"><label>Espèces réellement comptées AVANT remise</label><input type="number" min="0" id="closingCountedBefore" required oninput="updateClosingPreview()" placeholder="Montant trouvé dans la caisse"></div>
             <div class="field"><label>Écart de comptage</label><input id="closingCountDifference" readonly placeholder="—"></div>
 
-            <div class="field span-4">
-              <label class="closing-all-toggle">
-                <input type="checkbox" id="closingDepositAll" checked onchange="updateClosingPreview()">
-                <span><b>Remettre / verser toute la caisse ce soir</b><small>Chez EIAFC, cette option permet normalement de commencer le lendemain avec une caisse comptable à 0 FCFA.</small></span>
-              </label>
+            <div class="closing-split-box">
+              <div class="closing-split-title">
+                <div><h4>💰 Répartition de l'argent en fin de journée</h4><div class="small">Répartissez les espèces réellement comptées entre le Fondateur, la Banque, le Mobile Money et le reste conservé dans la caisse comptable.</div></div>
+                <button class="btn btn-light btn-sm" type="button" onclick="fillClosingFounderRemainder()">Mettre le reste au Fondateur</button>
+              </div>
+              <div class="closing-split-grid">
+                <div class="closing-split-row founder">
+                  <h5>🤝 Caisse Fondateur</h5>
+                  <div class="mini-grid">
+                    <div class="field"><label>Montant remis</label><input type="number" min="0" id="closingFounderAmount" value="0" oninput="updateClosingPreview()"></div>
+                    <div class="field"><label>Reçu par</label><input id="closingFounderReceiver" placeholder="Fondateur / Direction"></div>
+                    <div class="field full"><label>Référence / observation</label><input id="closingFounderRef" placeholder="Ex. remise main à main"></div>
+                  </div>
+                </div>
+                <div class="closing-split-row bank">
+                  <h5>🏦 Banque</h5>
+                  <div class="mini-grid">
+                    <div class="field"><label>Montant déposé</label><input type="number" min="0" id="closingBankAmount" value="0" oninput="updateClosingPreview()"></div>
+                    <div class="field"><label>Référence / bordereau</label><input id="closingBankRef" placeholder="N° bordereau banque"></div>
+                  </div>
+                </div>
+                <div class="closing-split-row">
+                  <h5>🌊 Wave</h5>
+                  <div class="mini-grid">
+                    <div class="field"><label>Montant</label><input type="number" min="0" id="closingWaveAmount" value="0" oninput="updateClosingPreview()"></div>
+                    <div class="field"><label>Référence</label><input id="closingWaveRef" placeholder="Référence Wave"></div>
+                  </div>
+                </div>
+                <div class="closing-split-row">
+                  <h5>📱 MTN Mobile Money</h5>
+                  <div class="mini-grid">
+                    <div class="field"><label>Montant</label><input type="number" min="0" id="closingMtnAmount" value="0" oninput="updateClosingPreview()"></div>
+                    <div class="field"><label>Référence</label><input id="closingMtnRef" placeholder="Référence MTN"></div>
+                  </div>
+                </div>
+                <div class="closing-split-row">
+                  <h5>🟠 Orange Money</h5>
+                  <div class="mini-grid">
+                    <div class="field"><label>Montant</label><input type="number" min="0" id="closingOrangeAmount" value="0" oninput="updateClosingPreview()"></div>
+                    <div class="field"><label>Référence</label><input id="closingOrangeRef" placeholder="Référence Orange"></div>
+                  </div>
+                </div>
+                <div class="closing-split-row">
+                  <h5>💵 Caisse comptable</h5>
+                  <div class="small">Ce montant reste physiquement chez la comptable et devient l'ouverture du lendemain.</div>
+                  <div class="field" style="margin-top:8px"><label>Reste en caisse (automatique)</label><input id="closingCashKept" readonly></div>
+                </div>
+              </div>
+              <div class="closing-split-total">
+                <div><span class="small">Espèces comptées</span><b id="closingSplitCounted">—</b></div>
+                <div><span class="small">Total réparti hors caisse</span><b id="closingSplitDistributed">0 FCFA</b></div>
+                <div><span class="small">Reste caisse comptable</span><b id="closingSplitRemaining">—</b></div>
+              </div>
+              <div class="info" style="margin-top:10px"><b>Exemple :</b> si 130 000 FCFA sont comptés, vous pouvez saisir 70 000 au Fondateur + 50 000 à la Banque. Le logiciel calcule automatiquement 10 000 FCFA restant en caisse.</div>
             </div>
-
-            <div class="field"><label>Mode de remise / versement</label>
-              <select id="closingDepositTo" onchange="updateClosingPreview()">
-                <option value="Caisse Fondateur">🤝 Remis au Fondateur (main à main)</option>
-                <option value="Banque">🏦 Dépôt Banque</option>
-                <option value="Wave">Wave</option>
-                <option value="MTN Mobile Money">MTN Mobile Money</option>
-                <option value="Orange Money">Orange Money</option>
-              </select>
-            </div>
-            <div class="field"><label>Montant remis / versé</label><input type="number" min="0" id="closingDepositAmount" oninput="updateClosingPreview()"></div>
-            <div class="field"><label>Reçu par</label><input id="closingReceiver" placeholder="Ex. Fondateur / Direction"></div>
-            <div class="field"><label>Référence / bordereau</label><input id="closingDepositRef" placeholder="Ex. remise main à main / bordereau banque"></div>
 
             <div class="field"><label>Reste théorique APRÈS remise</label><input id="closingTheoretical" readonly></div>
             <div class="field"><label>Reste réel en caisse comptable</label><input id="closingActual" readonly></div>
@@ -1817,6 +1953,48 @@ body[data-role-theme="secretariat"] .production-hero{
         </div>
       </div>
       <div class="card" style="margin-top:16px"><div class="section-title"><h3>Historique des clôtures</h3></div><div class="table-wrap"><table id="closingsTable"></table></div></div>
+
+      <div class="card" id="endDayDepositControlCard" style="margin-top:16px" data-owner-only="true">
+        <div class="section-title">
+          <div>
+            <h3>🔎 Contrôle des versements de fin de journée</h3>
+            <div class="small">Suivi rapproché des montants envoyés vers Banque, Caisse Fondateur, Wave, MTN et Orange Money à partir des clôtures.</div>
+          </div>
+          <div class="toolbar">
+            <button class="btn btn-light btn-sm" type="button" onclick="renderEndDayDepositControl()">Actualiser</button>
+            <button class="btn btn-light btn-sm" type="button" onclick="exportEndDayDepositControlCSV()">Exporter CSV</button>
+          </div>
+        </div>
+
+        <div class="form-grid" style="margin-bottom:12px">
+          <div class="field"><label>Du</label><input type="date" id="endDayDepositFrom" onchange="renderEndDayDepositControl()"></div>
+          <div class="field"><label>Au</label><input type="date" id="endDayDepositTo" onchange="renderEndDayDepositControl()"></div>
+          <div class="field"><label>Destination</label>
+            <select id="endDayDepositDestination" onchange="renderEndDayDepositControl()">
+              <option value="">Toutes les destinations</option>
+              <option>Banque</option>
+              <option>Caisse Fondateur</option>
+              <option>Wave</option>
+              <option>MTN Mobile Money</option>
+              <option>Orange Money</option>
+            </select>
+          </div>
+          <div class="field"><label>Recherche</label><input id="endDayDepositSearch" placeholder="Clôture, référence, agent..." oninput="renderEndDayDepositControl()"></div>
+        </div>
+
+        <div class="grid kpis" id="endDayDepositKpis" style="margin-bottom:12px"></div>
+
+        <div class="info" style="margin-bottom:12px">
+          <b>Contrôle automatique :</b> le logiciel rapproche chaque versement avec sa clôture de caisse, sa destination, son montant, sa référence/bordereau et la personne ayant reçu la remise lorsque la destination est la Caisse Fondateur.
+          Une ligne marquée <b>À contrôler</b> demande une vérification manuelle ; une ligne <b>Traçable</b> possède les informations nécessaires dans le logiciel.
+        </div>
+
+        <div class="section-title" style="margin-top:14px"><h3>Résumé par destination</h3><span class="small">Montants de la période sélectionnée</span></div>
+        <div class="table-wrap"><table id="endDayDepositSummaryTable"></table></div>
+
+        <div class="section-title" style="margin-top:18px"><h3>Détail de chaque versement</h3><span class="small">Une ligne = un mouvement issu d'une clôture de caisse</span></div>
+        <div class="table-wrap"><table id="endDayDepositTable"></table></div>
+      </div>
 
       <div class="card" style="margin-top:16px" data-owner-only="true">
         <div class="section-title">
@@ -2190,7 +2368,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.5.5";
+const APP_VERSION="11.5.9";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -3612,11 +3790,11 @@ function refreshAll(){
  try{updatePremiumContext();setTimeout(decoratePremiumKpis,0)}catch(_e){}
  refreshSchoolSelectors();refreshYearSelector();yearBadge.textContent="Année "+activeYear();renderRoleDashboardHeader();const sch=activeSchool();schoolSubtitle.textContent=schoolLabel(sch)+" — accès "+roleName();
  clearRestrictedViews();applyRoleSensitiveVisibility();
- if(can("dashboard"))renderDashboard();
+ if(can("dashboard")){renderDashboard();renderEnrollmentMonitor();}
  if(isOwner()||roleName()==="Comptable")renderManagementCenter();else{if(managementAlerts)managementAlerts.innerHTML="";if(agentActivity)agentActivity.innerHTML="";if(!["Caissier","Secrétariat & Caisse"].includes(roleName())&&topArrearsTable)topArrearsTable.innerHTML=""}
- if(can("students")){renderStudents();renderSupplies();renderClasses()}
+ if(can("students")){renderStudents();renderSupplies();renderClasses();renderEnrollmentMonitor()}
  if(can("attendance"))renderAttendance();if(can("academic"))renderAcademic();if(can("timetable"))renderTimetable();if(can("discipline"))renderDiscipline();if(can("purchases"))renderPurchases();if(can("inventory"))renderInventory();if(can("staff")){renderStaff();renderStaffAttendance();renderStaffLoans();renderPayroll()}
- if(can("payments")){updateStudentSelect();renderPayments()}if(can("schedule")){renderSchedule();renderReminderCenter();}if(can("other"))renderOther();if(can("expenses"))renderExpenses();if(can("cash")){renderCash();renderTransfers()}if(can("closing")){renderClosings();updateClosingPreview();if(isOwner())renderFounderCashReceipts()}if(can("journal"))renderJournal();if(can("accounting")){updateAccountingTrackOptions();renderAccounting()}if(can("reconciliation"))renderReconciliation();if(can("reports")){updateReportAssignmentControls();updateAnnualAssignmentControls();renderReports();renderAnnualBalance()}if(can("direction"))renderDirectionNetwork();if(can("audit"))renderAudit();
+ if(can("payments")){updateStudentSelect();renderPayments()}if(can("schedule")){renderSchedule();renderReminderCenter();}if(can("other"))renderOther();if(can("expenses"))renderExpenses();if(can("cash")){renderCash();renderTransfers()}if(can("closing")){renderClosings();updateClosingPreview();if(isOwner()){renderEndDayDepositControl();renderFounderCashReceipts()}}if(can("journal"))renderJournal();if(can("accounting")){updateAccountingTrackOptions();renderAccounting()}if(can("reconciliation"))renderReconciliation();if(can("reports")){updateReportAssignmentControls();updateAnnualAssignmentControls();renderReports();renderAnnualBalance()}if(can("direction"))renderDirectionNetwork();if(can("audit"))renderAudit();
  if(isOwner()){renderUsers();renderSchools();loadSettings();loadNotificationSettings();renderTrackCatalog();payrollSettingsLoad();renderDataQuality();populateRemoteKeySchools();populateCopyAppSchools();renderBackupTimeline()}else{if(usersTable)usersTable.innerHTML="";if(schoolsTable)schoolsTable.innerHTML="";if(trackCatalogTable)trackCatalogTable.innerHTML="";if(dataQualityBox)dataQualityBox.innerHTML=""}
  updateOfflineQueueUI();forceAllowedView();if(currentUser){if(payAgent)payAgent.value=currentUserLabel();if(otherAgent)otherAgent.value=currentUserLabel();if(expAgent)expAgent.value=currentUserLabel();if(closingAgent)closingAgent.value=currentUserLabel();if(attendanceAgent)attendanceAgent.value=currentUserLabel()}
 }
@@ -3801,6 +3979,42 @@ async function forceLatestWebVersion(){
  }catch(e){console.warn("Nettoyage cache",e)}
  const u=new URL(location.href);u.searchParams.set("_eiafc_refresh",Date.now());location.replace(u.toString())
 }
+
+
+function enrollmentCreatedDate(s){return String(s?.createdAt||s?.date||"").slice(0,10)}
+function enrollmentRegistrationDate(s){return String(s?.date||s?.createdAt||"").slice(0,10)}
+function enrollmentDateForMode(s,mode){return mode==="registration"?enrollmentRegistrationDate(s):enrollmentCreatedDate(s)}
+function enrollmentStudentRows(mode="created"){
+ return currentStudents().filter(s=>s?.deleted!==true).map(s=>({...s,_enrollmentDate:enrollmentDateForMode(s,mode)})).filter(s=>s._enrollmentDate)
+}
+function setEnrollmentToday(){const d=today();if(enrollmentFrom)enrollmentFrom.value=d;if(enrollmentTo)enrollmentTo.value=d;renderEnrollmentMonitor()}
+function setEnrollmentLast7Days(){const d=today(),f=addDays(d,-6);if(enrollmentFrom)enrollmentFrom.value=f;if(enrollmentTo)enrollmentTo.value=d;renderEnrollmentMonitor()}
+function renderEnrollmentMonitor(){
+ const card=document.getElementById("enrollmentMonitorCard"),studentCard=document.getElementById("studentsDailyMonitorCard");
+ const allowed=!!currentUser&&(isOwner()||can("students"));
+ if(card)card.classList.toggle("hidden",!allowed);if(studentCard)studentCard.classList.toggle("hidden",!allowed);if(!allowed)return;
+ const mode=enrollmentDateMode?.value||"created";
+ if(enrollmentFrom&&!enrollmentFrom.value)enrollmentFrom.value=addDays(today(),-6);
+ if(enrollmentTo&&!enrollmentTo.value)enrollmentTo.value=today();
+ const from=enrollmentFrom?.value||"0000-00-00",to=enrollmentTo?.value||"9999-99-99",q=textKey(enrollmentSearch?.value||"");
+ const all=enrollmentStudentRows(mode).sort((a,b)=>String(b._enrollmentDate).localeCompare(String(a._enrollmentDate))||String(b.createdAt||"").localeCompare(String(a.createdAt||"")));
+ const rows=all.filter(s=>s._enrollmentDate>=from&&s._enrollmentDate<=to&&(!q||textKey([s.name,s.matricule,s.phone,s.program,s.track,s.level].join(" ")).includes(q)));
+ const createdToday=enrollmentStudentRows("created").filter(s=>s._enrollmentDate===today()).length;
+ const registeredToday=enrollmentStudentRows("registration").filter(s=>s._enrollmentDate===today()).length;
+ const last7=enrollmentStudentRows("created").filter(s=>s._enrollmentDate>=addDays(today(),-6)&&s._enrollmentDate<=today()).length;
+ const active=currentStudents().filter(s=>s.status==="Actif").length;
+ if(enrollmentKpis)enrollmentKpis.innerHTML=[["Ajoutés aujourd'hui",createdToday,"dans le logiciel"],["Inscrits aujourd'hui",registeredToday,"date d'inscription"],["Ajoutés sur 7 jours",last7,"nouveaux dossiers"],["Étudiants actifs",active,"année / école active"]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
+ if(enrollmentRangeLabel)enrollmentRangeLabel.textContent=`${rows.length} étudiant(s) • ${from} → ${to}`;
+ if(enrollmentStudentsTable)enrollmentStudentsTable.innerHTML=`<thead><tr><th>Date</th><th>Étudiant</th><th>Matricule</th><th>Programme</th><th>Filière</th><th>Statut</th><th>Ajouté par</th></tr></thead><tbody>${rows.length?rows.slice(0,80).map(s=>`<tr><td><b>${esc(s._enrollmentDate)}</b>${enrollmentCreatedDate(s)===today()?'<br><span class="enrollment-new-badge">Nouveau</span>':''}</td><td><b>${esc(s.name)}</b><br><span class="small">${esc(s.phone||"—")}</span></td><td>${esc(s.matricule)}</td><td>${esc(s.program||"—")}</td><td>${esc(s.track||"—")}</td><td><span class="status ${s.status==="Actif"?"valid":s.status==="Archivé"?"cancelled":"pending"}">${esc(s.status||"—")}</span></td><td>${esc(s.createdBy||"—")}</td></tr>`).join(""):'<tr><td colspan="7" class="empty">Aucun étudiant pour cette période.</td></tr>'}</tbody>`;
+ const byDay={};rows.forEach(s=>{const d=s._enrollmentDate;byDay[d]=(byDay[d]||0)+1});
+ const days=Object.entries(byDay).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,14);
+ if(enrollmentDailySummary)enrollmentDailySummary.innerHTML=days.length?days.map(([d,n])=>`<div class="enrollment-day-row"><div><b>${esc(d)}</b><br><span>${mode==="registration"?"Inscription officielle":"Ajout au logiciel"}</span></div><strong>${n}</strong></div>`).join(""):'<div class="empty">Aucun ajout sur cette période.</div>';
+ // Version compacte dans la rubrique Étudiants : derniers ajouts, sans dépendre du filtre du tableau de bord.
+ const recent=enrollmentStudentRows("created").sort((a,b)=>String(b._enrollmentDate).localeCompare(String(a._enrollmentDate))||String(b.createdAt||"").localeCompare(String(a.createdAt||""))).slice(0,15);
+ if(studentDailyKpis)studentDailyKpis.innerHTML=[["Aujourd'hui",createdToday],["7 derniers jours",last7],["Ce mois",enrollmentStudentRows("created").filter(s=>s._enrollmentDate.slice(0,7)===today().slice(0,7)).length],["Total année",currentStudents().length]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");
+ if(studentDailyTable)studentDailyTable.innerHTML=`<thead><tr><th>Date ajout</th><th>Étudiant</th><th>Matricule</th><th>Programme / filière</th><th>Date inscription</th><th>Agent</th></tr></thead><tbody>${recent.length?recent.map(s=>`<tr><td><b>${esc(enrollmentCreatedDate(s))}</b>${enrollmentCreatedDate(s)===today()?'<br><span class="enrollment-new-badge">Aujourd’hui</span>':''}</td><td><b>${esc(s.name)}</b><br><span class="small">${esc(s.phone||"—")}</span></td><td>${esc(s.matricule)}</td><td>${esc(s.program||"—")}<br><span class="small">${esc(s.track||"—")}</span></td><td>${esc(enrollmentRegistrationDate(s))}</td><td>${esc(s.createdBy||"—")}</td></tr>`).join(""):'<tr><td colspan="6" class="empty">Aucun étudiant enregistré.</td></tr>'}</tbody>`;
+}
+window.renderEnrollmentMonitor=renderEnrollmentMonitor;window.setEnrollmentToday=setEnrollmentToday;window.setEnrollmentLast7Days=setEnrollmentLast7Days;
 
 function renderDashboard(){
  renderRoleDashboardHeader();
@@ -4302,9 +4516,32 @@ function expectedClosingTheoretical(c){
  return calc.available
 }
 
-function closingDepositDestination(){
- return String(closingDepositTo?.value||"Caisse Fondateur")
+function closingSplitValue(id){
+ const el=document.getElementById(id),v=Number(el?.value||0);return Number.isFinite(v)&&v>0?v:0
 }
+function closingSplitData(){
+ const rows=[
+  {to:"Caisse Fondateur",amount:closingSplitValue("closingFounderAmount"),ref:String(document.getElementById("closingFounderRef")?.value||"").trim(),receiver:String(document.getElementById("closingFounderReceiver")?.value||"").trim()},
+  {to:"Banque",amount:closingSplitValue("closingBankAmount"),ref:String(document.getElementById("closingBankRef")?.value||"").trim()},
+  {to:"Wave",amount:closingSplitValue("closingWaveAmount"),ref:String(document.getElementById("closingWaveRef")?.value||"").trim()},
+  {to:"MTN Mobile Money",amount:closingSplitValue("closingMtnAmount"),ref:String(document.getElementById("closingMtnRef")?.value||"").trim()},
+  {to:"Orange Money",amount:closingSplitValue("closingOrangeAmount"),ref:String(document.getElementById("closingOrangeRef")?.value||"").trim()}
+ ];
+ return rows.filter(x=>x.amount>0)
+}
+function closingSplitSummary(rows){
+ return rows.length?rows.map(x=>`${x.to.replace("Caisse ","")}: ${fmt(x.amount)}`).join(" • "):"Aucune remise"
+}
+function fillClosingFounderRemainder(){
+ const raw=String(document.getElementById("closingCountedBefore")?.value||"").trim();
+ if(raw==="")return alert("Saisissez d'abord les espèces réellement comptées.");
+ const counted=Number(raw);if(!Number.isFinite(counted)||counted<0)return;
+ const others=closingSplitValue("closingBankAmount")+closingSplitValue("closingWaveAmount")+closingSplitValue("closingMtnAmount")+closingSplitValue("closingOrangeAmount");
+ document.getElementById("closingFounderAmount").value=String(Math.max(0,counted-others));
+ const rec=document.getElementById("closingFounderReceiver");if(rec&&!rec.value.trim())rec.value="Fondateur / Direction";
+ updateClosingPreview()
+}
+window.fillClosingFounderRemainder=fillClosingFounderRemainder;
 
 function updateClosingPreview(){
  const d=closingDate?.value||today(),calc=cashClosingComputation(d);
@@ -4313,48 +4550,34 @@ function updateClosingPreview(){
  const raw=String(closingCountedBefore?.value??"").trim(),hasCount=raw!=="";
  const counted=hasCount?Number(raw):0;
  const countDiff=hasCount?counted-calc.available:0;
+ if(closingCountDifference){closingCountDifference.value=hasCount?fmt(countDiff):"";closingCountDifference.placeholder="—"}
 
- if(closingCountDifference){
-  closingCountDifference.value=hasCount?fmt(countDiff):"";
-  closingCountDifference.placeholder="—";
- }
-
- const all=closingDepositAll?.checked===true;
- if(closingDepositAmount){
-  closingDepositAmount.readOnly=all;
-  if(all)closingDepositAmount.value=hasCount?String(Math.max(0,counted)):"";
- }
- const depRaw=String(closingDepositAmount?.value??"").trim();
- const remittance=depRaw===""?0:Math.max(0,Number(depRaw)||0);
- const theoreticalAfter=calc.available-remittance;
- const actualAfter=hasCount?counted-remittance:0;
+ const split=closingSplitData(),distributed=split.reduce((z,x)=>z+x.amount,0);
+ const theoreticalAfter=calc.available-distributed;
+ const actualAfter=hasCount?counted-distributed:0;
  const finalDiff=hasCount?actualAfter-theoreticalAfter:0;
 
  if(closingTheoretical)closingTheoretical.value=fmt(theoreticalAfter);
  if(closingActual)closingActual.value=hasCount?fmt(actualAfter):"";
- if(closingDifference){
-  closingDifference.value=hasCount?fmt(finalDiff):"";
-  closingDifference.placeholder="—";
- }
+ if(closingDifference){closingDifference.value=hasCount?fmt(finalDiff):"";closingDifference.placeholder="—"}
  if(closingNextOpening)closingNextOpening.value=hasCount?fmt(actualAfter):"";
-
- if(closingReceiver&&!closingReceiver.value.trim()){
-  closingReceiver.value=closingDepositDestination()==="Caisse Fondateur"?"Fondateur / Direction":""
- }
+ const kept=document.getElementById("closingCashKept");if(kept)kept.value=hasCount?fmt(actualAfter):"";
+ const sc=document.getElementById("closingSplitCounted"),sd=document.getElementById("closingSplitDistributed"),sr=document.getElementById("closingSplitRemaining");
+ if(sc)sc.textContent=hasCount?fmt(counted):"—";if(sd)sd.textContent=fmt(distributed);if(sr)sr.textContent=hasCount?fmt(actualAfter):"—";
+ const rec=document.getElementById("closingFounderReceiver");if(rec&&closingSplitValue("closingFounderAmount")>0&&!rec.value.trim())rec.value="Fondateur / Direction";
 
  if(closingDailySummary){
   const transferNet=calc.transferIn-calc.transferOut;
-  const dest=closingDepositDestination();
   closingDailySummary.innerHTML=`
    <div class="cash-day-item"><span>Ouverture caisse comptable</span><b>${fmt(calc.opening)}</b></div>
    <div class="cash-day-item"><span>Entrées espèces du jour</span><b>${fmt(calc.cashIn)}</b></div>
    <div class="cash-day-item"><span>Sorties espèces du jour</span><b>${fmt(calc.cashOut)}</b></div>
    <div class="cash-day-item"><span>Autres transferts nets</span><b>${fmt(transferNet)}</b></div>
-   <div class="cash-day-item final"><span>Disponible avant remise</span><b>${fmt(calc.available)}</b></div>
+   <div class="cash-day-item final"><span>Disponible avant répartition</span><b>${fmt(calc.available)}</b></div>
    <div class="cash-day-item"><span>Compté réellement</span><b>${hasCount?fmt(counted):"—"}</b></div>
-   <div class="cash-day-item founder"><span>Remis / versé vers ${esc(dest)}</span><b>${fmt(remittance)}</b></div>
+   <div class="cash-day-item founder"><span>Réparti ce soir</span><b>${fmt(distributed)}</b></div>
    <div class="cash-day-item final"><span>Reste caisse comptable</span><b>${hasCount?fmt(actualAfter):"—"}</b></div>
-   <div class="cash-day-note"><b>Lecture simple :</b> l’argent remis au Fondateur ne disparaît pas. Il quitte seulement la <b>caisse comptable</b> et entre dans la <b>Caisse Fondateur</b>. Si toute la caisse est remise, l’ouverture du lendemain devient <b>0 FCFA</b>.</div>`;
+   <div class="cash-day-note"><b>Répartition :</b> ${esc(closingSplitSummary(split))}. Le reste non réparti demeure dans la <b>caisse comptable</b> et devient l'ouverture du lendemain.</div>`;
  }
 }
 
@@ -4365,95 +4588,72 @@ closingForm.addEventListener("submit",async e=>{
 
  const date=closingDate.value,calc=cashClosingComputation(date),available=calc.available;
  const rawCount=String(closingCountedBefore.value??"").trim();
- if(rawCount==="")return alert("Comptez d'abord les espèces réellement présentes avant la remise du soir.");
+ if(rawCount==="")return alert("Comptez d'abord les espèces réellement présentes avant la répartition de fin de journée.");
  const countedBefore=Number(rawCount);
  if(!Number.isFinite(countedBefore)||countedBefore<0)return alert("Le montant compté doit être un nombre valide et positif ou nul.");
 
- const remittanceAmount=Number(closingDepositAmount.value||0);
- if(!Number.isFinite(remittanceAmount)||remittanceAmount<0)return alert("Montant remis / versé invalide.");
- if(remittanceAmount>countedBefore+0.01)return alert("Vous ne pouvez pas remettre plus d'argent que le montant réellement compté.");
+ const split=closingSplitData(),remittanceAmount=split.reduce((z,x)=>z+x.amount,0);
+ if(remittanceAmount>countedBefore+0.01)return alert(`La répartition dépasse les espèces comptées.\n\nCompté : ${fmt(countedBefore)}\nRéparti : ${fmt(remittanceAmount)}.`);
+ const founder=split.find(x=>x.to==="Caisse Fondateur");
+ if(founder&&!founder.receiver)return alert("Indiquez qui a reçu la part remise au Fondateur.");
+ for(const x of split){if(x.to!=="Caisse Fondateur"&&!x.ref)return alert(`La référence est obligatoire pour le versement vers ${x.to}.`)}
 
- const remittanceTo=closingDepositDestination();
- const receiver=String(closingReceiver.value||"").trim();
- const note=closingNote.value.trim();
- const countDifference=countedBefore-available;
- const theoreticalAfter=available-remittanceAmount;
- const actualAfter=countedBefore-remittanceAmount;
- const finalDifference=actualAfter-theoreticalAfter;
-
+ const note=closingNote.value.trim(),countDifference=countedBefore-available;
+ const theoreticalAfter=available-remittanceAmount,actualAfter=countedBefore-remittanceAmount,finalDifference=actualAfter-theoreticalAfter;
  if(Math.abs(countDifference)>0.01&&!note)return alert("Le comptage réel diffère du montant attendu. Saisissez obligatoirement une justification.");
- if(remittanceAmount>0&&remittanceTo==="Caisse Fondateur"&&!receiver)return alert("Indiquez qui a reçu l'argent remis main à main.");
- if(remittanceAmount>0&&remittanceTo!=="Caisse Fondateur"&&!String(closingDepositRef.value||"").trim())return alert("La référence / le bordereau est obligatoire pour un dépôt Banque ou Mobile Money.");
 
  const existingClose=currentRecords(db.closings).find(x=>x.date===date);
  if(existingClose)return alert(`Une clôture officielle existe déjà pour le ${date} (${existingClose.id}). Pour préserver l'audit, supprimez/corrigez d'abord cette clôture avec le compte Fondateur.`);
 
- const id=await nextUniqueAcademicId("closing",`CLO-${activeSchoolCode()}`);
- if(!id)return;
-
- let transferId="";
- if(remittanceAmount>0){
-  transferId=makeUniqueId("TRF");
-  const ref=String(closingDepositRef.value||"").trim()||`REMISE-${id}`;
+ const id=await nextUniqueAcademicId("closing",`CLO-${activeSchoolCode()}`);if(!id)return;
+ const transferIds=[],breakdown=[];
+ for(const part of split){
+  const transferId=makeUniqueId("TRF"),suffix=part.to==="Caisse Fondateur"?"FONDATEUR":part.to.replace(/[^A-Za-z0-9]/g,"").toUpperCase();
+  const ref=part.ref||`REMISE-${id}-${suffix}`;
   const tr={
    id:transferId,schoolId:activeSchoolId(),academicYear:activeYear(),date,
-   from:"Espèces",to:remittanceTo,amount:remittanceAmount,ref,
-   obs:remittanceTo==="Caisse Fondateur"
-     ?`Remise main à main du soir — reçu par ${receiver||"Fondateur / Direction"} — clôture ${id}`
-     :`Versement du soir — clôture ${id}`,
+   from:"Espèces",to:part.to,amount:part.amount,ref,
+   obs:part.to==="Caisse Fondateur"?`Remise main à main du soir — reçu par ${part.receiver||"Fondateur / Direction"} — clôture ${id}`:`Répartition de fin de journée — clôture ${id}`,
    status:"Validé",agent:currentUserLabel(),device:deviceName(),createdAt:new Date().toISOString(),
-   kind:"Remise du soir",closingRemittance:true,closingId:id,receiver
+   kind:"Remise du soir",closingRemittance:true,closingId:id,receiver:part.receiver||""
   };
-  db.transfers.unshift(tr);
+  db.transfers.unshift(tr);transferIds.push(transferId);breakdown.push({...part,ref,transferId})
  }
-
+ const destinationLabel=split.length===1?split[0].to:(split.length>1?"Répartition multiple":"Caisse comptable");
  const x={
   schoolId:activeSchoolId(),academicYear:activeYear(),id,
-  createdOffline:isOfflineId(id),device:deviceName(),date,
-  calculationVersion:3,
-  previousClosingId:calc.previous?.id||"",
-  previousClosingDate:calc.previous?.date||"",
-  opening:calc.opening,cashIn:calc.cashIn,cashOut:calc.cashOut,
-  transferIn:calc.transferIn,transferOut:calc.transferOut,bridgeNet:calc.bridge.net,
+  createdOffline:isOfflineId(id),device:deviceName(),date,calculationVersion:4,
+  previousClosingId:calc.previous?.id||"",previousClosingDate:calc.previous?.date||"",
+  opening:calc.opening,cashIn:calc.cashIn,cashOut:calc.cashOut,transferIn:calc.transferIn,transferOut:calc.transferOut,bridgeNet:calc.bridge.net,
   availableBefore:available,countedBefore,countDifference,
-  remittanceAmount,remittanceTo,remittanceTransferId:transferId,
-  receiver,remittanceRef:String(closingDepositRef.value||"").trim(),
-  theoretical:theoreticalAfter,actual:actualAfter,difference:finalDifference,
-  nextOpening:actualAfter,note,
+  remittanceAmount,remittanceTo:destinationLabel,remittanceTransferId:transferIds[0]||"",remittanceTransferIds:transferIds,
+  remittanceBreakdown:breakdown,receiver:founder?.receiver||"",remittanceRef:breakdown.map(p=>`${p.to}:${p.ref}`).join(" | "),
+  theoretical:theoreticalAfter,actual:actualAfter,difference:finalDifference,nextOpening:actualAfter,note,
   agent:currentUserLabel(),time:new Date().toISOString()
  };
  db.closings.unshift(x);
-
- logAction(
-  "Clôture + remise du soir",
-  `${x.id} — ${date} — disponible ${fmt(available)} — compté ${fmt(countedBefore)} — remis ${fmt(remittanceAmount)} vers ${remittanceTo} — reste ${fmt(actualAfter)} — écart ${fmt(finalDifference)}`
- );
+ logAction("Clôture + répartition fin de journée",`${x.id} — ${date} — compté ${fmt(countedBefore)} — ${closingSplitSummary(split)} — reste caisse ${fmt(actualAfter)} — écart ${fmt(finalDifference)}`);
  saveDB();
 
- closingCountedBefore.value="";
- closingDepositAmount.value="";
- closingDepositRef.value="";
- closingNote.value="";
- closingDepositAll.checked=true;
- closingDepositTo.value="Caisse Fondateur";
- closingReceiver.value="Fondateur / Direction";
+ closingCountedBefore.value="";closingNote.value="";
+ for(const id of ["closingFounderAmount","closingBankAmount","closingWaveAmount","closingMtnAmount","closingOrangeAmount"])document.getElementById(id).value="0";
+ for(const id of ["closingFounderRef","closingBankRef","closingWaveRef","closingMtnRef","closingOrangeRef"])document.getElementById(id).value="";
+ document.getElementById("closingFounderReceiver").value="Fondateur / Direction";
  updateClosingPreview()
 });
 
 function closingRowCalculation(x){
- const calc=cashClosingComputation(x.date);
- const v3=Number(x?.calculationVersion||0)>=3;
+ const calc=cashClosingComputation(x.date),v=Number(x?.calculationVersion||0);
+ const breakdown=Array.isArray(x?.remittanceBreakdown)?x.remittanceBreakdown.filter(p=>Number(p?.amount||0)>0):[];
+ const total=v>=4&&breakdown.length?breakdown.reduce((z,p)=>z+Number(p.amount||0),0):(v>=3?Number(x.remittanceAmount||0):0);
+ const destination=v>=4&&breakdown.length?closingSplitSummary(breakdown):(v>=3?(x.remittanceTo||"—"):"—");
  return{
   opening:Number.isFinite(Number(x.opening))?Number(x.opening):calc.opening,
   cashIn:Number.isFinite(Number(x.cashIn))?Number(x.cashIn):calc.cashIn,
   cashOut:Number.isFinite(Number(x.cashOut))?Number(x.cashOut):calc.cashOut,
-  transferNet:(Number.isFinite(Number(x.transferIn))?Number(x.transferIn):calc.transferIn)-
-              (Number.isFinite(Number(x.transferOut))?Number(x.transferOut):calc.transferOut),
-  available:v3?Number(x.availableBefore||0):Number(x.theoretical||0),
-  counted:v3?Number(x.countedBefore||0):Number(x.actual||0),
-  remittance:v3?Number(x.remittanceAmount||0):0,
-  remittanceTo:v3?(x.remittanceTo||"—"):"—",
-  remaining:Number(x.actual||0)
+  transferNet:(Number.isFinite(Number(x.transferIn))?Number(x.transferIn):calc.transferIn)-(Number.isFinite(Number(x.transferOut))?Number(x.transferOut):calc.transferOut),
+  available:v>=3?Number(x.availableBefore||0):Number(x.theoretical||0),counted:v>=3?Number(x.countedBefore||0):Number(x.actual||0),
+  remittance:total,remittanceTo:destination,remaining:Number(x.actual||0),breakdown
  }
 }
 
@@ -4492,6 +4692,100 @@ function renderClosings(){
 }
 
 
+
+function endDayDepositRows(){
+ const closings=new Map(currentRecords(db.closings).map(c=>[String(c.id||""),c]));
+ return validTransfers().filter(x=>isClosingRemittanceTransfer(x)).map(x=>{
+  const closing=closings.get(String(x.closingId||""))||null;
+  const destination=String(x.to||"");
+  const ref=String(x.ref||"").trim(),receiver=String(x.receiver||"").trim();
+  const issues=[];
+  if(!closing)issues.push("Clôture liée introuvable");
+  if(!ref)issues.push("Référence manquante");
+  if(destination==="Caisse Fondateur"&&!receiver)issues.push("Réception Fondateur à confirmer");
+  if(closing&&Math.abs(Number(closing.difference||0))>=0.01)issues.push("Écart de clôture");
+  if(!["Banque","Caisse Fondateur","Wave","MTN Mobile Money","Orange Money"].includes(destination))issues.push("Destination inhabituelle");
+  return{
+   id:String(x.id||""),date:String(x.date||""),closingId:String(x.closingId||""),destination,
+   amount:Number(x.amount||0),ref,receiver,agent:String(x.agent||""),obs:String(x.obs||""),
+   createdAt:String(x.createdAt||""),closing,
+   counted:closing?Number(closing.countedBefore??closing.actual??0):null,
+   available:closing?Number(closing.availableBefore??closing.theoretical??0):null,
+   remaining:closing?Number(closing.actual??0):null,
+   difference:closing?Number(closing.difference||0):null,
+   issues,status:issues.length?"À contrôler":"Traçable"
+  }
+ }).sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt)||b.id.localeCompare(a.id))
+}
+function filteredEndDayDepositRows(){
+ let rows=endDayDepositRows();
+ const from=String(document.getElementById("endDayDepositFrom")?.value||"");
+ const to=String(document.getElementById("endDayDepositTo")?.value||"");
+ const dest=String(document.getElementById("endDayDepositDestination")?.value||"");
+ const q=textKey(document.getElementById("endDayDepositSearch")?.value||"");
+ if(from)rows=rows.filter(x=>x.date>=from);
+ if(to)rows=rows.filter(x=>x.date<=to);
+ if(dest)rows=rows.filter(x=>x.destination===dest);
+ if(q)rows=rows.filter(x=>textKey([x.date,x.closingId,x.id,x.destination,x.ref,x.receiver,x.agent,x.obs,x.status,x.issues.join(" ")].join(" ")).includes(q));
+ return rows
+}
+function renderEndDayDepositControl(){
+ if(!isOwner())return;
+ const card=document.getElementById("endDayDepositControlCard"),kpis=document.getElementById("endDayDepositKpis"),sumTable=document.getElementById("endDayDepositSummaryTable"),table=document.getElementById("endDayDepositTable");
+ if(!card||!kpis||!sumTable||!table)return;
+ const from=document.getElementById("endDayDepositFrom"),to=document.getElementById("endDayDepositTo");
+ if(from&&!from.value)from.value=managementBounds().start;
+ if(to&&!to.value)to.value=managementBounds().end;
+ const rows=filteredEndDayDepositRows(),total=rows.reduce((z,x)=>z+x.amount,0);
+ const by=label=>rows.filter(x=>x.destination===label).reduce((z,x)=>z+x.amount,0);
+ const mobile=by("Wave")+by("MTN Mobile Money")+by("Orange Money"),needs=rows.filter(x=>x.status==="À contrôler").length,bal=balances();
+
+ kpis.innerHTML=[
+  ["Versements suivis",rows.length+" opération(s)"],
+  ["Total réparti",fmt(total)],
+  ["Vers Banque",fmt(by("Banque"))],
+  ["Vers Caisse Fondateur",fmt(by("Caisse Fondateur"))],
+  ["Vers Mobile Money",fmt(mobile)],
+  ["À contrôler",needs],
+  ["Solde Banque actuel",fmt(bal["Banque"]||0)],
+  ["Solde Fondateur actuel",fmt(bal["Caisse Fondateur"]||0)]
+ ].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value" style="font-size:20px">${x[1]}</div></div>`).join("");
+
+ const destinations=["Banque","Caisse Fondateur","Wave","MTN Mobile Money","Orange Money"];
+ sumTable.innerHTML=`<thead><tr><th>Destination</th><th>Nombre</th><th class="money">Total versé période</th><th class="money">Solde actuel du canal</th><th>Contrôles</th></tr></thead><tbody>${destinations.map(d=>{
+  const rr=rows.filter(x=>x.destination===d),s=rr.reduce((z,x)=>z+x.amount,0),n=rr.filter(x=>x.status==="À contrôler").length;
+  return`<tr><td><b>${esc(d)}</b></td><td>${rr.length}</td><td class="money"><b>${fmt(s)}</b></td><td class="money">${fmt(bal[d]||0)}</td><td>${n?`<span class="status pending">${n} à contrôler</span>`:'<span class="status valid">OK</span>'}</td></tr>`
+ }).join("")}</tbody>`;
+
+ table.innerHTML=`<thead><tr>
+  <th>Date</th><th>N° clôture</th><th>Destination</th><th class="money">Montant</th><th>Référence / bordereau</th>
+  <th>Reçu par</th><th>Agent</th><th class="money">Compté ce jour</th><th class="money">Reste caisse</th><th class="money">Écart clôture</th><th>Contrôle</th><th>Observation</th>
+ </tr></thead><tbody>${rows.length?rows.map(x=>`<tr>
+  <td>${esc(x.date)}</td>
+  <td><b>${esc(x.closingId||"—")}</b></td>
+  <td>${esc(x.destination||"—")}</td>
+  <td class="money"><b>${fmt(x.amount)}</b></td>
+  <td>${esc(x.ref||"—")}</td>
+  <td>${esc(x.receiver||"—")}</td>
+  <td>${esc(x.agent||"—")}</td>
+  <td class="money">${x.counted==null?"—":fmt(x.counted)}</td>
+  <td class="money">${x.remaining==null?"—":fmt(x.remaining)}</td>
+  <td class="money">${x.difference==null?"—":fmt(x.difference)}</td>
+  <td>${x.status==="Traçable"?'<span class="status valid">Traçable</span>':`<span class="status pending">À contrôler</span><br><span class="small">${esc(x.issues.join(" • "))}</span>`}</td>
+  <td>${esc(x.obs||"—")}</td>
+ </tr>`).join(""):`<tr><td colspan="12" class="empty">Aucun versement de fin de journée pour ces filtres.</td></tr>`}</tbody>`
+}
+function exportEndDayDepositControlCSV(){
+ if(!isOwner())return alert("Fondateur uniquement.");
+ const rows=filteredEndDayDepositRows();if(!rows.length)return alert("Aucun versement à exporter pour ces filtres.");
+ const head=["Date","N° clôture","N° transfert","Destination","Montant","Référence / bordereau","Reçu par","Agent","Compté ce jour","Reste caisse","Écart clôture","Contrôle","Anomalies","Observation"];
+ const data=rows.map(x=>[x.date,x.closingId,x.id,x.destination,x.amount,x.ref,x.receiver,x.agent,x.counted??"",x.remaining??"",x.difference??"",x.status,x.issues.join(" | "),x.obs]);
+ const q=v=>`"${String(v??"").replace(/"/g,'""')}"`,csv='\ufeff'+[head,...data].map(r=>r.map(q).join(';')).join('\n');
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`EIAFC_Controle_Versements_Fin_Journee_${activeSchoolCode()}_${activeYear()}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500)
+}
+window.renderEndDayDepositControl=renderEndDayDepositControl;
+window.exportEndDayDepositControlCSV=exportEndDayDepositControlCSV;
+
 function founderCashLedger(){
  const op=openingForYear(),opening=Number(op.founderCash||0);
  const rows=validTransfers().filter(x=>x.from==="Caisse Fondateur"||x.to==="Caisse Fondateur").map(x=>({
@@ -4503,22 +4797,20 @@ function founderCashLedger(){
  return{opening,rows,after,balance}
 }
 function founderCashReceiptRows(){
- const ledger=founderCashLedger();
- return currentRecords(db.closings).filter(x=>{
-  const c=closingRowCalculation(x);return c.remittanceTo==="Caisse Fondateur"&&Number(c.remittance||0)>0
- }).map(x=>{
-  const c=closingRowCalculation(x),tr=(db.transfers||[]).find(t=>String(t.id||"")===String(x.remittanceTransferId||""));
-  const transferId=String(x.remittanceTransferId||tr?.id||"");
-  return{
-   date:String(x.date||""),closingId:String(x.id||""),transferId,
-   amount:Number(c.remittance||0),available:Number(c.available||0),counted:Number(c.counted||0),remaining:Number(c.remaining||0),
-   receiver:String(x.receiver||tr?.receiver||"Fondateur / Direction"),
-   remittedBy:String(x.agent||tr?.agent||"—"),
-   ref:String(x.remittanceRef||tr?.ref||(`REMISE-${x.id||""}`)),
-   obs:String(tr?.obs||"Remise main à main du soir"),time:String(x.time||tr?.createdAt||""),
-   balanceAfter:transferId&&Object.prototype.hasOwnProperty.call(ledger.after,transferId)?Number(ledger.after[transferId]):null
-  }
- }).sort((a,b)=>b.date.localeCompare(a.date)||b.time.localeCompare(a.time)||b.closingId.localeCompare(a.closingId))
+ const ledger=founderCashLedger(),rows=[];
+ currentRecords(db.closings).forEach(x=>{
+  const c=closingRowCalculation(x),parts=Array.isArray(x.remittanceBreakdown)?x.remittanceBreakdown:[];
+  let fp=parts.find(p=>String(p?.to||"")==="Caisse Fondateur"&&Number(p?.amount||0)>0),tr=null,transferId="";
+  if(fp){transferId=String(fp.transferId||"");tr=(db.transfers||[]).find(t=>String(t.id||"")===transferId)}
+  else if(c.remittanceTo==="Caisse Fondateur"&&Number(c.remittance||0)>0){transferId=String(x.remittanceTransferId||"");tr=(db.transfers||[]).find(t=>String(t.id||"")===transferId);fp={amount:Number(c.remittance||0),receiver:x.receiver||tr?.receiver||"Fondateur / Direction",ref:x.remittanceRef||tr?.ref||`REMISE-${x.id||""}`}}
+  if(!fp)return;
+  rows.push({
+   date:String(x.date||""),closingId:String(x.id||""),transferId,amount:Number(fp.amount||0),available:Number(c.available||0),counted:Number(c.counted||0),remaining:Number(c.remaining||0),
+   receiver:String(fp.receiver||x.receiver||tr?.receiver||"Fondateur / Direction"),remittedBy:String(x.agent||tr?.agent||"—"),ref:String(fp.ref||tr?.ref||(`REMISE-${x.id||""}`)),
+   obs:String(tr?.obs||"Remise main à main du soir"),time:String(x.time||tr?.createdAt||""),balanceAfter:transferId&&Object.prototype.hasOwnProperty.call(ledger.after,transferId)?Number(ledger.after[transferId]):null
+  })
+ });
+ return rows.sort((a,b)=>b.date.localeCompare(a.date)||b.time.localeCompare(a.time)||b.closingId.localeCompare(a.closingId))
 }
 function renderFounderCashReceipts(){
  if(!isOwner())return;
@@ -4546,16 +4838,12 @@ window.exportFounderCashReceiptsCSV=exportFounderCashReceiptsCSV;
 function deleteClosingWithRemittance(id){
  if(!canFounderDelete())return alert("Fondateur uniquement.");
  const x=db.closings.find(c=>String(c.id)===String(id)&&c.deleted!==true);if(!x)return;
- const reason=prompt(`Motif obligatoire pour supprimer la clôture ${id} :`);
- if(!reason?.trim())return;
- if(!confirm(`Supprimer cette clôture et sa remise du soir associée ?\n\nLa trace restera dans l'historique.`))return;
+ const reason=prompt(`Motif obligatoire pour supprimer la clôture ${id} :`);if(!reason?.trim())return;
+ if(!confirm(`Supprimer cette clôture et toutes ses répartitions de fin de journée associées ?\n\nLa trace restera dans l'historique.`))return;
  x.deleted=true;x.deletedAt=new Date().toISOString();x.deletedBy=currentUserLabel();x.deleteReason=reason.trim();
- if(x.remittanceTransferId){
-  const tr=db.transfers.find(t=>String(t.id)===String(x.remittanceTransferId));
-  if(tr){tr.deleted=true;tr.deletedAt=new Date().toISOString();tr.deletedBy=currentUserLabel();tr.deleteReason=`Clôture ${id} supprimée — ${reason.trim()}`}
- }
- logAction("SUPPRESSION FONDATEUR",`Clôture ${id} + remise associée — ${reason.trim()}`);
- saveDB()
+ const ids=[...(Array.isArray(x.remittanceTransferIds)?x.remittanceTransferIds:[]),x.remittanceTransferId].filter(Boolean);
+ (db.transfers||[]).filter(t=>ids.includes(t.id)||String(t.closingId||"")===String(id)&&t.closingRemittance===true).forEach(tr=>{tr.deleted=true;tr.deletedAt=new Date().toISOString();tr.deletedBy=currentUserLabel();tr.deleteReason=`Clôture ${id} supprimée — ${reason.trim()}`});
+ logAction("SUPPRESSION FONDATEUR",`Clôture ${id} + répartitions associées — ${reason.trim()}`);saveDB()
 }
 window.deleteClosingWithRemittance=deleteClosingWithRemittance;
 
@@ -5576,6 +5864,8 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   };
   window.pendingChangesCount=pendingChangesCount=function(){
     if(!webBase||!currentUser)return 0;
+    // V11.5.8 : répartition de fin de journée entre Fondateur / Banque / Mobile Money + reste caisse automatique.
+    // V11.5.6 : suivi des inscriptions par date, nouveaux étudiants par jour, tableau de bord réorganisé et page de garde modernisée.
     // V11.5.5 : détail des remises reçues dans Caisse Fondateur + correction du solde historique Caisse Fondateur.
     // V11.5.4 : confirmationPatch appartenait à l'ancien moteur et n'existe plus.
     // On utilise le nouveau rapprochement serveur pour compter uniquement les vraies données non confirmées.
