@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-08-v11-7-1-daily-school-supplies-tracking">
+<meta name="eiafc-web-build" content="2026-09-08-v11-7-2-today-suppliers-list">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -1197,6 +1197,31 @@ body[data-role-theme="secretariat"] .production-hero{
 }
 </style>
 
+
+<style id="eiafc-v1172-today-suppliers">
+.today-supply-card{
+  border:1px solid #d9e6df!important;
+  border-top:4px solid #2f7f57!important;
+  background:linear-gradient(180deg,#f9fffb,#ffffff 70%);
+  box-shadow:0 14px 30px rgba(25,78,52,.07)!important
+}
+.today-supply-head{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap
+}
+.today-supply-head h3{margin:0;color:#17364d;font-size:17px}
+.today-supply-head p{margin:4px 0 0;color:#6d7d87;font-size:10px}
+.today-supply-empty{
+  padding:20px;border:1px dashed #d6e4da;border-radius:12px;background:#fbfffc;
+  text-align:center;color:#687a70;font-size:11px
+}
+.today-supply-name{font-weight:900;color:#17364d}
+.today-supply-badge{
+  display:inline-block;padding:4px 7px;border-radius:999px;font-size:9px;font-weight:900;
+  background:#eaf7ef;color:#17623a;border:1px solid #cde7d6
+}
+.today-supply-time{font-size:9px;color:#7b8790}
+</style>
+
 </head>
 <body>
 
@@ -1416,7 +1441,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.7.1 • RAMES & MARQUEURS PAR JOUR • CLOUD</span></div>
+    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.7.2 • LISTE REMISES AUJOURD’HUI • CLOUD</span></div>
     <div class="user-mini"><b id="currentUserName">Non connecté</b><span id="currentUserRole"></span><br><button class="btn btn-light btn-sm" onclick="logout()">Déconnexion</button></div>
     <div class="nav">
       <div class="nav-group-title" data-nav-group="home">Accueil</div>
@@ -1465,7 +1490,7 @@ body[data-role-theme="secretariat"] .production-hero{
     <section id="dashboard" class="view active">
       <div class="production-hero">
         <div><span class="prod-eyebrow">CENTRE DE PILOTAGE EIAFC</span><h2 id="homeWelcomeTitle">Votre école, organisée dans un seul espace.</h2><p id="homeWelcomeText">Accédez rapidement aux étudiants, paiements, caisse, pédagogie, personnel, rapports et contrôles, avec une lecture claire de ce qui demande votre attention.</p></div>
-        <div class="prod-hero-badge"><b>11.7.1</b><span>SUIVI QUOTIDIEN • FOURNITURES • CLOUD</span></div>
+        <div class="prod-hero-badge"><b>11.7.2</b><span>REMIS AUJOURD’HUI • FOURNITURES • CLOUD</span></div>
       </div>
       <div class="premium-context-strip">
         <div class="premium-context-card role-context">
@@ -1663,6 +1688,18 @@ body[data-role-theme="secretariat"] .production-hero{
         <div class="notice">Règle EIAFC : chaque étudiant doit remettre <b>1 rame</b> et <b>3 marqueurs</b>. La valorisation éventuelle est un indicateur de gestion et n'est pas comptabilisée automatiquement comme recette.</div>
         <div class="grid kpis" id="supplyKpis" style="margin-top:12px"></div>
         <div class="table-wrap" style="margin-top:12px"><table id="suppliesTable"></table></div>
+      </div>
+
+      <div class="card today-supply-card" style="margin-top:16px" id="todaySupplyReceiptsCard">
+        <div class="today-supply-head">
+          <div>
+            <h3>✅ Étudiants qui ont remis des rames / marqueurs aujourd’hui</h3>
+            <p>Cette liste montre uniquement les étudiants ayant réellement remis au moins une rame ou un marqueur aujourd’hui.</p>
+          </div>
+          <button class="btn btn-light btn-sm" type="button" onclick="renderTodaySupplyReceipts()">Actualiser</button>
+        </div>
+        <div class="grid kpis daily-supply-kpis" id="todaySupplyReceiptKpis" style="margin-top:12px"></div>
+        <div class="table-wrap" style="margin-top:12px"><table id="todaySupplyReceiptTable"></table></div>
       </div>
 
       <div class="card daily-supply-card" style="margin-top:16px" id="dailySupplyTrackingCard">
@@ -2665,7 +2702,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.7.1";
+const APP_VERSION="11.7.2";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -4185,7 +4222,7 @@ function refreshAll(){
  clearRestrictedViews();applyRoleSensitiveVisibility();
  if(can("dashboard")){renderDashboard();renderEnrollmentMonitor();renderDirectionPriorityCenter();}
  if(isOwner()||roleName()==="Comptable")renderManagementCenter();else{if(managementAlerts)managementAlerts.innerHTML="";if(agentActivity)agentActivity.innerHTML="";if(!["Caissier","Secrétariat & Caisse"].includes(roleName())&&topArrearsTable)topArrearsTable.innerHTML=""}
- if(can("students")){renderStudents();renderSupplies();renderDailySupplyTracking();renderClasses();renderEnrollmentMonitor();updateStudentAdministrativeDocumentCenter()}
+ if(can("students")){renderStudents();renderSupplies();renderTodaySupplyReceipts();renderDailySupplyTracking();renderClasses();renderEnrollmentMonitor();updateStudentAdministrativeDocumentCenter()}
  if(can("attendance"))renderAttendance();if(can("academic"))renderAcademic();if(can("timetable"))renderTimetable();if(can("discipline"))renderDiscipline();if(can("purchases"))renderPurchases();if(can("inventory"))renderInventory();if(can("staff")){renderStaff();renderStaffAttendance();renderStaffLoans();renderPayroll()}
  if(can("payments")){updateStudentSelect();renderPayments()}if(can("schedule")){renderSchedule();renderReminderCenter();}if(can("other"))renderOther();if(can("expenses"))renderExpenses();if(can("cash")){renderCash();renderTransfers()}if(can("closing")){renderClosings();updateClosingPreview();if(isOwner()){renderEndDayDepositControl();renderFounderCashReceipts()}}if(can("journal"))renderJournal();if(can("accounting")){updateAccountingTrackOptions();renderAccounting()}if(can("reconciliation"))renderReconciliation();if(can("reports")){updateReportAssignmentControls();updateAnnualAssignmentControls();renderReports();renderAnnualBalance()}if(can("direction"))renderDirectionNetwork();if(can("audit"))renderAudit();
  if(isOwner()){renderUsers();renderSchools();loadSettings();loadNotificationSettings();renderTrackCatalog();payrollSettingsLoad();renderDataQuality();populateRemoteKeySchools();populateCopyAppSchools();renderBackupTimeline()}else{if(usersTable)usersTable.innerHTML="";if(schoolsTable)schoolsTable.innerHTML="";if(trackCatalogTable)trackCatalogTable.innerHTML="";if(dataQualityBox)dataQualityBox.innerHTML=""}
@@ -4667,7 +4704,7 @@ function recordDailySupplyReceipt(){
  if(document.getElementById("dailySupplyReam"))dailySupplyReam.value=0;
  if(document.getElementById("dailySupplyMarkers"))dailySupplyMarkers.value=0;
  if(document.getElementById("dailySupplyObs"))dailySupplyObs.value="";
- updateDailySupplyStudentSelect();renderSupplies();renderDailySupplyTracking();renderDashboard();
+ updateDailySupplyStudentSelect();renderSupplies();renderTodaySupplyReceipts();renderDailySupplyTracking();renderDashboard();
 }
 function filteredDailySupplyEvents(){
  let rows=allSupplyReceiptEvents();
@@ -4679,6 +4716,50 @@ function filteredDailySupplyEvents(){
  if(q)rows=rows.filter(x=>textKey([x.studentName,x.student,x.track,x.obs,x.agent].join(" ")).includes(q));
  return rows
 }
+
+function todaySupplyReceiptRows(){
+ return allSupplyReceiptEvents()
+  .filter(x=>x.date===today()&&(Number(x.reams||0)>0||Number(x.markers||0)>0))
+  .sort((a,b)=>String(b.createdAt||"").localeCompare(String(a.createdAt||""))||String(a.studentName||"").localeCompare(String(b.studentName||""),"fr"))
+}
+function renderTodaySupplyReceipts(){
+ const table=document.getElementById("todaySupplyReceiptTable"),kpis=document.getElementById("todaySupplyReceiptKpis");
+ if(!table||!kpis)return;
+ const rows=todaySupplyReceiptRows();
+ const students=new Set(rows.map(x=>x.student)).size;
+ const reams=rows.reduce((z,x)=>z+Math.max(0,Number(x.reams||0)),0);
+ const markers=rows.reduce((z,x)=>z+Math.max(0,Number(x.markers||0)),0);
+ kpis.innerHTML=[
+  ["Étudiants aujourd’hui",students],
+  ["Rames reçues aujourd’hui",reams],
+  ["Marqueurs reçus aujourd’hui",markers],
+  ["Remises enregistrées",rows.length]
+ ].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");
+
+ table.innerHTML=`<thead><tr>
+  <th>Heure</th><th>Matricule</th><th>Étudiant</th><th>Programme</th><th>Filière</th>
+  <th>Rame(s)</th><th>Marqueur(s)</th><th>Agent</th><th>Observation</th>
+ </tr></thead><tbody>${rows.length?rows.map(x=>{
+   let time="—";
+   if(x.createdAt){
+     const d=new Date(x.createdAt);
+     if(!Number.isNaN(d.getTime()))time=d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})
+   }
+   return`<tr>
+    <td><span class="today-supply-time">${esc(time)}</span></td>
+    <td>${esc(x.student)}</td>
+    <td><span class="today-supply-name">${esc(x.studentName)}</span><br><span class="today-supply-badge">Remis aujourd’hui</span></td>
+    <td>${esc(x.program)}</td>
+    <td>${esc(x.track||"—")}</td>
+    <td class="money"><b>${Math.max(0,Number(x.reams||0))}</b></td>
+    <td class="money"><b>${Math.max(0,Number(x.markers||0))}</b></td>
+    <td>${esc(x.agent||"—")}</td>
+    <td>${esc(x.obs||"—")}</td>
+   </tr>`
+  }).join(""):`<tr><td colspan="9"><div class="today-supply-empty">Aucune remise de rame ou de marqueur n’a encore été enregistrée pour aujourd’hui.</div></td></tr>`}</tbody>`
+}
+window.renderTodaySupplyReceipts=renderTodaySupplyReceipts;
+
 function renderDailySupplyTracking(){
  const card=document.getElementById("dailySupplyTrackingCard"),kpis=document.getElementById("dailySupplyKpis"),sum=document.getElementById("dailySupplySummaryTable"),detail=document.getElementById("dailySupplyDetailTable");
  if(!card||!kpis||!sum||!detail)return;
