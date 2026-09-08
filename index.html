@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-08-v11-7-2-today-suppliers-list">
+<meta name="eiafc-web-build" content="2026-09-08-v11-7-3-clean-dashboard">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -1222,6 +1222,94 @@ body[data-role-theme="secretariat"] .production-hero{
 .today-supply-time{font-size:9px;color:#7b8790}
 </style>
 
+
+<style id="eiafc-v1173-clean-dashboard">
+/* ===== EIAFC V11.7.3 — TABLEAU DE BORD ÉPURÉ ===== */
+#dashboard .role-dashboard-head{display:none!important}
+#dashboard .dashboard-privacy{margin-bottom:14px!important}
+
+#dashboard .home-module-hub{margin-bottom:16px}
+#dashboard .home-module-hub-head{align-items:center}
+.home-module-hub-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#homeModuleToggle{
+  white-space:nowrap;border:1px solid #d9e4eb;background:#fff;color:#17364d;
+  border-radius:10px;padding:9px 11px;font-size:10px;font-weight:900;cursor:pointer
+}
+#homeModuleToggle:hover{background:#f5f9fb}
+.home-module-collapsed-note{
+  margin-top:10px;padding:8px 10px;border-radius:9px;background:#f7fafc;
+  border:1px solid #e4ebef;font-size:9.5px;color:#647887
+}
+
+.dashboard-fold{
+  margin-top:18px;border:1px solid #dce5eb;border-radius:15px;background:#fff;
+  box-shadow:0 10px 27px rgba(18,48,74,.055);overflow:hidden
+}
+.dashboard-fold>summary{
+  list-style:none;cursor:pointer;padding:15px 17px;display:flex;align-items:center;
+  justify-content:space-between;gap:12px;font-weight:900;color:#17364d;
+  background:linear-gradient(135deg,#fbfdff,#f5f8fa);border-bottom:1px solid transparent
+}
+.dashboard-fold>summary::-webkit-details-marker{display:none}
+.dashboard-fold>summary:after{content:"＋";font-size:18px;color:#7890a0}
+.dashboard-fold[open]>summary{border-bottom-color:#e4ebef}
+.dashboard-fold[open]>summary:after{content:"−"}
+.dashboard-fold-summary-text{font-size:10px;font-weight:600;color:#6a7b87;margin-left:8px}
+.dashboard-fold-body{padding:0 16px 16px}
+.dashboard-fold-body .dashboard-section-label{margin-top:18px}
+
+.enrollment-detail-fold{
+  margin-top:12px;border:1px solid #e1e8ed;border-radius:11px;background:#fbfdfe;overflow:hidden
+}
+.enrollment-detail-fold>summary{
+  cursor:pointer;padding:10px 12px;font-size:10px;font-weight:900;color:#2c5874;
+  list-style:none;display:flex;justify-content:space-between;align-items:center
+}
+.enrollment-detail-fold>summary::-webkit-details-marker{display:none}
+.enrollment-detail-fold>summary:after{content:"Voir +";font-size:9px;color:#778b99}
+.enrollment-detail-fold[open]>summary:after{content:"Réduire"}
+.enrollment-detail-fold .enrollment-split{padding:0 12px 12px}
+
+#dashboard .dashboard-section-label{
+  margin-top:20px;margin-bottom:9px
+}
+#dashboard #kpiGrid{
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px
+}
+#dashboard #kpiGrid .kpi{
+  min-height:92px;padding:13px
+}
+#dashboard #kpiGrid .kpi .value{font-size:23px!important}
+#dashboard #kpiGrid .kpi .label{font-size:10px}
+#dashboard #kpiGrid .kpi .sub{font-size:9px}
+
+#dashboard .production-hero{min-height:135px;padding:22px 26px}
+#dashboard .production-hero h2{font-size:27px}
+#dashboard .production-hero p{max-width:720px}
+
+#dashboard .premium-context-strip{margin-top:-15px;margin-bottom:13px}
+#dashboard .premium-context-card{padding:10px 12px}
+#dashboard .home-command-strip{margin-bottom:13px}
+#dashboard .home-command-btn{padding:10px 12px}
+#dashboard .home-module-card{min-height:96px;padding:11px}
+#dashboard .home-module-card strong{margin-top:6px}
+#dashboard .direction-priority-card{margin-bottom:13px!important}
+#dashboard .direction-priority-grid{gap:8px}
+#dashboard .direction-priority-item{min-height:75px;padding:10px}
+
+.dashboard-clean-note{
+  margin-top:12px;font-size:9.5px;color:#6d7d88;text-align:center
+}
+
+@media(max-width:700px){
+  #dashboard .production-hero{padding:18px}
+  #dashboard .production-hero h2{font-size:22px}
+  .home-module-hub-actions{width:100%}
+  .home-module-hub-actions .home-module-search-wrap{width:100%}
+}
+</style>
+
 </head>
 <body>
 
@@ -1441,7 +1529,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.7.2 • LISTE REMISES AUJOURD’HUI • CLOUD</span></div>
+    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.7.3 • TABLEAU DE BORD ÉPURÉ • CLOUD</span></div>
     <div class="user-mini"><b id="currentUserName">Non connecté</b><span id="currentUserRole"></span><br><button class="btn btn-light btn-sm" onclick="logout()">Déconnexion</button></div>
     <div class="nav">
       <div class="nav-group-title" data-nav-group="home">Accueil</div>
@@ -1490,7 +1578,7 @@ body[data-role-theme="secretariat"] .production-hero{
     <section id="dashboard" class="view active">
       <div class="production-hero">
         <div><span class="prod-eyebrow">CENTRE DE PILOTAGE EIAFC</span><h2 id="homeWelcomeTitle">Votre école, organisée dans un seul espace.</h2><p id="homeWelcomeText">Accédez rapidement aux étudiants, paiements, caisse, pédagogie, personnel, rapports et contrôles, avec une lecture claire de ce qui demande votre attention.</p></div>
-        <div class="prod-hero-badge"><b>11.7.2</b><span>REMIS AUJOURD’HUI • FOURNITURES • CLOUD</span></div>
+        <div class="prod-hero-badge"><b>11.7.3</b><span>TABLEAU DE BORD ÉPURÉ • CLOUD</span></div>
       </div>
       <div class="premium-context-strip">
         <div class="premium-context-card role-context">
@@ -1521,7 +1609,10 @@ body[data-role-theme="secretariat"] .production-hero{
             <h3>🧭 Accès rapide à tous les modules</h3>
             <p>Les éléments de la barre latérale sont maintenant aussi disponibles ici sous forme de blocs clairs et organisés.</p>
           </div>
-          <div class="home-module-search-wrap"><span>🔎</span><input id="homeModuleSearch" placeholder="Rechercher un module..." oninput="renderHomeModuleBlocks()"></div>
+          <div class="home-module-hub-actions">
+            <div class="home-module-search-wrap"><span>🔎</span><input id="homeModuleSearch" placeholder="Rechercher un module..." oninput="renderHomeModuleBlocks()"></div>
+            <button id="homeModuleToggle" type="button" onclick="toggleHomeModules()">Voir tous les modules</button>
+          </div>
         </div>
         <div class="home-module-summary" id="homeModuleSummary"></div>
         <div class="home-module-groups" id="homeModuleGroups"></div>
@@ -1557,16 +1648,19 @@ body[data-role-theme="secretariat"] .production-hero{
           <button class="btn btn-light btn-sm" type="button" onclick="setEnrollmentLast7Days()">7 derniers jours</button>
         </div>
         <div class="grid kpis enrollment-kpis" id="enrollmentKpis" style="margin-top:14px"></div>
-        <div class="enrollment-split">
-          <div>
-            <div class="section-title"><h3 style="font-size:15px">Dernières inscriptions</h3><span class="small" id="enrollmentRangeLabel"></span></div>
-            <div class="table-wrap"><table id="enrollmentStudentsTable"></table></div>
+        <details class="enrollment-detail-fold">
+          <summary>Voir la liste détaillée des inscriptions et le résumé par jour</summary>
+          <div class="enrollment-split">
+            <div>
+              <div class="section-title"><h3 style="font-size:15px">Dernières inscriptions</h3><span class="small" id="enrollmentRangeLabel"></span></div>
+              <div class="table-wrap"><table id="enrollmentStudentsTable"></table></div>
+            </div>
+            <div>
+              <div class="section-title"><h3 style="font-size:15px">Résumé par jour</h3><span class="small">Nombre d'ajouts</span></div>
+              <div id="enrollmentDailySummary" class="enrollment-day-list"></div>
+            </div>
           </div>
-          <div>
-            <div class="section-title"><h3 style="font-size:15px">Résumé par jour</h3><span class="small">Nombre d'ajouts</span></div>
-            <div id="enrollmentDailySummary" class="enrollment-day-list"></div>
-          </div>
-        </div>
+        </details>
       </div>
       <div class="dashboard-section-label">💰 Pilotage financier & activité quotidienne</div>
       <div class="grid two-col" style="margin-top:16px">
@@ -1577,6 +1671,9 @@ body[data-role-theme="secretariat"] .production-hero{
         <div class="card"><div class="section-title"><h3>Activité aujourd'hui</h3></div><div id="todayActivity" class="metric-list"></div></div>
         <div class="card"><div class="section-title"><h3>Dernière clôture</h3></div><div id="lastClosing" class="metric-list"></div></div>
       </div>
+      <details class="dashboard-fold" id="dashboardControlIntelligenceFold">
+        <summary><span>🧠 Contrôles avancés & intelligence <span class="dashboard-fold-summary-text">Alertes détaillées, activité utilisateurs, prévisions et recherche globale</span></span></summary>
+        <div class="dashboard-fold-body">
       <div class="grid two-col" style="margin-top:16px">
         <div class="card"><div class="section-title"><h3>🚦 Centre de contrôle</h3><button class="btn btn-light btn-sm" onclick="syncNow()">Synchroniser</button></div><div id="managementAlerts"></div></div>
         <div class="card"><div class="section-title"><h3>👥 Activité des utilisateurs</h3></div><div id="agentActivity"></div></div>
@@ -1615,10 +1712,18 @@ body[data-role-theme="secretariat"] .production-hero{
           </div>
         </div>
       </div>
+        </div>
+      </details>
+      <details class="dashboard-fold" id="dashboardDetailedAnalysisFold">
+        <summary><span>🏫 Analyses détaillées & réseau <span class="dashboard-fold-summary-text">Multi-écoles, relances, programmes, affectation État et évolution mensuelle</span></span></summary>
+        <div class="dashboard-fold-body">
       <div class="dashboard-section-label">🏫 Analyse détaillée & réseau</div>
       <div class="card" id="networkOverviewCard" style="margin-top:16px"><div class="section-title"><h3>🌐 Pilotage consolidé du réseau d’écoles</h3><div class="toolbar"><span class="small">Année active : <b id="networkYearLabel"></b></span><button class="btn btn-light btn-sm" onclick="exportCSV('network')">Exporter consolidation</button></div></div><div class="info">Vue de contrôle de toutes les écoles auxquelles votre compte a accès. Les chiffres restent calculés école par école puis consolidés, sans mélanger les dossiers étudiants.</div><div class="table-wrap" style="margin-top:12px"><table id="networkSchoolsTable"></table></div></div>
       <div class="card" style="margin-top:16px"><div class="section-title"><h3>📞 Étudiants prioritaires à relancer</h3><button class="btn btn-light btn-sm" onclick="exportCSV('arrears')">Exporter les impayés</button></div><div class="table-wrap"><table id="topArrearsTable"></table></div></div>
       <div class="card" style="margin-top:16px"><div class="section-title"><h3>🏫 Vue séparée par pôle</h3><span class="small">BTS regroupé • Formation qualifiante • Licence • Master • Administration</span></div><div class="info" style="margin-bottom:12px">Les effectifs et les montants sont calculés séparément. Le BTS regroupe BTS 1 + BTS 2, sans mélanger les dossiers avec les formations qualifiantes.</div><div class="table-wrap"><table id="dashboardPoles"></table></div></div><div class="card" style="margin-top:16px"><div class="section-title"><h3>Opérations séparées par programme</h3><span class="small">Formation qualifiante • BTS 1 • BTS 2 • Licence • Master</span></div><div class="table-wrap"><table id="dashboardPrograms"></table></div></div><div class="card" style="margin-top:16px"><div class="section-title"><h3>🎯 Statut d’affectation État par programme</h3><span class="small">Sépare les étudiants Affectés de l’État et Non affectés, indépendamment de leur filière</span></div><div class="table-wrap"><table id="dashboardAssignments"></table></div></div><div class="card" style="margin-top:16px"><div class="section-title"><h3>Pré-rentrée + année académique — recettes et dépenses</h3></div><div class="table-wrap"><table id="dashboardMonthly"></table></div></div>
+        </div>
+      </details>
+      <div class="dashboard-clean-note">Le tableau de bord affiche d’abord l’essentiel. Les analyses complètes restent disponibles dans les deux blocs ci-dessus.</div>
     </section>
 
     <section id="students" class="view">
@@ -2702,7 +2807,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.7.2";
+const APP_VERSION="11.7.3";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -3850,17 +3955,31 @@ function updateHomeNavGroupVisibility(){
  })
 }
 
+window.homeModulesExpanded=window.homeModulesExpanded||false;
+const HOME_FEATURED_VIEWS=["students","payments","closing","cash","academic","staffpayroll","reports","settings"];
+
+function toggleHomeModules(){
+ window.homeModulesExpanded=!window.homeModulesExpanded;
+ renderHomeModuleBlocks()
+}
+window.toggleHomeModules=toggleHomeModules;
+
 function renderHomeModuleBlocks(){
- const host=document.getElementById("homeModuleGroups"),summary=document.getElementById("homeModuleSummary");
+ const host=document.getElementById("homeModuleGroups"),summary=document.getElementById("homeModuleSummary"),toggle=document.getElementById("homeModuleToggle");
  if(!host||!summary||!currentUser)return;
  const q=textKey(document.getElementById("homeModuleSearch")?.value||"");
- let accessible=0,shown=0;
+ const expanded=!!window.homeModulesExpanded||!!q;
+ let accessible=0,shown=0,visibleCards=0;
  const groups=[];
  HOME_MODULE_GROUPS.forEach(g=>{
   const allowed=g.items.filter(i=>can(i.perm));
   accessible+=allowed.length;
-  const items=allowed.filter(i=>!q||textKey([i.title,i.desc,g.title].join(" ")).includes(q));
+  let items=allowed.filter(i=>!q||textKey([i.title,i.desc,g.title].join(" ")).includes(q));
+  if(!expanded&&!q){
+    items=items.filter(i=>HOME_FEATURED_VIEWS.includes(i.view));
+  }
   shown+=items.length;
+  visibleCards+=items.length;
   if(!items.length)return;
   groups.push(`<div class="home-module-group">
     <div class="home-module-group-head">
@@ -3873,8 +3992,13 @@ function renderHomeModuleBlocks(){
     </button>`).join("")}</div>
   </div>`)
  });
- summary.innerHTML=`<span>👤 ${esc(roleName())}</span><span>🧩 ${accessible} module(s) autorisé(s)</span><span>🏫 ${esc(activeSchoolCode())}</span><span>📅 ${esc(activeYear())}</span>${q?`<span>🔎 ${shown} résultat(s)</span>`:""}`;
- host.innerHTML=groups.length?groups.join(""):'<div class="home-module-empty">Aucun module ne correspond à votre recherche.</div>';
+ summary.innerHTML=`<span>👤 ${esc(roleName())}</span><span>🧩 ${accessible} module(s) autorisé(s)</span><span>🏫 ${esc(activeSchoolCode())}</span><span>📅 ${esc(activeYear())}</span>${q?`<span>🔎 ${shown} résultat(s)</span>`:`<span>⚡ ${visibleCards} raccourci(s) affiché(s)</span>`}`;
+ host.innerHTML=(groups.length?groups.join(""):'<div class="home-module-empty">Aucun module ne correspond à votre recherche.</div>')+
+   (!expanded&&!q&&accessible>visibleCards?`<div class="home-module-collapsed-note">La page de garde affiche seulement les modules les plus utiles. Cliquez sur <b>Voir tous les modules</b> pour afficher le reste.</div>`:"");
+ if(toggle){
+   toggle.textContent=window.homeModulesExpanded?"Réduire les modules":"Voir tous les modules";
+   toggle.classList.toggle("hidden",!!q)
+ }
 
  document.querySelectorAll("[data-home-perm]").forEach(btn=>btn.classList.toggle("hidden",!can(btn.dataset.homePerm)));
  updateHomeNavGroupVisibility();
@@ -3882,7 +4006,7 @@ function renderHomeModuleBlocks(){
  const title=document.getElementById("homeWelcomeTitle"),sub=document.getElementById("homeWelcomeText");
  if(title)title.textContent=isOwner()?`Bienvenue dans votre centre de pilotage EIAFC`:`Espace ${roleName()} — vos outils essentiels`;
  if(sub)sub.textContent=isOwner()
-   ?"Une page de garde plus claire : accès par blocs, indicateurs clés, inscriptions, finances, contrôles et réseau, sans perdre les fonctions détaillées du menu."
+   ?"L’essentiel reste visible immédiatement. Les analyses détaillées sont rangées plus bas dans des blocs repliables pour garder un tableau de bord clair."
    :"Votre accueil affiche uniquement les modules et informations autorisés pour votre fonction.";
 }
 window.renderHomeModuleBlocks=renderHomeModuleBlocks;
@@ -4467,7 +4591,7 @@ function renderDashboard(){
  if(roleName()==="Secrétariat"){
   const active=sts.filter(s=>s.status==="Actif").length,incomplete=sts.filter(s=>!studentAdminComplete(s)).length,attToday=currentRecords(db.attendance).filter(x=>x.date===today()).length,missingSupplies=sts.filter(s=>Number(s.reamReceived||0)<1||Number(s.markersReceived||0)<3).length;
   const supToday=supplyReceiptStatsForDate(today());
-  kpiGrid.innerHTML=[["Étudiants",sts.length,"dans votre école"],["Actifs",active,"étudiants"],["Affectés de l’État",assignedCount,"étudiants"],["Non affectés",unassignedCount,"étudiants"],["Dossiers incomplets",incomplete,"à compléter"],["Présences aujourd’hui",attToday,"saisies"],["Rames reçues aujourd’hui",supToday.reams,"fournitures"],["Marqueurs reçus aujourd’hui",supToday.markers,"fournitures"],["Fournitures incomplètes",missingSupplies,"dossiers"]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
+  kpiGrid.innerHTML=[["Étudiants",sts.length,"dans votre école"],["Actifs",active,"étudiants"],["Dossiers incomplets",incomplete,"à compléter"],["Présences aujourd’hui",attToday,"saisies"],["Rames reçues aujourd’hui",supToday.reams,"fournitures"],["Marqueurs reçus aujourd’hui",supToday.markers,"fournitures"],["Fournitures incomplètes",missingSupplies,"dossiers"]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
   const assignRows=PROGRAMS.map(p=>{const a=sts.filter(s=>s.program===p);return{p,total:a.length,assigned:a.filter(studentIsAssigned).length,unassigned:a.filter(studentIsNonAssigned).length,unspecified:a.filter(s=>studentAdmissionStatus(s)==="À préciser").length}});if(dashboardAssignments)dashboardAssignments.innerHTML=`<thead><tr><th>Programme</th><th>Effectif</th><th>Affectés de l’État</th><th>Non affectés</th><th>À préciser</th></tr></thead><tbody>${assignRows.map(x=>`<tr><td><b>${esc(x.p)}</b></td><td>${x.total}</td><td><span class="status valid">${x.assigned}</span></td><td><span class="status pending">${x.unassigned}</span></td><td><span class="status ${x.unspecified?"rejected":"valid"}">${x.unspecified}</span></td></tr>`).join("")}</tbody>`;return
  }
  if(roleName()==="Secrétariat & Caisse"){
@@ -4476,7 +4600,7 @@ function renderDashboard(){
   const tp=todayPays.reduce((a,x)=>a+Number(x.amount||0),0),bal=balances();
   const supToday=supplyReceiptStatsForDate(today());
   kpiGrid.innerHTML=[
-   ["Étudiants",sts.length,"dans votre école"],["Actifs",active,"étudiants"],["Dossiers incomplets",incomplete,"à compléter"],["Présences aujourd’hui",attToday,"saisies"],
+   ["Étudiants",sts.length,"dans votre école"],["Dossiers incomplets",incomplete,"à compléter"],
    ["Rames aujourd’hui",supToday.reams,"fournitures"],["Marqueurs aujourd’hui",supToday.markers,"fournitures"],
    ["Paiements du jour",todayPays.length,"opération(s)"],["En attente",pendingRows.length,"paiement(s)"],["Étudiants en retard",overdueStudents.length,"à relancer"],["Dernière clôture",lc?.date||"Aucune","caisse"]
   ].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
@@ -4523,7 +4647,7 @@ function renderDashboard(){
  const totalDue=sts.reduce((a,s)=>a+studentDue(s),0),paid=validPayments().reduce((a,p)=>a+Number(p.amount||0),0),debtPaid=sts.reduce((a,s)=>a+studentDebtPaid(s.matricule),0),pending=currentRecords(db.payments).filter(p=>p.status==="En attente").reduce((a,p)=>a+Number(p.amount||0),0),rest=sts.reduce((a,s)=>a+studentRest(s),0),exp=validExpenses().reduce((a,x)=>a+Number(x.amount||0),0),oth=validOther().reduce((a,x)=>a+Number(x.amount||0),0),net=paid+oth-exp,over=sts.reduce((a,s)=>a+overdueAmount(s),0);
  const month=ym(today()),monthData=monthlySummary(month);
  const supToday=supplyReceiptStatsForDate(today());
- const data=[["Étudiants",sts.length,"inscrits"],["Affectés de l’État",assignedCount,"étudiants"],["Non affectés",unassignedCount,"étudiants"],["Statut à préciser",unspecifiedCount,"anciens dossiers"],["Rames reçues aujourd’hui",supToday.reams,"fournitures"],["Marqueurs reçus aujourd’hui",supToday.markers,"fournitures"],["Total facturé",fmt(totalDue),"après remises"],["Paiements validés",fmt(paid),"étudiants"],["Reste à recouvrer",fmt(rest),"global"],["Retards échus",fmt(over),"échéances dépassées"],["Paiements en attente",fmt(pending),"à contrôler"],["Dépenses",fmt(exp),"validées"],["Flux net",fmt(net),"recettes - dépenses"]];
+ const data=[["Étudiants",sts.length,"inscrits"],["Rames reçues aujourd’hui",supToday.reams,"fournitures"],["Marqueurs reçus aujourd’hui",supToday.markers,"fournitures"],["Total facturé",fmt(totalDue),"année active"],["Paiements validés",fmt(paid),"étudiants"],["Reste à recouvrer",fmt(rest),"global"],["Retards échus",fmt(over),"à relancer"],["Flux net",fmt(net),"recettes - dépenses"]];
  kpiGrid.innerHTML=data.map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
  const bal=balances();channelBalances.innerHTML=[["Espèces",bal["Espèces"]],["Caisse Fondateur",bal["Caisse Fondateur"]],["Wave",bal["Wave"]],["MTN Mobile Money",bal["MTN Mobile Money"]],["Orange Money",bal["Orange Money"]],["Banque",bal["Banque"]]].map(([k,v])=>`<div style="margin:12px 0"><div class="flex" style="justify-content:space-between"><b>${k}</b><span>${fmt(v)}</span></div></div>`).join("");
  const rate=totalDue?Math.min(100,debtPaid/totalDue*100):0;recoveryBox.innerHTML=`<div class="kpi"><div class="value">${rate.toFixed(1)}%</div><div class="sub">Taux de recouvrement</div></div><div class="bar" style="margin-top:15px"><span style="width:${rate}%"></span></div><p class="small">${fmt(rest)} restent à recouvrer, dont <b>${fmt(over)}</b> déjà échus.</p>`;
