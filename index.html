@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-08-v11-5-9-end-day-deposit-monitoring">
+<meta name="eiafc-web-build" content="2026-09-08-v11-7-0-direction-control-documents">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -991,6 +991,175 @@ body[data-role-theme="secretariat"] .production-hero{
 @media(max-width:560px){.enrollment-kpis{grid-template-columns:1fr}.login-card>h1{font-size:32px}.topbar{align-items:flex-start}}
 
 </style>
+
+<style id="eiafc-v1160-premium-home">
+/* ===== EIAFC V11.6.0 — ACCUEIL PREMIUM & BLOCS MÉTIER ===== */
+.nav{padding-bottom:18px}
+.nav-group-title{
+  margin:14px 8px 6px;padding:7px 8px 5px;
+  color:#9fb3c2;font-size:9px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;
+  border-top:1px solid rgba(255,255,255,.08)
+}
+.nav-group-title:first-child{margin-top:4px;border-top:0}
+.nav-btn{
+  position:relative;display:flex;align-items:center;gap:8px;
+  border:1px solid transparent!important;
+  transition:transform .16s ease,background .16s ease,border-color .16s ease,box-shadow .16s ease
+}
+.nav-btn:hover{transform:translateX(3px);border-color:rgba(255,255,255,.10)!important}
+.nav-btn.active{
+  background:linear-gradient(90deg,rgba(212,166,46,.20),rgba(255,255,255,.10))!important;
+  border-color:rgba(240,212,119,.25)!important;
+  box-shadow:inset 3px 0 0 #e4bd4d
+}
+.nav-group-title.hidden{display:none!important}
+
+.production-hero{
+  min-height:158px;padding:28px 30px;
+  background:
+    radial-gradient(circle at 84% 0%,rgba(240,201,90,.22),transparent 29%),
+    radial-gradient(circle at 12% 120%,rgba(78,164,212,.18),transparent 34%),
+    linear-gradient(135deg,#071b2b 0%,#123f5f 58%,#1d6489 100%);
+}
+.production-hero h2{font-size:30px;max-width:760px}
+.production-hero p{font-size:14px;max-width:780px}
+.prod-hero-badge{min-width:145px;padding:18px}
+.prod-hero-badge b{font-size:30px}
+
+.home-command-strip{
+  display:grid;grid-template-columns:minmax(230px,1.25fr) repeat(4,minmax(120px,.65fr));
+  gap:10px;margin-bottom:16px
+}
+.home-command-intro{
+  border:1px solid #dfe8ef;border-radius:15px;background:linear-gradient(135deg,#fff,#f7fbfd);
+  padding:13px 15px;box-shadow:0 7px 22px rgba(22,52,72,.045)
+}
+.home-command-intro b{display:block;color:var(--navy);font-size:14px}
+.home-command-intro span{font-size:11px;color:var(--muted)}
+.home-command-btn{
+  border:1px solid #dfe8ef;background:white;border-radius:15px;padding:12px 13px;cursor:pointer;
+  text-align:left;box-shadow:0 7px 20px rgba(22,52,72,.04);transition:.16s ease;color:#17324a
+}
+.home-command-btn:hover{transform:translateY(-2px);border-color:#bfd0dd;box-shadow:0 12px 28px rgba(22,52,72,.09)}
+.home-command-btn strong{display:block;font-size:12px;margin-bottom:3px}
+.home-command-btn span{font-size:10px;color:var(--muted)}
+
+.home-module-hub{
+  overflow:hidden;border:1px solid #dce6ed!important;
+  background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+  box-shadow:0 14px 38px rgba(18,48,74,.075)!important;
+  margin-bottom:18px
+}
+.home-module-hub-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+  padding-bottom:14px;border-bottom:1px solid #e7edf2;margin-bottom:14px
+}
+.home-module-hub-head h3{font-size:19px;margin:0;color:var(--navy)}
+.home-module-hub-head p{font-size:12px;color:var(--muted);margin:5px 0 0}
+.home-module-search-wrap{
+  min-width:280px;display:flex;align-items:center;gap:8px;background:#f6f9fb;
+  border:1px solid #dce5eb;border-radius:11px;padding:8px 10px
+}
+.home-module-search-wrap span{font-size:16px}
+.home-module-search-wrap input{
+  width:100%;border:0;background:transparent;outline:0;padding:2px 0;font-size:12px
+}
+.home-module-summary{
+  display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px
+}
+.home-module-summary span{
+  border:1px solid #e3eaf0;background:#fff;border-radius:999px;padding:6px 10px;
+  font-size:10px;font-weight:800;color:#486071
+}
+.home-module-groups{display:grid;gap:14px}
+.home-module-group{
+  border:1px solid #e4ebf0;border-radius:15px;background:#fff;padding:13px
+}
+.home-module-group-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px
+}
+.home-module-group-title{
+  display:flex;align-items:center;gap:8px;font-size:12px;font-weight:900;color:#17364d
+}
+.home-module-group-count{font-size:10px;color:var(--muted);font-weight:800}
+.home-module-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.home-module-card{
+  --module-accent:#2d6d91;
+  position:relative;overflow:hidden;min-height:112px;
+  border:1px solid #e1e8ed;border-radius:13px;background:linear-gradient(160deg,#fff,#f9fbfc);
+  padding:13px;text-align:left;cursor:pointer;color:#182d3c;
+  transition:transform .17s ease,border-color .17s ease,box-shadow .17s ease
+}
+.home-module-card:before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--module-accent)
+}
+.home-module-card:hover{
+  transform:translateY(-3px);border-color:#c7d6e0;box-shadow:0 12px 25px rgba(18,48,74,.09)
+}
+.home-module-card .module-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.home-module-card .module-icon{
+  width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:18px;
+  background:#eef5f9;border:1px solid #dce8ef
+}
+.home-module-card .module-arrow{font-size:13px;color:#8aa0af;font-weight:900}
+.home-module-card strong{display:block;margin-top:9px;font-size:12px;color:#17364d}
+.home-module-card small{display:block;margin-top:4px;font-size:10px;line-height:1.38;color:#687b89}
+.home-module-card.school{--module-accent:#2f7fa5}
+.home-module-card.finance{--module-accent:#b38718}
+.home-module-card.resource{--module-accent:#4a7b5f}
+.home-module-card.direction{--module-accent:#6c5a9d}
+.home-module-card.control{--module-accent:#8b4f4f}
+.home-module-empty{padding:24px;text-align:center;color:#738391;font-size:12px}
+
+.dashboard-section-label{
+  margin:23px 0 10px;padding:9px 12px;border-radius:10px;
+  background:linear-gradient(90deg,#eef4f8,rgba(238,244,248,.25));
+  border-left:4px solid #d4a62e;color:#17364d;font-size:11px;font-weight:900;letter-spacing:.04em
+}
+#kpiGrid{margin-top:2px}
+#kpiGrid .kpi{
+  position:relative;overflow:hidden;border:1px solid #e0e8ed;
+  background:linear-gradient(155deg,#fff,#f8fbfd)
+}
+#kpiGrid .kpi:after{
+  content:"";position:absolute;right:-22px;top:-24px;width:70px;height:70px;border-radius:50%;
+  background:rgba(18,48,74,.035)
+}
+#kpiGrid .kpi .value{font-size:27px}
+
+.enrollment-monitor-card{border-top:4px solid #2f7fa5!important}
+#powerCenterCard{border-top:4px solid #d4a62e!important}
+#networkOverviewCard{border-top:4px solid #6c5a9d!important}
+
+@media(max-width:1180px){
+  .home-module-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .home-command-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .home-command-intro{grid-column:1/-1}
+}
+@media(max-width:820px){
+  .home-module-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .home-module-hub-head{flex-direction:column}
+  .home-module-search-wrap{min-width:0;width:100%}
+}
+@media(max-width:560px){
+  .home-module-grid{grid-template-columns:1fr}
+  .home-command-strip{grid-template-columns:1fr}
+  .production-hero{padding:20px;align-items:flex-start;flex-direction:column}
+  .production-hero h2{font-size:24px}
+  .prod-hero-badge{width:100%}
+}
+</style>
+
+
+<style id="eiafc-v1170-direction-control">
+.direction-priority-card{border:1px solid #d9e4ea!important;border-top:4px solid #b38718!important;background:linear-gradient(180deg,#fffdf8 0%,#fff 60%);box-shadow:0 14px 34px rgba(41,55,70,.08)!important}
+.direction-priority-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px}.direction-priority-head h3{margin:0;color:#17364d;font-size:18px}.direction-priority-head p{margin:5px 0 0;color:#6c7c87;font-size:11px}
+.direction-priority-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.direction-priority-item{border:1px solid #e1e8ed;border-radius:13px;background:#fff;padding:12px;display:flex;align-items:flex-start;gap:10px;min-height:86px}.direction-priority-item .pri-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#f2f6f8;border:1px solid #e0e7ec;font-size:17px;flex:0 0 auto}.direction-priority-item .pri-body{min-width:0;flex:1}.direction-priority-item .pri-title{font-weight:900;color:#17364d;font-size:11px}.direction-priority-item .pri-value{font-size:20px;font-weight:900;margin:3px 0;color:#20394c}.direction-priority-item .pri-sub{font-size:9.5px;line-height:1.35;color:#6a7a87}.direction-priority-item .pri-action{margin-top:7px;border:0;background:transparent;color:#2d6d91;padding:0;cursor:pointer;font-size:9.5px;font-weight:900;text-decoration:underline}.direction-priority-item.urgent{border-color:#f0cfcf;background:#fffafa}.direction-priority-item.urgent .pri-value{color:#9b1c1c}.direction-priority-item.warn{border-color:#eadcb0;background:#fffdf7}.direction-priority-item.ok{border-color:#cfe6da;background:#fbfffd}.direction-priority-summary{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid #e8edf0}.direction-priority-summary span{border:1px solid #e0e7eb;background:#fff;border-radius:999px;padding:6px 10px;font-size:9.5px;font-weight:800;color:#4a6070}
+.deposit-confirmed{display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border-radius:999px;background:#eaf7ef;color:#17623a;font-size:9px;font-weight:900;border:1px solid #cce7d6}.deposit-waiting{display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border-radius:999px;background:#fff6df;color:#855f00;font-size:9px;font-weight:900;border:1px solid #ead7a1}.deposit-confirm-meta{font-size:9px;color:#6d7a84;margin-top:4px;line-height:1.35}.deposit-action-stack{display:flex;gap:5px;flex-wrap:wrap;min-width:125px}.deposit-action-stack .btn{padding:5px 7px!important;font-size:9px!important}.deposit-verification-note{border-left:3px solid #2f7fa5;background:#f5fafc;padding:8px 10px;border-radius:8px;font-size:10px;color:#4d6474;margin-top:8px}
+.student-doc-center{border:1px solid #dce6ec!important;border-top:4px solid #2f7fa5!important;background:linear-gradient(180deg,#fbfdff,#fff)}.student-doc-center-grid{display:grid;grid-template-columns:1.15fr 1.85fr;gap:14px}.student-doc-profile{border:1px solid #e1e8ed;border-radius:14px;padding:14px;background:#fff}.student-doc-profile .student-doc-avatar{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#e8f1f7,#f9fcfe);border:1px solid #d7e4ec;font-size:23px}.student-doc-profile h4{margin:9px 0 3px;color:#17364d}.student-doc-profile p{margin:0;color:#6c7d89;font-size:10px;line-height:1.45}.student-doc-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.student-doc-btn{border:1px solid #dde6ec;border-radius:13px;background:#fff;padding:13px;text-align:left;cursor:pointer;transition:.16s ease;min-height:94px}.student-doc-btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(18,48,74,.08);border-color:#c8d8e2}.student-doc-btn strong{display:block;color:#17364d;font-size:11px;margin:6px 0 4px}.student-doc-btn span{display:block;color:#6b7c88;font-size:9.5px;line-height:1.35}.student-doc-btn .doc-ico{font-size:19px}.student-doc-btn.finance-doc{border-left:4px solid #b38718}.student-doc-btn.academic-doc{border-left:4px solid #2f7fa5}.student-doc-preview{margin-top:12px;border:1px solid #e2e8ec;border-radius:11px;background:#f8fbfc;padding:10px;font-size:10px;color:#556a78}
+@media(max-width:1000px){.direction-priority-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.student-doc-center-grid{grid-template-columns:1fr}}@media(max-width:600px){.direction-priority-grid,.student-doc-actions{grid-template-columns:1fr}}
+</style>
+
 </head>
 <body>
 
@@ -1210,29 +1379,38 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.5.9 • CONTRÔLE VERSEMENTS • FIN DE JOURNÉE • CLOUD</span></div>
+    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.7.0 • DIRECTION & CONTRÔLE • DOCUMENTS • CLOUD</span></div>
     <div class="user-mini"><b id="currentUserName">Non connecté</b><span id="currentUserRole"></span><br><button class="btn btn-light btn-sm" onclick="logout()">Déconnexion</button></div>
     <div class="nav">
+      <div class="nav-group-title" data-nav-group="home">Accueil</div>
       <button class="nav-btn active" data-view="dashboard" data-perm="dashboard">📊 Tableau de bord</button>
+
+      <div class="nav-group-title" data-nav-group="school">Scolarité & pédagogie</div>
       <button class="nav-btn" data-view="students" data-perm="students">🎓 Étudiants</button>
-       <button class="nav-btn" data-view="classes" data-perm="students">📋 Listes de classe</button>
+      <button class="nav-btn" data-view="classes" data-perm="students">📋 Listes de classe</button>
       <button class="nav-btn" data-view="attendance" data-perm="attendance">🕘 Présence étudiants</button>
-      <button class="nav-btn" data-view="academic" data-perm="academic">🎓 Pédagogie & Notes</button>
+      <button class="nav-btn" data-view="academic" data-perm="academic">📝 Pédagogie & Notes</button>
       <button class="nav-btn" data-view="timetable" data-perm="timetable">🗓 Emploi du temps</button>
       <button class="nav-btn" data-view="discipline" data-perm="discipline">🛡 Vie scolaire & Discipline</button>
+
+      <div class="nav-group-title" data-nav-group="resources">Ressources & fonctionnement</div>
       <button class="nav-btn" data-view="inventory" data-perm="inventory">📦 Stock & inventaire</button>
       <button class="nav-btn" data-view="staffpayroll" data-perm="staff">👔 Personnel & Paie</button>
+      <button class="nav-btn" data-view="purchases" data-perm="purchases">🛒 Achats & fournisseurs</button>
+
+      <div class="nav-group-title" data-nav-group="finance">Finance & trésorerie</div>
       <button class="nav-btn" data-view="payments" data-perm="payments">💳 Paiements</button>
       <button class="nav-btn" data-view="schedule" data-perm="schedule">📅 Échéancier</button>
       <button class="nav-btn" data-view="other" data-perm="other">➕ Autres recettes</button>
       <button class="nav-btn" data-view="expenses" data-perm="expenses">🧾 Dépenses</button>
-      <button class="nav-btn" data-view="purchases" data-perm="purchases">🛒 Achats & fournisseurs</button>
       <button class="nav-btn" data-view="cash" data-perm="cash">💰 Caisse</button>
       <button class="nav-btn" data-view="closing" data-perm="closing">🔒 Clôture de caisse</button>
       <button class="nav-btn" data-view="journal" data-perm="journal">📒 Journal comptable</button>
       <button class="nav-btn" data-view="accounting" data-perm="accounting">🧮 Comptabilité générale</button>
       <button class="nav-btn" data-view="reconciliation" data-perm="reconciliation">🏦 Rapprochement financier</button>
       <button class="nav-btn" data-view="reports" data-perm="reports">📈 Rapports</button>
+
+      <div class="nav-group-title" data-nav-group="direction">Direction & contrôle</div>
       <button class="nav-btn" data-view="direction" data-perm="direction">🏛 Direction réseau</button>
       <button class="nav-btn" data-view="audit" data-perm="audit">🕵️ Historique des actions</button>
       <button class="nav-btn" data-view="users" data-perm="users">👥 Utilisateurs</button>
@@ -1249,8 +1427,8 @@ body[data-role-theme="secretariat"] .production-hero{
 
     <section id="dashboard" class="view active">
       <div class="production-hero">
-        <div><span class="prod-eyebrow">CENTRE DE PILOTAGE EIAFC</span><h2>Une vision claire de l’école, en temps réel.</h2><p>Suivez les inscriptions, encaissements, dépenses, caisse, dettes fournisseurs, paie, stock et alertes depuis un seul espace sécurisé.</p></div>
-        <div class="prod-hero-badge"><b>V11</b><span>GOUVERNANCE • ACADÉMIQUE • FINANCE • CLOUD</span></div>
+        <div><span class="prod-eyebrow">CENTRE DE PILOTAGE EIAFC</span><h2 id="homeWelcomeTitle">Votre école, organisée dans un seul espace.</h2><p id="homeWelcomeText">Accédez rapidement aux étudiants, paiements, caisse, pédagogie, personnel, rapports et contrôles, avec une lecture claire de ce qui demande votre attention.</p></div>
+        <div class="prod-hero-badge"><b>11.7</b><span>DIRECTION • CONTRÔLE • DOCUMENTS • CLOUD</span></div>
       </div>
       <div class="premium-context-strip">
         <div class="premium-context-card role-context">
@@ -1266,6 +1444,27 @@ body[data-role-theme="secretariat"] .production-hero{
           <div><span>ÉTAT DU SYSTÈME</span><b id="premiumCloudLabel">Cloud EIAFC</b><small id="premiumSyncLabel">Synchronisation sécurisée</small></div>
         </div>
       </div>
+
+      <div class="home-command-strip" id="homeCommandStrip">
+        <div class="home-command-intro"><b>⚡ Actions fréquentes</b><span>Les raccourcis s’adaptent automatiquement aux droits du compte connecté.</span></div>
+        <button class="home-command-btn" type="button" data-home-perm="students" onclick="goToView('students')"><strong>🎓 Nouvel étudiant</strong><span>Inscription / dossier</span></button>
+        <button class="home-command-btn" type="button" data-home-perm="payments" onclick="goToView('payments')"><strong>💳 Encaisser</strong><span>Paiement étudiant</span></button>
+        <button class="home-command-btn" type="button" data-home-perm="closing" onclick="goToView('closing')"><strong>🔒 Clôturer la caisse</strong><span>Fin de journée</span></button>
+        <button class="home-command-btn" type="button" data-home-perm="reports" onclick="goToView('reports')"><strong>📈 Ouvrir les rapports</strong><span>Pilotage & bilan</span></button>
+      </div>
+
+      <div class="card home-module-hub" id="homeModuleHub">
+        <div class="home-module-hub-head">
+          <div>
+            <h3>🧭 Accès rapide à tous les modules</h3>
+            <p>Les éléments de la barre latérale sont maintenant aussi disponibles ici sous forme de blocs clairs et organisés.</p>
+          </div>
+          <div class="home-module-search-wrap"><span>🔎</span><input id="homeModuleSearch" placeholder="Rechercher un module..." oninput="renderHomeModuleBlocks()"></div>
+        </div>
+        <div class="home-module-summary" id="homeModuleSummary"></div>
+        <div class="home-module-groups" id="homeModuleGroups"></div>
+      </div>
+
       <div class="card role-dashboard-head" id="roleDashboardHeader" style="margin-bottom:16px">
         <div class="section-title"><h3 id="roleDashboardTitle">Tableau de bord</h3><span class="role-badge" id="roleDashboardBadge">Rôle</span></div>
         <div id="roleDashboardIntro" class="small"></div>
@@ -1275,6 +1474,11 @@ body[data-role-theme="secretariat"] .production-hero{
         <div class="shield">🛡️</div>
         <div><b>Tableau de bord sécurisé par rôle</b><div class="small" id="dashboardPrivacyText">Les informations visibles dépendent de votre fonction.</div></div>
       </div>
+      <div class="card direction-priority-card" id="directionPriorityCard" data-owner-only="true" style="margin-bottom:16px">
+        <div class="direction-priority-head"><div><h3>🎯 Direction — À vérifier / valider</h3><p>Les dossiers et mouvements qui demandent votre attention sont regroupés ici automatiquement.</p></div><button class="btn btn-light btn-sm" type="button" onclick="renderDirectionPriorityCenter()">Actualiser</button></div>
+        <div class="direction-priority-grid" id="directionPriorityGrid"></div><div class="direction-priority-summary" id="directionPrioritySummary"></div>
+      </div>
+      <div class="dashboard-section-label">📊 Indicateurs essentiels</div>
       <div class="grid kpis" id="kpiGrid"></div>
       <div class="dashboard-section-label">🎓 Suivi des inscriptions</div>
       <div class="card enrollment-monitor-card" id="enrollmentMonitorCard">
@@ -1401,6 +1605,16 @@ body[data-role-theme="secretariat"] .production-hero{
         <div class="section-title"><div><h3>📅 Suivi quotidien des nouvelles inscriptions</h3><span class="small">Les étudiants les plus récemment ajoutés apparaissent en premier.</span></div><button class="btn btn-light btn-sm" type="button" onclick="renderEnrollmentMonitor()">Actualiser</button></div>
         <div class="grid kpis enrollment-kpis" id="studentDailyKpis"></div>
         <div class="table-wrap" style="margin-top:12px"><table id="studentDailyTable"></table></div>
+      </div>
+      <div class="card student-doc-center" style="margin-top:16px" id="studentAdministrativeDocumentsCard">
+        <div class="section-title"><div><h3>📄 Centre de documents administratifs étudiants</h3><span class="small">Créez rapidement les documents utiles à partir du dossier déjà enregistré.</span></div><button class="btn btn-light btn-sm" type="button" onclick="updateStudentAdministrativeDocumentCenter()">Actualiser</button></div>
+        <div class="toolbar" style="margin-bottom:12px"><select id="studentAdminDocumentStudent" onchange="renderStudentAdministrativeDocumentProfile()" style="min-width:280px"></select></div>
+        <div class="student-doc-center-grid"><div class="student-doc-profile" id="studentAdminDocumentProfile"><div class="empty">Choisissez un étudiant.</div></div><div><div class="student-doc-actions">
+          <button class="student-doc-btn academic-doc" type="button" onclick="printStudentAdministrativeDocument('registration')"><span class="doc-ico">🗂️</span><strong>Fiche d'inscription</strong><span>Identité, formation, contact et pièces administratives.</span></button>
+          <button class="student-doc-btn academic-doc" type="button" onclick="printStudentAdministrativeDocument('schooling')"><span class="doc-ico">🎓</span><strong>Attestation de scolarité</strong><span>Document interne imprimable pour l'année académique active.</span></button>
+          <button class="student-doc-btn finance-doc" id="studentFinancialDocumentBtn" type="button" onclick="printStudentAdministrativeDocument('financial')"><span class="doc-ico">💳</span><strong>Situation financière</strong><span>Total dû, paiements validés, reste et détail des versements.</span></button>
+          <button class="student-doc-btn academic-doc" type="button" onclick="printStudentAdministrativeDocument('card')"><span class="doc-ico">🪪</span><strong>Carte / fiche étudiant</strong><span>Matricule, filière, niveau et année académique.</span></button>
+        </div><div class="student-doc-preview"><b>Impression / PDF :</b> le document s'ouvre dans une page propre. Utilisez ensuite l'impression du navigateur pour l'imprimer ou l'enregistrer en PDF.</div></div></div>
       </div>
       <div class="card" style="margin-top:16px">
         <div class="section-title"><h3>Registre étudiants</h3><div class="toolbar"><input id="studentSearch" placeholder="Rechercher nom, matricule, téléphone..." oninput="renderStudents()"><select id="studentProgramFilter" onchange="renderStudents()"><option value="">Tous programmes</option><option>Formation qualifiante</option><option>BTS 1</option><option>BTS 2</option><option>Licence</option><option>Master</option><option value="BTS à classer">⚠ BTS à classer</option></select><select id="studentAssignmentFilter" onchange="renderStudents()"><option value="">Tous statuts d’affectation</option><option value="assigned">Affectés de l’État</option><option value="unassigned">Non affectés</option><option value="unspecified">⚠ À préciser</option></select><button class="btn btn-light btn-sm" onclick="exportCSV('students')">Exporter CSV</button></div></div>
@@ -1979,6 +2193,7 @@ body[data-role-theme="secretariat"] .production-hero{
               <option>Orange Money</option>
             </select>
           </div>
+          <div class="field"><label>Confirmation</label><select id="endDayDepositVerification" onchange="renderEndDayDepositControl()"><option value="">Tous les statuts</option><option value="waiting">À confirmer</option><option value="confirmed">Confirmés</option></select></div>
           <div class="field"><label>Recherche</label><input id="endDayDepositSearch" placeholder="Clôture, référence, agent..." oninput="renderEndDayDepositControl()"></div>
         </div>
 
@@ -1986,7 +2201,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
         <div class="info" style="margin-bottom:12px">
           <b>Contrôle automatique :</b> le logiciel rapproche chaque versement avec sa clôture de caisse, sa destination, son montant, sa référence/bordereau et la personne ayant reçu la remise lorsque la destination est la Caisse Fondateur.
-          Une ligne marquée <b>À contrôler</b> demande une vérification manuelle ; une ligne <b>Traçable</b> possède les informations nécessaires dans le logiciel.
+          La colonne <b>Confirmation</b> permet au Fondateur de confirmer réellement la réception ou le dépôt. Une ligne <b>Traçable</b> possède les informations nécessaires ; <b>À contrôler</b> signale une anomalie documentaire ou un écart de clôture.
         </div>
 
         <div class="section-title" style="margin-top:14px"><h3>Résumé par destination</h3><span class="small">Montants de la période sélectionnée</span></div>
@@ -2368,7 +2583,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.5.9";
+const APP_VERSION="11.7.0";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -3459,6 +3674,100 @@ function goToView(view){
  b.click()
 }
 
+
+
+function directionPriorityData(){const unconfirmed=endDayDepositRows().filter(x=>x.verificationStatus!=="Confirmé"),closingDiff=currentRecords(db.closings).filter(x=>Math.abs(Number(x.difference||0))>=0.01),incomplete=currentStudents().filter(s=>s.status==="Actif"&&studentDocsCount(s)<4),overdueStudents=currentStudents().filter(s=>s.status==="Actif"&&overdueAmount(s)>0),pendingPayments=currentRecords(db.payments).filter(p=>p.status==="En attente"),supplierOverdue=validExpenses().filter(x=>expenseRest(x)>0&&String(x.dueDate||x.date||"")<today());return{unconfirmed,closingDiff,incomplete,overdueStudents,pendingPayments,supplierOverdue}}
+function renderDirectionPriorityCenter(){const card=document.getElementById("directionPriorityCard"),grid=document.getElementById("directionPriorityGrid"),summary=document.getElementById("directionPrioritySummary");if(!card||!grid||!summary)return;if(!isOwner()){card.classList.add("hidden");return}card.classList.remove("hidden");const d=directionPriorityData(),defs=[{icon:"💼",title:"Versements fin de journée",value:d.unconfirmed.length,sub:d.unconfirmed.length?"réception(s) / dépôt(s) à confirmer":"Tout est confirmé",view:"closing",cls:d.unconfirmed.length?"urgent":"ok"},{icon:"⚖️",title:"Écarts de clôture",value:d.closingDiff.length,sub:d.closingDiff.length?"clôture(s) avec écart à examiner":"Aucun écart signalé",view:"closing",cls:d.closingDiff.length?"urgent":"ok"},{icon:"📄",title:"Dossiers étudiants incomplets",value:d.incomplete.length,sub:d.incomplete.length?"étudiant(s) avec moins de 4 pièces":"Dossiers administratifs complets",view:"students",cls:d.incomplete.length?"warn":"ok"},{icon:"⏰",title:"Étudiants en retard",value:d.overdueStudents.length,sub:d.overdueStudents.length?"échéance(s) de scolarité à relancer":"Aucun retard détecté",view:"schedule",cls:d.overdueStudents.length?"warn":"ok"},{icon:"💳",title:"Paiements en attente",value:d.pendingPayments.length,sub:d.pendingPayments.length?"paiement(s) à valider / contrôler":"Aucun paiement en attente",view:"payments",cls:d.pendingPayments.length?"warn":"ok"},{icon:"🧾",title:"Fournisseurs échus",value:d.supplierOverdue.length,sub:d.supplierOverdue.length?"facture(s) arrivée(s) à échéance":"Aucune dette fournisseur échue",view:"expenses",cls:d.supplierOverdue.length?"warn":"ok"}];grid.innerHTML=defs.map(x=>`<div class="direction-priority-item ${x.cls}"><div class="pri-icon">${x.icon}</div><div class="pri-body"><div class="pri-title">${esc(x.title)}</div><div class="pri-value">${x.value}</div><div class="pri-sub">${esc(x.sub)}</div><button class="pri-action" type="button" onclick="goToView('${x.view}')">Ouvrir le module →</button></div></div>`).join("");const critical=d.unconfirmed.length+d.closingDiff.length,follow=d.incomplete.length+d.overdueStudents.length+d.pendingPayments.length+d.supplierOverdue.length;summary.innerHTML=`<span>${critical?"🔴":"✅"} ${critical} contrôle(s) financier(s) prioritaire(s)</span><span>🟠 ${follow} suivi(s) administratif(s) / opérationnel(s)</span><span>🕒 Actualisé ${new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})}</span>`}
+window.renderDirectionPriorityCenter=renderDirectionPriorityCenter;
+const HOME_MODULE_GROUPS=[
+ {key:"school",title:"Scolarité & pédagogie",icon:"🎓",tone:"school",items:[
+  {view:"students",perm:"students",icon:"🎓",title:"Étudiants",desc:"Inscriptions, dossiers et suivi des nouveaux étudiants"},
+  {view:"classes",perm:"students",icon:"📋",title:"Listes de classe",desc:"Effectifs et listes par programme / filière"},
+  {view:"attendance",perm:"attendance",icon:"🕘",title:"Présence étudiants",desc:"Assiduité, retards et suivi quotidien"},
+  {view:"academic",perm:"academic",icon:"📝",title:"Pédagogie & Notes",desc:"Notes, bulletins, matières et accès étudiant"},
+  {view:"timetable",perm:"timetable",icon:"🗓",title:"Emploi du temps",desc:"Planning, salles, matières et enseignants"},
+  {view:"discipline",perm:"discipline",icon:"🛡",title:"Vie scolaire",desc:"Discipline, décisions et suivi éducatif"}
+ ]},
+ {key:"resources",title:"Ressources & fonctionnement",icon:"🏢",tone:"resource",items:[
+  {view:"inventory",perm:"inventory",icon:"📦",title:"Stock & inventaire",desc:"Articles, mouvements, seuils et inventaire"},
+  {view:"staffpayroll",perm:"staff",icon:"👔",title:"Personnel & Paie",desc:"Personnel, présences, avances et bulletins"},
+  {view:"purchases",perm:"purchases",icon:"🛒",title:"Achats & fournisseurs",desc:"Demandes d’achat et suivi fournisseurs"}
+ ]},
+ {key:"finance",title:"Finance & trésorerie",icon:"💰",tone:"finance",items:[
+  {view:"payments",perm:"payments",icon:"💳",title:"Paiements",desc:"Encaissements étudiants et reçus"},
+  {view:"schedule",perm:"schedule",icon:"📅",title:"Échéancier",desc:"Échéances, retards et relances"},
+  {view:"other",perm:"other",icon:"➕",title:"Autres recettes",desc:"Recettes hors paiements étudiants"},
+  {view:"expenses",perm:"expenses",icon:"🧾",title:"Dépenses",desc:"Engagements, avances et règlements"},
+  {view:"cash",perm:"cash",icon:"💰",title:"Caisse",desc:"Trésorerie, transferts et mouvements"},
+  {view:"closing",perm:"closing",icon:"🔒",title:"Clôture de caisse",desc:"Comptage, répartition et contrôle des versements"},
+  {view:"journal",perm:"journal",icon:"📒",title:"Journal comptable",desc:"Écritures et traçabilité des opérations"},
+  {view:"accounting",perm:"accounting",icon:"🧮",title:"Comptabilité générale",desc:"Balance, comptes et états comptables"},
+  {view:"reconciliation",perm:"reconciliation",icon:"🏦",title:"Rapprochement financier",desc:"Contrôle Banque, mobile money et caisse"},
+  {view:"reports",perm:"reports",icon:"📈",title:"Rapports",desc:"Bilans, analyses et exportations"}
+ ]},
+ {key:"direction",title:"Direction, sécurité & contrôle",icon:"🏛",tone:"direction",items:[
+  {view:"direction",perm:"direction",icon:"🏛",title:"Direction réseau",desc:"Pilotage multi-écoles et vue consolidée"},
+  {view:"audit",perm:"audit",icon:"🕵️",title:"Historique des actions",desc:"Audit, contrôles et traçabilité"},
+  {view:"users",perm:"users",icon:"👥",title:"Utilisateurs",desc:"Comptes, rôles et périmètres d’accès"},
+  {view:"settings",perm:"settings",icon:"⚙️",title:"Paramètres & sauvegarde",desc:"Cloud, sécurité, sauvegardes et configuration"}
+ ]}
+];
+
+function updateHomeNavGroupVisibility(){
+ const groupMap={
+  home:["dashboard"],
+  school:["students","classes","attendance","academic","timetable","discipline"],
+  resources:["inventory","staffpayroll","purchases"],
+  finance:["payments","schedule","other","expenses","cash","closing","journal","accounting","reconciliation","reports"],
+  direction:["direction","audit","users","settings"]
+ };
+ document.querySelectorAll(".nav-group-title[data-nav-group]").forEach(title=>{
+  const views=groupMap[title.dataset.navGroup]||[];
+  const visible=views.some(v=>{
+   const b=document.querySelector(`.nav-btn[data-view="${v}"]`);
+   return b&&!b.classList.contains("hidden")
+  });
+  title.classList.toggle("hidden",!visible)
+ })
+}
+
+function renderHomeModuleBlocks(){
+ const host=document.getElementById("homeModuleGroups"),summary=document.getElementById("homeModuleSummary");
+ if(!host||!summary||!currentUser)return;
+ const q=textKey(document.getElementById("homeModuleSearch")?.value||"");
+ let accessible=0,shown=0;
+ const groups=[];
+ HOME_MODULE_GROUPS.forEach(g=>{
+  const allowed=g.items.filter(i=>can(i.perm));
+  accessible+=allowed.length;
+  const items=allowed.filter(i=>!q||textKey([i.title,i.desc,g.title].join(" ")).includes(q));
+  shown+=items.length;
+  if(!items.length)return;
+  groups.push(`<div class="home-module-group">
+    <div class="home-module-group-head">
+      <div class="home-module-group-title"><span>${g.icon}</span><span>${esc(g.title)}</span></div>
+      <span class="home-module-group-count">${items.length} module(s)</span>
+    </div>
+    <div class="home-module-grid">${items.map(i=>`<button class="home-module-card ${g.tone}" type="button" onclick="goToView('${i.view}')">
+      <div class="module-top"><span class="module-icon">${i.icon}</span><span class="module-arrow">→</span></div>
+      <strong>${esc(i.title)}</strong><small>${esc(i.desc)}</small>
+    </button>`).join("")}</div>
+  </div>`)
+ });
+ summary.innerHTML=`<span>👤 ${esc(roleName())}</span><span>🧩 ${accessible} module(s) autorisé(s)</span><span>🏫 ${esc(activeSchoolCode())}</span><span>📅 ${esc(activeYear())}</span>${q?`<span>🔎 ${shown} résultat(s)</span>`:""}`;
+ host.innerHTML=groups.length?groups.join(""):'<div class="home-module-empty">Aucun module ne correspond à votre recherche.</div>';
+
+ document.querySelectorAll("[data-home-perm]").forEach(btn=>btn.classList.toggle("hidden",!can(btn.dataset.homePerm)));
+ updateHomeNavGroupVisibility();
+
+ const title=document.getElementById("homeWelcomeTitle"),sub=document.getElementById("homeWelcomeText");
+ if(title)title.textContent=isOwner()?`Bienvenue dans votre centre de pilotage EIAFC`:`Espace ${roleName()} — vos outils essentiels`;
+ if(sub)sub.textContent=isOwner()
+   ?"Une page de garde plus claire : accès par blocs, indicateurs clés, inscriptions, finances, contrôles et réseau, sans perdre les fonctions détaillées du menu."
+   :"Votre accueil affiche uniquement les modules et informations autorisés pour votre fonction.";
+}
+window.renderHomeModuleBlocks=renderHomeModuleBlocks;
+
 function roleMoneyPolicy(role=roleName()){
  const map={
   "Fondateur":{global:true,cash:true,payroll:true,studentFinance:true,label:"Accès financier complet"},
@@ -3637,6 +3946,8 @@ function applyRoleSensitiveVisibility(){
 
 function applyPermissions(){
  document.querySelectorAll(".nav-btn[data-perm]").forEach(b=>{const allowed=can(b.dataset.perm);b.classList.toggle("denied",!allowed);b.classList.toggle("hidden",!allowed)});
+ updateHomeNavGroupVisibility();
+ renderHomeModuleBlocks();
  document.querySelectorAll("[data-owner-only]").forEach(el=>el.classList.toggle("hidden",!isOwner()));
  if(!can("validate"))payStatus.innerHTML='<option>En attente</option>';
  else payStatus.innerHTML='<option>En attente</option><option>Validé</option><option>Rejeté</option>';
@@ -3787,12 +4098,12 @@ function maintenanceHealthChecks(){
  return issues
 }
 function refreshAll(){
- try{updatePremiumContext();setTimeout(decoratePremiumKpis,0)}catch(_e){}
+ try{updatePremiumContext();renderHomeModuleBlocks();setTimeout(decoratePremiumKpis,0)}catch(_e){}
  refreshSchoolSelectors();refreshYearSelector();yearBadge.textContent="Année "+activeYear();renderRoleDashboardHeader();const sch=activeSchool();schoolSubtitle.textContent=schoolLabel(sch)+" — accès "+roleName();
  clearRestrictedViews();applyRoleSensitiveVisibility();
- if(can("dashboard")){renderDashboard();renderEnrollmentMonitor();}
+ if(can("dashboard")){renderDashboard();renderEnrollmentMonitor();renderDirectionPriorityCenter();}
  if(isOwner()||roleName()==="Comptable")renderManagementCenter();else{if(managementAlerts)managementAlerts.innerHTML="";if(agentActivity)agentActivity.innerHTML="";if(!["Caissier","Secrétariat & Caisse"].includes(roleName())&&topArrearsTable)topArrearsTable.innerHTML=""}
- if(can("students")){renderStudents();renderSupplies();renderClasses();renderEnrollmentMonitor()}
+ if(can("students")){renderStudents();renderSupplies();renderClasses();renderEnrollmentMonitor();updateStudentAdministrativeDocumentCenter()}
  if(can("attendance"))renderAttendance();if(can("academic"))renderAcademic();if(can("timetable"))renderTimetable();if(can("discipline"))renderDiscipline();if(can("purchases"))renderPurchases();if(can("inventory"))renderInventory();if(can("staff")){renderStaff();renderStaffAttendance();renderStaffLoans();renderPayroll()}
  if(can("payments")){updateStudentSelect();renderPayments()}if(can("schedule")){renderSchedule();renderReminderCenter();}if(can("other"))renderOther();if(can("expenses"))renderExpenses();if(can("cash")){renderCash();renderTransfers()}if(can("closing")){renderClosings();updateClosingPreview();if(isOwner()){renderEndDayDepositControl();renderFounderCashReceipts()}}if(can("journal"))renderJournal();if(can("accounting")){updateAccountingTrackOptions();renderAccounting()}if(can("reconciliation"))renderReconciliation();if(can("reports")){updateReportAssignmentControls();updateAnnualAssignmentControls();renderReports();renderAnnualBalance()}if(can("direction"))renderDirectionNetwork();if(can("audit"))renderAudit();
  if(isOwner()){renderUsers();renderSchools();loadSettings();loadNotificationSettings();renderTrackCatalog();payrollSettingsLoad();renderDataQuality();populateRemoteKeySchools();populateCopyAppSchools();renderBackupTimeline()}else{if(usersTable)usersTable.innerHTML="";if(schoolsTable)schoolsTable.innerHTML="";if(trackCatalogTable)trackCatalogTable.innerHTML="";if(dataQualityBox)dataQualityBox.innerHTML=""}
@@ -4150,6 +4461,13 @@ function editStudent(mat){if(!canEditStudents())return alert("Votre rôle est en
  })
 }
 function archiveStudent(mat){if(!canEditStudents())return alert("Votre rôle est en lecture seule sur les dossiers étudiants.");const s=studentByMat(mat);if(!s)return;if(confirm(`Archiver ${s.name} ?`)){s.status="Archivé";logAction("Archivage étudiant",`${mat} - ${s.name}`);saveDB()}}
+
+function updateStudentAdministrativeDocumentCenter(){const sel=document.getElementById("studentAdminDocumentStudent");if(!sel)return;const old=sel.value,rows=[...currentStudents()].filter(s=>s.deleted!==true).sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"fr"));sel.innerHTML='<option value="">— Choisir un étudiant —</option>'+rows.map(s=>`<option value="${esc(s.matricule)}">${esc(s.name)} — ${esc(s.matricule)}</option>`).join("");if(old&&rows.some(s=>s.matricule===old))sel.value=old;renderStudentAdministrativeDocumentProfile()}
+function renderStudentAdministrativeDocumentProfile(){const sel=document.getElementById("studentAdminDocumentStudent"),box=document.getElementById("studentAdminDocumentProfile"),fin=document.getElementById("studentFinancialDocumentBtn");if(!sel||!box)return;if(fin)fin.classList.toggle("hidden",!can("studentFinance"));const s=studentByMat(sel.value);if(!s){box.innerHTML='<div class="empty">Choisissez un étudiant pour préparer ses documents.</div>';return}const docs=studentDocsCount(s),rest=studentRest(s);box.innerHTML=`<div class="student-doc-avatar">🎓</div><h4>${esc(s.name)}</h4><p><b>${esc(s.matricule)}</b><br>${esc(s.program)} — ${esc(studentTrackValue(s))}${s.level?`<br>${esc(s.level)}`:""}<br>Année ${esc(activeYear())}</p><div style="margin-top:10px"><span class="status ${docs>=4?"valid":"pending"}">${docs}/4 pièces dossier</span> <span class="status ${s.status==="Actif"?"valid":"pending"}">${esc(s.status||"—")}</span></div>${can("studentFinance")?`<div class="student-doc-preview" style="margin-top:10px"><b>Situation financière :</b> reste ${fmt(rest)} • échu ${fmt(overdueAmount(s))}</div>`:""}`}
+function studentAdminDocBase(s,title){const school=activeSchool(),date=new Date().toLocaleDateString("fr-FR");return{school,date,head:`<div class="doc-head"><div class="school">GRANDE ÉCOLE PRIVÉE EIAFC</div><h1>${title}</h1><div>${esc(schoolLabel())}</div><div class="small">Année académique ${esc(activeYear())} • Édité le ${date}</div></div>`}}
+function openStudentAdminDocWindow(title,body){const w=window.open("","_blank","width=950,height=850");if(!w)return alert("Autorisez les fenêtres contextuelles pour imprimer.");w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>EIAFC — ${esc(title)}</title><style>body{font-family:Segoe UI,Arial,sans-serif;margin:28px;color:#17212b}.doc-head{text-align:center;border-bottom:3px solid #c99a24;padding-bottom:14px;margin-bottom:18px}.doc-head .school{font-size:11px;font-weight:900;letter-spacing:.08em}.doc-head h1{font-size:22px;color:#123b58;margin:5px}.small{font-size:10px;color:#687784}table{width:100%;border-collapse:collapse;margin:12px 0}th,td{border:1px solid #dce3e8;padding:8px;text-align:left;vertical-align:top}th{background:#f3f6f8;width:30%}.money{text-align:right}.box{border:1px solid #dce3e8;border-radius:8px;padding:12px;margin:12px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hero{padding:17px;background:#f5f9fb;border-left:5px solid #d4a62e;margin:14px 0}.sign{display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-top:60px;text-align:center}.card-id{max-width:620px;margin:25px auto;border:2px solid #123b58;border-radius:18px;overflow:hidden}.card-id .top{background:#123b58;color:white;padding:14px 18px}.card-id .body{padding:18px}.big{font-size:20px;font-weight:900;color:#123b58}@media print{body{margin:12mm}}</style></head><body>${body}<script>setTimeout(()=>window.print(),250)<\/script></body></html>`);w.document.close()}
+function printStudentAdministrativeDocument(type){const mat=String(document.getElementById("studentAdminDocumentStudent")?.value||"");if(!mat)return alert("Choisissez un étudiant.");const s=studentByMat(mat);if(!s)return;if(type==="financial"&&!can("studentFinance"))return alert("Vous n'êtes pas autorisé à consulter les informations financières de l'étudiant.");const b=studentAdminDocBase(s,type==="registration"?"FICHE D'INSCRIPTION":type==="schooling"?"ATTESTATION DE SCOLARITÉ":type==="financial"?"SITUATION FINANCIÈRE":"CARTE / FICHE ÉTUDIANT");let body=b.head;if(type==="registration"){const d=s.docs||{};body+=`<div class="grid"><div class="box"><b>Identité</b><table><tr><th>Nom & Prénoms</th><td>${esc(s.name)}</td></tr><tr><th>Matricule</th><td>${esc(s.matricule)}</td></tr><tr><th>Sexe</th><td>${esc(s.sex||"—")}</td></tr><tr><th>Date / lieu naissance</th><td>${esc(s.birthDate||"—")} ${s.birthPlace?"— "+esc(s.birthPlace):""}</td></tr><tr><th>Téléphone</th><td>${esc(s.phone||"—")}</td></tr><tr><th>E-mail</th><td>${esc(s.email||"—")}</td></tr><tr><th>Adresse</th><td>${esc(s.address||"—")}</td></tr></table></div><div class="box"><b>Formation</b><table><tr><th>Programme</th><td>${esc(s.program)}</td></tr><tr><th>Filière</th><td>${esc(studentTrackValue(s))}</td></tr><tr><th>Niveau / Classe</th><td>${esc(s.level||"—")}</td></tr><tr><th>Affectation</th><td>${esc(studentAssignmentLabel(s))}</td></tr><tr><th>Date inscription</th><td>${esc(s.date||"—")}</td></tr><tr><th>Statut</th><td>${esc(s.status||"—")}</td></tr></table></div></div><div class="box"><b>Parent / tuteur / contact d'urgence</b><table><tr><th>Nom</th><td>${esc(s.guardianName||"—")}</td></tr><tr><th>Téléphone</th><td>${esc(s.guardianPhone||"—")}</td></tr><tr><th>E-mail</th><td>${esc(s.guardianEmail||"—")}</td></tr></table></div><div class="box"><b>Pièces du dossier</b><p>Acte de naissance : <b>${d.birth?"Oui":"Non"}</b> • Pièce d'identité : <b>${d.id?"Oui":"Non"}</b> • Diplôme / relevé : <b>${d.diploma?"Oui":"Non"}</b> • Photos : <b>${d.photos?"Oui":"Non"}</b></p></div><div class="sign"><div><b>L'étudiant / Parent</b><br><br><br>Signature</div><div><b>Administration EIAFC</b><br><br><br>Signature / Cachet</div></div>`}else if(type==="schooling"){body+=`<div class="hero">La Direction de la <b>Grande école privée EIAFC</b> atteste que <b>${esc(s.name)}</b>, matricule <b>${esc(s.matricule)}</b>, est enregistré(e) dans l'établissement au titre de l'année académique <b>${esc(activeYear())}</b>.</div><table><tr><th>Programme</th><td>${esc(s.program)}</td></tr><tr><th>Filière</th><td>${esc(studentTrackValue(s))}</td></tr><tr><th>Niveau / Classe</th><td>${esc(s.level||"—")}</td></tr><tr><th>Statut du dossier</th><td>${esc(s.status||"—")}</td></tr></table><p class="small">Document généré à partir du registre administratif EIAFC. La Direction reste responsable de la validation et de la signature du document.</p><div class="sign"><div></div><div><b>La Direction</b><br><br><br>Signature / Cachet</div></div>`}else if(type==="financial"){const payments=validPayments().filter(p=>p.student===s.matricule).sort((a,b)=>String(a.date).localeCompare(String(b.date)));body+=`<div class="grid"><div class="box"><span class="small">TOTAL DÛ</span><div class="big">${fmt(studentDue(s))}</div></div><div class="box"><span class="small">TOTAL PAYÉ SCOLARITÉ</span><div class="big">${fmt(studentDebtPaid(s.matricule))}</div></div><div class="box"><span class="small">RESTE</span><div class="big">${fmt(studentRest(s))}</div></div><div class="box"><span class="small">ÉCHU À CE JOUR</span><div class="big">${fmt(overdueAmount(s))}</div></div></div><table><thead><tr><th>Date</th><th>N° reçu</th><th>Type</th><th>Mode</th><th class="money">Montant</th><th>Référence</th></tr></thead><tbody>${payments.length?payments.map(p=>`<tr><td>${esc(p.date)}</td><td>${esc(p.receipt)}</td><td>${esc(p.type)}</td><td>${esc(p.mode)}</td><td class="money">${fmt(p.amount)}</td><td>${esc(p.ref||"—")}</td></tr>`).join(""):'<tr><td colspan="6">Aucun paiement validé</td></tr>'}</tbody></table><p class="small">Situation interne calculée à partir des opérations validées enregistrées dans EIAFC.</p><div class="sign"><div><b>Le Comptable</b><br><br><br>Signature</div><div><b>Le Fondateur / Direction</b><br><br><br>Signature / Cachet</div></div>`}else{body+=`<div class="card-id"><div class="top"><b>GRANDE ÉCOLE PRIVÉE EIAFC</b><div class="small" style="color:#dce9f1">Année académique ${esc(activeYear())}</div></div><div class="body"><div class="big">${esc(s.name)}</div><p><b>Matricule :</b> ${esc(s.matricule)}</p><p><b>Programme :</b> ${esc(s.program)}</p><p><b>Filière :</b> ${esc(studentTrackValue(s))}</p><p><b>Niveau :</b> ${esc(s.level||"—")}</p><p><b>Établissement :</b> ${esc(schoolLabel())}</p><div style="margin-top:28px;text-align:right"><b>Administration EIAFC</b><br><br>Cachet / Signature</div></div></div>`}openStudentAdminDocWindow(type==="registration"?"Fiche d'inscription":type==="schooling"?"Attestation de scolarité":type==="financial"?"Situation financière":"Carte étudiant",body)}
+window.updateStudentAdministrativeDocumentCenter=updateStudentAdministrativeDocumentCenter;window.renderStudentAdministrativeDocumentProfile=renderStudentAdministrativeDocumentProfile;window.printStudentAdministrativeDocument=printStudentAdministrativeDocument;
 function studentDocsCount(s){const d=s?.docs||{},k=new Set(studentDigitalFiles(s).map(x=>x.kind));return [d.birth||k.has("birth"),d.id||k.has("id"),d.diploma||k.has("diploma"),d.photos||k.has("photos")].filter(Boolean).length}
 function studentAttendanceStats(mat){const a=currentRecords(db.attendance).filter(x=>x.student===mat),present=a.filter(x=>x.status==="Présent"||x.status==="Retard").length;return{total:a.length,present,rate:a.length?present/a.length*100:0}}
 function studentAdminComplete(s){return !!String(s?.phone||"").trim()&&!!String(s?.level||"").trim()&&studentDocsCount(s)>=4}
@@ -4223,7 +4541,7 @@ function academicReportData(mat,term=""){
  const decision=general===null?"Notes insuffisantes":general>=10?"Validé / Admis":general>=8?"Rattrapage / Ajourné":"Non validé";
  return{student:st,rows,general,attendanceRate,openDiscipline,decision,term:term||"Année complète"}
 }
-function renderAcademicReportPreview(){if(!academicReportPreview)return;updateBulletinStudents();const d=academicReportData(bulletinStudent?.value||"",bulletinTerm?.value||"");if(!d){academicReportPreview.innerHTML='<div class="empty">Choisissez un étudiant disposant de notes.</div>';return}academicReportPreview.innerHTML=`<div class="report-head"><div class="small">UNIVERSITÉ PRIVÉE EIAFC</div><h2>${bulletinDocumentType?.value==="transcript"?"RELEVÉ DE NOTES":"BULLETIN ACADÉMIQUE"}</h2><div class="small">${esc(schoolLabel())} • ${esc(activeYear())} • ${esc(d.term)}</div></div><div class="report-meta"><div><span class="small">Étudiant</span><b>${esc(d.student.name)}</b></div><div><span class="small">Matricule</span><b>${esc(d.student.matricule)}</b></div><div><span class="small">Classe</span><b>${esc(d.student.program)} — ${esc(studentTrackValue(d.student))}</b></div></div><div class="table-wrap"><table><thead><tr><th>Matière</th><th>Coefficient</th><th class="money">Moyenne /20</th><th>Résultat</th></tr></thead><tbody>${d.rows.length?d.rows.map(x=>`<tr><td>${esc(x.subject.name)}</td><td>${x.subject.coefficient}</td><td class="money"><b>${x.average.toFixed(2)}</b></td><td>${x.average>=10?'<span class="status valid">Validé</span>':'<span class="status pending">À renforcer</span>'}</td></tr>`).join(""):'<tr><td colspan="4" class="empty">Aucune moyenne disponible</td></tr>'}</tbody></table></div><div class="grid kpis" style="margin-top:12px">${[["Moyenne générale",d.general===null?"—":d.general.toFixed(2)+"/20"],["Assiduité",d.attendanceRate===null?"—":d.attendanceRate.toFixed(1)+"%"],["Discipline ouverte",d.openDiscipline],["Décision indicative",d.decision]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value" style="font-size:18px!important">${x[1]}</div></div>`).join("")}</div><div class="small" style="margin-top:10px"><b>Important :</b> la décision affichée est calculée automatiquement. La validation officielle reste de la responsabilité de la Direction des études.</div>`}
+function renderAcademicReportPreview(){if(!academicReportPreview)return;updateBulletinStudents();const d=academicReportData(bulletinStudent?.value||"",bulletinTerm?.value||"");if(!d){academicReportPreview.innerHTML='<div class="empty">Choisissez un étudiant disposant de notes.</div>';return}academicReportPreview.innerHTML=`<div class="report-head"><div class="small">GRANDE ÉCOLE PRIVÉE EIAFC</div><h2>${bulletinDocumentType?.value==="transcript"?"RELEVÉ DE NOTES":"BULLETIN ACADÉMIQUE"}</h2><div class="small">${esc(schoolLabel())} • ${esc(activeYear())} • ${esc(d.term)}</div></div><div class="report-meta"><div><span class="small">Étudiant</span><b>${esc(d.student.name)}</b></div><div><span class="small">Matricule</span><b>${esc(d.student.matricule)}</b></div><div><span class="small">Classe</span><b>${esc(d.student.program)} — ${esc(studentTrackValue(d.student))}</b></div></div><div class="table-wrap"><table><thead><tr><th>Matière</th><th>Coefficient</th><th class="money">Moyenne /20</th><th>Résultat</th></tr></thead><tbody>${d.rows.length?d.rows.map(x=>`<tr><td>${esc(x.subject.name)}</td><td>${x.subject.coefficient}</td><td class="money"><b>${x.average.toFixed(2)}</b></td><td>${x.average>=10?'<span class="status valid">Validé</span>':'<span class="status pending">À renforcer</span>'}</td></tr>`).join(""):'<tr><td colspan="4" class="empty">Aucune moyenne disponible</td></tr>'}</tbody></table></div><div class="grid kpis" style="margin-top:12px">${[["Moyenne générale",d.general===null?"—":d.general.toFixed(2)+"/20"],["Assiduité",d.attendanceRate===null?"—":d.attendanceRate.toFixed(1)+"%"],["Discipline ouverte",d.openDiscipline],["Décision indicative",d.decision]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value" style="font-size:18px!important">${x[1]}</div></div>`).join("")}</div><div class="small" style="margin-top:10px"><b>Important :</b> la décision affichée est calculée automatiquement. La validation officielle reste de la responsabilité de la Direction des études.</div>`}
 function printAcademicReport(){const d=academicReportData(bulletinStudent?.value||"",bulletinTerm?.value||"");if(!d)return alert("Choisissez un étudiant avec des notes.");renderAcademicReportPreview();const body=academicReportPreview.innerHTML,w=window.open("","_blank","width=950,height=800");if(!w)return alert("Autorisez les fenêtres contextuelles pour imprimer.");w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>EIAFC — ${bulletinDocumentType?.value==="transcript"?"Relevé":"Bulletin"}</title><style>body{font-family:Segoe UI,Arial;margin:28px;color:#17212b}.report-head{text-align:center;border-bottom:3px solid #d4a62e;padding-bottom:12px}.report-head h2{color:#12304a;margin:4px}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #d9e1e8;padding:8px}th{background:#eef4f8}.report-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.report-meta>div{background:#f6f8fa;padding:9px}.grid.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.kpi{border:1px solid #d9e1e8;padding:10px}.label,.small{font-size:11px;color:#667085}.value{font-weight:800;margin-top:5px}.status{font-size:10px}.btn{display:none}@media print{body{margin:12mm}}</style></head><body>${body}<div style="display:flex;justify-content:space-between;margin-top:55px"><div>Direction des études<br><br>Signature</div><div>Cachet EIAFC<br><br>Signature</div></div><script>setTimeout(()=>window.print(),250)<\/script></body></html>`);w.document.close()}
 async function generateStudentPortalPin(){if(!bulletinStudent?.value)return alert("Choisissez un étudiant.");if(!(isOwner()||["Directeur des études","Secrétariat"].includes(roleName())))return alert("Seuls le Fondateur, la Direction des études ou le Secrétariat peuvent préparer un accès étudiant.");const st=studentByMat(bulletinStudent.value);if(!st)return;const pin=String(Math.floor(100000+Math.random()*900000));st.portalPinHash=await makePasswordHash(pin);st.portalPinUpdatedAt=new Date().toISOString();logAction("Accès étudiant préparé",st.matricule);saveDB();studentPortalAccessResult.innerHTML=`<div class="portal-preview"><b>Accès étudiant préparé pour ${esc(st.name)}</b><div class="student-access-code">${pin}</div><div class="small">Matricule : <b>${esc(st.matricule)}</b>. Communiquez ce code une seule fois à l'étudiant. <b>Le portail public reste désactivé tant que la sécurité serveur Supabase n'est pas confirmée.</b></div></div>`}
 
@@ -4615,7 +4933,8 @@ closingForm.addEventListener("submit",async e=>{
    from:"Espèces",to:part.to,amount:part.amount,ref,
    obs:part.to==="Caisse Fondateur"?`Remise main à main du soir — reçu par ${part.receiver||"Fondateur / Direction"} — clôture ${id}`:`Répartition de fin de journée — clôture ${id}`,
    status:"Validé",agent:currentUserLabel(),device:deviceName(),createdAt:new Date().toISOString(),
-   kind:"Remise du soir",closingRemittance:true,closingId:id,receiver:part.receiver||""
+   kind:"Remise du soir",closingRemittance:true,closingId:id,receiver:part.receiver||"",
+   verificationStatus:"À confirmer",verifiedAt:"",verifiedBy:"",verificationNote:"",verificationRef:""
   };
   db.transfers.unshift(tr);transferIds.push(transferId);breakdown.push({...part,ref,transferId})
  }
@@ -4693,98 +5012,31 @@ function renderClosings(){
 
 
 
+
+function endDayVerificationLabel(x){return String(x?.verificationStatus||"").trim()==="Confirmé"?"Confirmé":"À confirmer"}
+function endDayVerificationIsConfirmed(x){return endDayVerificationLabel(x)==="Confirmé"}
+function endDayVerificationActionLabel(destination){return destination==="Caisse Fondateur"?"Confirmer réception":"Confirmer dépôt"}
+function confirmEndDayDeposit(id){
+ if(!isOwner())return alert("Fondateur uniquement.");const tr=db.transfers.find(x=>String(x.id)===String(id)&&x.deleted!==true);if(!tr||!isClosingRemittanceTransfer(tr))return alert("Versement de clôture introuvable.");if(endDayVerificationIsConfirmed(tr))return alert("Ce versement est déjà confirmé.");
+ const dest=String(tr.to||""),word=dest==="Caisse Fondateur"?"réception":"dépôt / versement";const extra=prompt(`Confirmation ${word}\n\nDestination : ${dest}\nMontant : ${fmt(tr.amount)}\nRéférence : ${tr.ref||"—"}\n\nAjoutez une note ou un N° de décharge / contrôle si nécessaire :`,"");if(extra===null)return;
+ if(!confirm(`Confirmer officiellement ce mouvement ?\n\n${dest} : ${fmt(tr.amount)}\n\nCette confirmation sera datée et tracée dans le logiciel.`))return;
+ tr.verificationStatus="Confirmé";tr.verifiedAt=new Date().toISOString();tr.verifiedBy=currentUserLabel();tr.verificationNote=String(extra||"").trim();tr.verificationRef=String(tr.ref||"").trim();logAction("Confirmation versement fin de journée",`${tr.closingId||tr.id} — ${dest} — ${fmt(tr.amount)} — confirmé par ${currentUserLabel()}`);saveDB();renderEndDayDepositControl();renderDirectionPriorityCenter();if(dest==="Caisse Fondateur")renderFounderCashReceipts()
+}
+function reopenEndDayDepositVerification(id){
+ if(!isOwner())return alert("Fondateur uniquement.");const tr=db.transfers.find(x=>String(x.id)===String(id)&&x.deleted!==true);if(!tr||!isClosingRemittanceTransfer(tr))return;if(!endDayVerificationIsConfirmed(tr))return alert("Ce versement est déjà en attente de confirmation.");const reason=prompt("Motif obligatoire pour retirer la confirmation :");if(!reason?.trim())return;tr.verificationStatus="À confirmer";tr.verificationReopenedAt=new Date().toISOString();tr.verificationReopenedBy=currentUserLabel();tr.verificationReopenReason=reason.trim();logAction("Réouverture confirmation versement",`${tr.closingId||tr.id} — ${tr.to} — ${fmt(tr.amount)} — ${reason.trim()}`);saveDB();renderEndDayDepositControl();renderDirectionPriorityCenter()
+}
+function printEndDayDepositControlSheet(id){
+ if(!isOwner())return alert("Fondateur uniquement.");const tr=db.transfers.find(x=>String(x.id)===String(id)&&x.deleted!==true);if(!tr)return;const c=currentRecords(db.closings).find(x=>String(x.id)===String(tr.closingId||""));const founder=String(tr.to||"")==="Caisse Fondateur";const title=founder?"BORDEREAU DE REMISE / DÉCHARGE":"FICHE INTERNE DE CONTRÔLE DE VERSEMENT";const w=window.open("","_blank","width=900,height=820");if(!w)return alert("Autorisez les fenêtres contextuelles pour imprimer.");const school=activeSchool(),verified=endDayVerificationIsConfirmed(tr);
+ w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>EIAFC — ${title}</title><style>body{font-family:Segoe UI,Arial,sans-serif;color:#17212b;margin:30px}.head{text-align:center;border-bottom:3px solid #c99a24;padding-bottom:14px}.head h1{font-size:20px;margin:5px}.muted{color:#687784;font-size:11px}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border:1px solid #d9e1e6;padding:9px;text-align:left}th{width:36%;background:#f4f7f9}.amount{font-size:24px;font-weight:900;color:#123b58;text-align:center;padding:18px;border:2px solid #d4a62e;margin:18px 0}.status{padding:8px 12px;background:${verified?"#eaf7ef":"#fff6df"};font-weight:800}.sign{display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-top:65px;text-align:center}.note{margin-top:16px;padding:10px;background:#f7f9fb;font-size:10px;color:#5d6b75}@media print{body{margin:12mm}}</style></head><body><div class="head"><div class="muted">GRANDE ÉCOLE PRIVÉE EIAFC</div><h1>${title}</h1><div>${esc(schoolLabel())} • Année ${esc(activeYear())}</div></div><div class="amount">${fmt(tr.amount)}</div><div class="status">${verified?"✅ MOUVEMENT CONFIRMÉ":"⏳ EN ATTENTE DE CONFIRMATION"}</div><table><tr><th>Date</th><td>${esc(tr.date||"")}</td></tr><tr><th>N° clôture</th><td>${esc(tr.closingId||"—")}</td></tr><tr><th>N° mouvement</th><td>${esc(tr.id||"—")}</td></tr><tr><th>Depuis</th><td>${esc(tr.from||"Espèces")}</td></tr><tr><th>Destination</th><td><b>${esc(tr.to||"—")}</b></td></tr><tr><th>Référence / bordereau</th><td>${esc(tr.ref||"—")}</td></tr>${founder?`<tr><th>Reçu par</th><td>${esc(tr.receiver||"Fondateur / Direction")}</td></tr>`:""}<tr><th>Agent ayant saisi</th><td>${esc(tr.agent||"—")}</td></tr>${c?`<tr><th>Espèces comptées à la clôture</th><td>${fmt(c.countedBefore??c.actual??0)}</td></tr><tr><th>Reste caisse comptable</th><td>${fmt(c.actual||0)}</td></tr>`:""}${verified?`<tr><th>Confirmé par</th><td>${esc(tr.verifiedBy||"—")}</td></tr><tr><th>Date confirmation</th><td>${tr.verifiedAt?new Date(tr.verifiedAt).toLocaleString("fr-FR"):"—"}</td></tr><tr><th>Note de contrôle</th><td>${esc(tr.verificationNote||"—")}</td></tr>`:""}</table><div class="sign"><div><b>${founder?"Personne ayant remis":"Agent / Comptable"}</b><br><br><br>Nom & signature</div><div><b>${founder?"Fondateur / Réception":"Direction / Contrôle"}</b><br><br><br>Nom, signature & cachet</div></div><div class="note"><b>Document interne EIAFC.</b> Pour un dépôt Banque ou Mobile Money, cette fiche ne remplace pas le bordereau ou la preuve délivrée par l'opérateur financier.</div><script>setTimeout(()=>window.print(),250)<\/script></body></html>`);w.document.close()
+}
+window.confirmEndDayDeposit=confirmEndDayDeposit;window.reopenEndDayDepositVerification=reopenEndDayDepositVerification;window.printEndDayDepositControlSheet=printEndDayDepositControlSheet;
 function endDayDepositRows(){
- const closings=new Map(currentRecords(db.closings).map(c=>[String(c.id||""),c]));
- return validTransfers().filter(x=>isClosingRemittanceTransfer(x)).map(x=>{
-  const closing=closings.get(String(x.closingId||""))||null;
-  const destination=String(x.to||"");
-  const ref=String(x.ref||"").trim(),receiver=String(x.receiver||"").trim();
-  const issues=[];
-  if(!closing)issues.push("Clôture liée introuvable");
-  if(!ref)issues.push("Référence manquante");
-  if(destination==="Caisse Fondateur"&&!receiver)issues.push("Réception Fondateur à confirmer");
-  if(closing&&Math.abs(Number(closing.difference||0))>=0.01)issues.push("Écart de clôture");
-  if(!["Banque","Caisse Fondateur","Wave","MTN Mobile Money","Orange Money"].includes(destination))issues.push("Destination inhabituelle");
-  return{
-   id:String(x.id||""),date:String(x.date||""),closingId:String(x.closingId||""),destination,
-   amount:Number(x.amount||0),ref,receiver,agent:String(x.agent||""),obs:String(x.obs||""),
-   createdAt:String(x.createdAt||""),closing,
-   counted:closing?Number(closing.countedBefore??closing.actual??0):null,
-   available:closing?Number(closing.availableBefore??closing.theoretical??0):null,
-   remaining:closing?Number(closing.actual??0):null,
-   difference:closing?Number(closing.difference||0):null,
-   issues,status:issues.length?"À contrôler":"Traçable"
-  }
- }).sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt)||b.id.localeCompare(a.id))
+ const closings=new Map(currentRecords(db.closings).map(c=>[String(c.id||""),c]));return validTransfers().filter(x=>isClosingRemittanceTransfer(x)).map(x=>{const closing=closings.get(String(x.closingId||""))||null,destination=String(x.to||""),ref=String(x.ref||"").trim(),receiver=String(x.receiver||"").trim(),issues=[];if(!closing)issues.push("Clôture liée introuvable");if(!ref)issues.push("Référence manquante");if(destination==="Caisse Fondateur"&&!receiver)issues.push("Réception Fondateur à identifier");if(closing&&Math.abs(Number(closing.difference||0))>=0.01)issues.push("Écart de clôture");if(!["Banque","Caisse Fondateur","Wave","MTN Mobile Money","Orange Money"].includes(destination))issues.push("Destination inhabituelle");return{id:String(x.id||""),date:String(x.date||""),closingId:String(x.closingId||""),destination,amount:Number(x.amount||0),ref,receiver,agent:String(x.agent||""),obs:String(x.obs||""),createdAt:String(x.createdAt||""),closing,transfer:x,counted:closing?Number(closing.countedBefore??closing.actual??0):null,available:closing?Number(closing.availableBefore??closing.theoretical??0):null,remaining:closing?Number(closing.actual??0):null,difference:closing?Number(closing.difference||0):null,issues,traceStatus:issues.length?"À contrôler":"Traçable",verificationStatus:endDayVerificationLabel(x),verifiedAt:String(x.verifiedAt||""),verifiedBy:String(x.verifiedBy||""),verificationNote:String(x.verificationNote||"")}}).sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt)||b.id.localeCompare(a.id))
 }
-function filteredEndDayDepositRows(){
- let rows=endDayDepositRows();
- const from=String(document.getElementById("endDayDepositFrom")?.value||"");
- const to=String(document.getElementById("endDayDepositTo")?.value||"");
- const dest=String(document.getElementById("endDayDepositDestination")?.value||"");
- const q=textKey(document.getElementById("endDayDepositSearch")?.value||"");
- if(from)rows=rows.filter(x=>x.date>=from);
- if(to)rows=rows.filter(x=>x.date<=to);
- if(dest)rows=rows.filter(x=>x.destination===dest);
- if(q)rows=rows.filter(x=>textKey([x.date,x.closingId,x.id,x.destination,x.ref,x.receiver,x.agent,x.obs,x.status,x.issues.join(" ")].join(" ")).includes(q));
- return rows
-}
-function renderEndDayDepositControl(){
- if(!isOwner())return;
- const card=document.getElementById("endDayDepositControlCard"),kpis=document.getElementById("endDayDepositKpis"),sumTable=document.getElementById("endDayDepositSummaryTable"),table=document.getElementById("endDayDepositTable");
- if(!card||!kpis||!sumTable||!table)return;
- const from=document.getElementById("endDayDepositFrom"),to=document.getElementById("endDayDepositTo");
- if(from&&!from.value)from.value=managementBounds().start;
- if(to&&!to.value)to.value=managementBounds().end;
- const rows=filteredEndDayDepositRows(),total=rows.reduce((z,x)=>z+x.amount,0);
- const by=label=>rows.filter(x=>x.destination===label).reduce((z,x)=>z+x.amount,0);
- const mobile=by("Wave")+by("MTN Mobile Money")+by("Orange Money"),needs=rows.filter(x=>x.status==="À contrôler").length,bal=balances();
-
- kpis.innerHTML=[
-  ["Versements suivis",rows.length+" opération(s)"],
-  ["Total réparti",fmt(total)],
-  ["Vers Banque",fmt(by("Banque"))],
-  ["Vers Caisse Fondateur",fmt(by("Caisse Fondateur"))],
-  ["Vers Mobile Money",fmt(mobile)],
-  ["À contrôler",needs],
-  ["Solde Banque actuel",fmt(bal["Banque"]||0)],
-  ["Solde Fondateur actuel",fmt(bal["Caisse Fondateur"]||0)]
- ].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value" style="font-size:20px">${x[1]}</div></div>`).join("");
-
- const destinations=["Banque","Caisse Fondateur","Wave","MTN Mobile Money","Orange Money"];
- sumTable.innerHTML=`<thead><tr><th>Destination</th><th>Nombre</th><th class="money">Total versé période</th><th class="money">Solde actuel du canal</th><th>Contrôles</th></tr></thead><tbody>${destinations.map(d=>{
-  const rr=rows.filter(x=>x.destination===d),s=rr.reduce((z,x)=>z+x.amount,0),n=rr.filter(x=>x.status==="À contrôler").length;
-  return`<tr><td><b>${esc(d)}</b></td><td>${rr.length}</td><td class="money"><b>${fmt(s)}</b></td><td class="money">${fmt(bal[d]||0)}</td><td>${n?`<span class="status pending">${n} à contrôler</span>`:'<span class="status valid">OK</span>'}</td></tr>`
- }).join("")}</tbody>`;
-
- table.innerHTML=`<thead><tr>
-  <th>Date</th><th>N° clôture</th><th>Destination</th><th class="money">Montant</th><th>Référence / bordereau</th>
-  <th>Reçu par</th><th>Agent</th><th class="money">Compté ce jour</th><th class="money">Reste caisse</th><th class="money">Écart clôture</th><th>Contrôle</th><th>Observation</th>
- </tr></thead><tbody>${rows.length?rows.map(x=>`<tr>
-  <td>${esc(x.date)}</td>
-  <td><b>${esc(x.closingId||"—")}</b></td>
-  <td>${esc(x.destination||"—")}</td>
-  <td class="money"><b>${fmt(x.amount)}</b></td>
-  <td>${esc(x.ref||"—")}</td>
-  <td>${esc(x.receiver||"—")}</td>
-  <td>${esc(x.agent||"—")}</td>
-  <td class="money">${x.counted==null?"—":fmt(x.counted)}</td>
-  <td class="money">${x.remaining==null?"—":fmt(x.remaining)}</td>
-  <td class="money">${x.difference==null?"—":fmt(x.difference)}</td>
-  <td>${x.status==="Traçable"?'<span class="status valid">Traçable</span>':`<span class="status pending">À contrôler</span><br><span class="small">${esc(x.issues.join(" • "))}</span>`}</td>
-  <td>${esc(x.obs||"—")}</td>
- </tr>`).join(""):`<tr><td colspan="12" class="empty">Aucun versement de fin de journée pour ces filtres.</td></tr>`}</tbody>`
-}
-function exportEndDayDepositControlCSV(){
- if(!isOwner())return alert("Fondateur uniquement.");
- const rows=filteredEndDayDepositRows();if(!rows.length)return alert("Aucun versement à exporter pour ces filtres.");
- const head=["Date","N° clôture","N° transfert","Destination","Montant","Référence / bordereau","Reçu par","Agent","Compté ce jour","Reste caisse","Écart clôture","Contrôle","Anomalies","Observation"];
- const data=rows.map(x=>[x.date,x.closingId,x.id,x.destination,x.amount,x.ref,x.receiver,x.agent,x.counted??"",x.remaining??"",x.difference??"",x.status,x.issues.join(" | "),x.obs]);
- const q=v=>`"${String(v??"").replace(/"/g,'""')}"`,csv='\ufeff'+[head,...data].map(r=>r.map(q).join(';')).join('\n');
- const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`EIAFC_Controle_Versements_Fin_Journee_${activeSchoolCode()}_${activeYear()}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500)
-}
-window.renderEndDayDepositControl=renderEndDayDepositControl;
-window.exportEndDayDepositControlCSV=exportEndDayDepositControlCSV;
+function filteredEndDayDepositRows(){let rows=endDayDepositRows();const from=String(document.getElementById("endDayDepositFrom")?.value||""),to=String(document.getElementById("endDayDepositTo")?.value||""),dest=String(document.getElementById("endDayDepositDestination")?.value||""),ver=String(document.getElementById("endDayDepositVerification")?.value||""),q=textKey(document.getElementById("endDayDepositSearch")?.value||"");if(from)rows=rows.filter(x=>x.date>=from);if(to)rows=rows.filter(x=>x.date<=to);if(dest)rows=rows.filter(x=>x.destination===dest);if(ver==="waiting")rows=rows.filter(x=>x.verificationStatus!=="Confirmé");if(ver==="confirmed")rows=rows.filter(x=>x.verificationStatus==="Confirmé");if(q)rows=rows.filter(x=>textKey([x.date,x.closingId,x.id,x.destination,x.ref,x.receiver,x.agent,x.obs,x.traceStatus,x.verificationStatus,x.verifiedBy,x.verificationNote,x.issues.join(" ")].join(" ")).includes(q));return rows}
+function renderEndDayDepositControl(){if(!isOwner())return;const card=document.getElementById("endDayDepositControlCard"),kpis=document.getElementById("endDayDepositKpis"),sumTable=document.getElementById("endDayDepositSummaryTable"),table=document.getElementById("endDayDepositTable");if(!card||!kpis||!sumTable||!table)return;const from=document.getElementById("endDayDepositFrom"),to=document.getElementById("endDayDepositTo");if(from&&!from.value)from.value=managementBounds().start;if(to&&!to.value)to.value=managementBounds().end;const rows=filteredEndDayDepositRows(),total=rows.reduce((z,x)=>z+x.amount,0),by=label=>rows.filter(x=>x.destination===label).reduce((z,x)=>z+x.amount,0),mobile=by("Wave")+by("MTN Mobile Money")+by("Orange Money"),needs=rows.filter(x=>x.traceStatus==="À contrôler").length,waiting=rows.filter(x=>x.verificationStatus!=="Confirmé").length,confirmed=rows.filter(x=>x.verificationStatus==="Confirmé").length,bal=balances();kpis.innerHTML=[["Versements suivis",rows.length+" opération(s)"],["Total réparti",fmt(total)],["Confirmés",confirmed],["À confirmer",waiting],["Vers Banque",fmt(by("Banque"))],["Vers Caisse Fondateur",fmt(by("Caisse Fondateur"))],["Vers Mobile Money",fmt(mobile)],["Anomalies à contrôler",needs],["Solde Banque actuel",fmt(bal["Banque"]||0)],["Solde Fondateur actuel",fmt(bal["Caisse Fondateur"]||0)]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value" style="font-size:19px">${x[1]}</div></div>`).join("");const destinations=["Banque","Caisse Fondateur","Wave","MTN Mobile Money","Orange Money"];sumTable.innerHTML=`<thead><tr><th>Destination</th><th>Nombre</th><th class="money">Total période</th><th class="money">Confirmé</th><th class="money">À confirmer</th><th class="money">Solde actuel</th><th>Contrôles</th></tr></thead><tbody>${destinations.map(d=>{const rr=rows.filter(x=>x.destination===d),s=rr.reduce((z,x)=>z+x.amount,0),conf=rr.filter(x=>x.verificationStatus==="Confirmé").reduce((z,x)=>z+x.amount,0),wait=s-conf,n=rr.filter(x=>x.traceStatus==="À contrôler").length;return`<tr><td><b>${esc(d)}</b></td><td>${rr.length}</td><td class="money"><b>${fmt(s)}</b></td><td class="money">${fmt(conf)}</td><td class="money">${fmt(wait)}</td><td class="money">${fmt(bal[d]||0)}</td><td>${n?`<span class="status pending">${n} anomalie(s)</span>`:'<span class="status valid">Traçabilité OK</span>'}</td></tr>`}).join("")}</tbody>`;table.innerHTML=`<thead><tr><th>Date</th><th>N° clôture</th><th>Destination</th><th class="money">Montant</th><th>Référence / bordereau</th><th>Reçu par</th><th>Agent</th><th>Confirmation</th><th>Traçabilité</th><th class="money">Compté</th><th class="money">Reste caisse</th><th class="money">Écart</th><th>Actions</th></tr></thead><tbody>${rows.length?rows.map(x=>`<tr><td>${esc(x.date)}</td><td><b>${esc(x.closingId||"—")}</b><br><span class="small">${esc(x.id)}</span></td><td>${esc(x.destination||"—")}</td><td class="money"><b>${fmt(x.amount)}</b></td><td>${esc(x.ref||"—")}</td><td>${esc(x.receiver||"—")}</td><td>${esc(x.agent||"—")}</td><td>${x.verificationStatus==="Confirmé"?`<span class="deposit-confirmed">✓ Confirmé</span><div class="deposit-confirm-meta">${esc(x.verifiedBy||"Fondateur")}<br>${x.verifiedAt?new Date(x.verifiedAt).toLocaleString("fr-FR"):""}</div>`:'<span class="deposit-waiting">⏳ À confirmer</span>'}${x.verificationNote?`<div class="deposit-verification-note">${esc(x.verificationNote)}</div>`:""}</td><td>${x.traceStatus==="Traçable"?'<span class="status valid">Traçable</span>':`<span class="status pending">À contrôler</span><br><span class="small">${esc(x.issues.join(" • "))}</span>`}</td><td class="money">${x.counted==null?"—":fmt(x.counted)}</td><td class="money">${x.remaining==null?"—":fmt(x.remaining)}</td><td class="money">${x.difference==null?"—":fmt(x.difference)}</td><td><div class="deposit-action-stack">${x.verificationStatus==="Confirmé"?`<button class="btn btn-light btn-sm" type="button" onclick="reopenEndDayDepositVerification('${x.id}')">Retirer confirmation</button>`:`<button class="btn btn-gold btn-sm" type="button" onclick="confirmEndDayDeposit('${x.id}')">${endDayVerificationActionLabel(x.destination)}</button>`}<button class="btn btn-light btn-sm" type="button" onclick="printEndDayDepositControlSheet('${x.id}')">Imprimer fiche</button></div></td></tr>`).join(""):`<tr><td colspan="13" class="empty">Aucun versement de fin de journée pour ces filtres.</td></tr>`}</tbody>`}
+function exportEndDayDepositControlCSV(){if(!isOwner())return alert("Fondateur uniquement.");const rows=filteredEndDayDepositRows();if(!rows.length)return alert("Aucun versement à exporter pour ces filtres.");const head=["Date","N° clôture","N° transfert","Destination","Montant","Référence / bordereau","Reçu par","Agent","Confirmation","Confirmé par","Date confirmation","Note confirmation","Traçabilité","Anomalies","Compté","Reste caisse","Écart clôture"],data=rows.map(x=>[x.date,x.closingId,x.id,x.destination,x.amount,x.ref,x.receiver,x.agent,x.verificationStatus,x.verifiedBy,x.verifiedAt,x.verificationNote,x.traceStatus,x.issues.join(" | "),x.counted??"",x.remaining??"",x.difference??""]),q=v=>`"${String(v??"").replace(/"/g,'""')}"`,csv='\ufeff'+[head,...data].map(r=>r.map(q).join(';')).join('\n'),blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`EIAFC_Controle_Versements_Fin_Journee_${activeSchoolCode()}_${activeYear()}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500)}
+window.renderEndDayDepositControl=renderEndDayDepositControl;window.exportEndDayDepositControlCSV=exportEndDayDepositControlCSV;
 
 function founderCashLedger(){
  const op=openingForYear(),opening=Number(op.founderCash||0);
