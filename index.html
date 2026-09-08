@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-08-v11-7-0-direction-control-documents">
+<meta name="eiafc-web-build" content="2026-09-08-v11-7-1-daily-school-supplies-tracking">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -1160,6 +1160,43 @@ body[data-role-theme="secretariat"] .production-hero{
 @media(max-width:1000px){.direction-priority-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.student-doc-center-grid{grid-template-columns:1fr}}@media(max-width:600px){.direction-priority-grid,.student-doc-actions{grid-template-columns:1fr}}
 </style>
 
+
+<style id="eiafc-v1171-daily-supplies">
+/* ===== EIAFC V11.7.1 — SUIVI QUOTIDIEN RAMES & MARQUEURS ===== */
+.daily-supply-card{
+  border:1px solid #dce6ec!important;
+  border-top:4px solid #4a7b5f!important;
+  background:linear-gradient(180deg,#fbfffd 0%,#ffffff 75%);
+  box-shadow:0 14px 34px rgba(22,60,42,.07)!important
+}
+.daily-supply-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap
+}
+.daily-supply-head h3{margin:0;color:#17364d}
+.daily-supply-head p{margin:4px 0 0;color:#687b86;font-size:10px}
+.daily-supply-form{
+  margin-top:12px;padding:13px;border:1px solid #e0e8e3;border-radius:13px;
+  background:#f8fcf9
+}
+.daily-supply-kpis .kpi{
+  border:1px solid #dfe8e2;background:linear-gradient(155deg,#fff,#f8fcf9)
+}
+.daily-supply-kpis .kpi .value{font-size:24px}
+.supply-day-today{background:#f2fbf6!important}
+.supply-correction{color:#9b1c1c;font-weight:800}
+.supply-positive{color:#17623a;font-weight:900}
+.daily-supply-detail{
+  display:inline-flex;gap:5px;align-items:center;flex-wrap:wrap
+}
+.daily-supply-pill{
+  border:1px solid #dce6e0;border-radius:999px;background:#fff;padding:4px 7px;
+  font-size:9px;font-weight:800;color:#496052
+}
+@media(max-width:760px){
+  .daily-supply-head{display:block}
+}
+</style>
+
 </head>
 <body>
 
@@ -1379,7 +1416,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.7.0 • DIRECTION & CONTRÔLE • DOCUMENTS • CLOUD</span></div>
+    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.7.1 • RAMES & MARQUEURS PAR JOUR • CLOUD</span></div>
     <div class="user-mini"><b id="currentUserName">Non connecté</b><span id="currentUserRole"></span><br><button class="btn btn-light btn-sm" onclick="logout()">Déconnexion</button></div>
     <div class="nav">
       <div class="nav-group-title" data-nav-group="home">Accueil</div>
@@ -1428,7 +1465,7 @@ body[data-role-theme="secretariat"] .production-hero{
     <section id="dashboard" class="view active">
       <div class="production-hero">
         <div><span class="prod-eyebrow">CENTRE DE PILOTAGE EIAFC</span><h2 id="homeWelcomeTitle">Votre école, organisée dans un seul espace.</h2><p id="homeWelcomeText">Accédez rapidement aux étudiants, paiements, caisse, pédagogie, personnel, rapports et contrôles, avec une lecture claire de ce qui demande votre attention.</p></div>
-        <div class="prod-hero-badge"><b>11.7</b><span>DIRECTION • CONTRÔLE • DOCUMENTS • CLOUD</span></div>
+        <div class="prod-hero-badge"><b>11.7.1</b><span>SUIVI QUOTIDIEN • FOURNITURES • CLOUD</span></div>
       </div>
       <div class="premium-context-strip">
         <div class="premium-context-card role-context">
@@ -1626,6 +1663,51 @@ body[data-role-theme="secretariat"] .production-hero{
         <div class="notice">Règle EIAFC : chaque étudiant doit remettre <b>1 rame</b> et <b>3 marqueurs</b>. La valorisation éventuelle est un indicateur de gestion et n'est pas comptabilisée automatiquement comme recette.</div>
         <div class="grid kpis" id="supplyKpis" style="margin-top:12px"></div>
         <div class="table-wrap" style="margin-top:12px"><table id="suppliesTable"></table></div>
+      </div>
+
+      <div class="card daily-supply-card" style="margin-top:16px" id="dailySupplyTrackingCard">
+        <div class="daily-supply-head">
+          <div>
+            <h3>📅 Rames & marqueurs reçus chaque jour</h3>
+            <p>Suivez exactement ce qui a été remis aujourd'hui et chaque autre jour, même lorsqu'un étudiant remet ses fournitures en plusieurs fois.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn btn-light btn-sm" type="button" onclick="setDailySupplyToday()">Aujourd'hui</button>
+            <button class="btn btn-light btn-sm" type="button" onclick="setDailySupplyLast7Days()">7 derniers jours</button>
+            <button class="btn btn-light btn-sm" type="button" onclick="exportDailySuppliesCSV()">Exporter CSV</button>
+          </div>
+        </div>
+
+        <div class="daily-supply-form" id="dailySupplyEntryBox">
+          <div class="section-title"><h3 style="font-size:13px">➕ Enregistrer une remise de fournitures</h3><span class="small">Cette saisie ajoute la remise au dossier de l'étudiant et à l'historique du jour.</span></div>
+          <div class="form-grid">
+            <div class="field span-2"><label>Étudiant</label><select id="dailySupplyStudent"></select></div>
+            <div class="field"><label>Date de remise</label><input type="date" id="dailySupplyDate"></div>
+            <div class="field"><label>Rame reçue aujourd'hui</label><input type="number" min="0" max="1" step="1" id="dailySupplyReam" value="0"></div>
+            <div class="field"><label>Marqueurs reçus aujourd'hui</label><input type="number" min="0" max="3" step="1" id="dailySupplyMarkers" value="0"></div>
+            <div class="field span-2"><label>Observation</label><input id="dailySupplyObs" placeholder="Ex. remise partielle / remise complète"></div>
+            <div class="field span-4"><button class="btn btn-primary" type="button" onclick="recordDailySupplyReceipt()">Enregistrer la remise du jour</button></div>
+          </div>
+          <div class="small" style="margin-top:8px"><b>Protection :</b> le logiciel empêche de dépasser l'obligation de <b>1 rame et 3 marqueurs par étudiant</b>.</div>
+        </div>
+
+        <div class="toolbar" style="margin-top:14px">
+          <label class="small">Du</label><input type="date" id="dailySupplyFrom" onchange="renderDailySupplyTracking()">
+          <label class="small">Au</label><input type="date" id="dailySupplyTo" onchange="renderDailySupplyTracking()">
+          <select id="dailySupplyProgram" onchange="renderDailySupplyTracking()">
+            <option value="">Tous programmes</option>
+            <option>Formation qualifiante</option><option>BTS 1</option><option>BTS 2</option><option>Licence</option><option>Master</option>
+          </select>
+          <input id="dailySupplySearch" placeholder="Rechercher étudiant, matricule..." oninput="renderDailySupplyTracking()">
+        </div>
+
+        <div class="grid kpis daily-supply-kpis" id="dailySupplyKpis" style="margin-top:12px"></div>
+
+        <div class="section-title" style="margin-top:16px"><h3>Résumé par jour</h3><span class="small">Une ligne = une journée de réception</span></div>
+        <div class="table-wrap"><table id="dailySupplySummaryTable"></table></div>
+
+        <div class="section-title" style="margin-top:18px"><h3>Détail des remises</h3><span class="small">Qui a remis quoi, quel jour et par quel agent.</span></div>
+        <div class="table-wrap"><table id="dailySupplyDetailTable"></table></div>
       </div>
     </section>
 
@@ -2583,7 +2665,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.7.0";
+const APP_VERSION="11.7.1";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -4103,7 +4185,7 @@ function refreshAll(){
  clearRestrictedViews();applyRoleSensitiveVisibility();
  if(can("dashboard")){renderDashboard();renderEnrollmentMonitor();renderDirectionPriorityCenter();}
  if(isOwner()||roleName()==="Comptable")renderManagementCenter();else{if(managementAlerts)managementAlerts.innerHTML="";if(agentActivity)agentActivity.innerHTML="";if(!["Caissier","Secrétariat & Caisse"].includes(roleName())&&topArrearsTable)topArrearsTable.innerHTML=""}
- if(can("students")){renderStudents();renderSupplies();renderClasses();renderEnrollmentMonitor();updateStudentAdministrativeDocumentCenter()}
+ if(can("students")){renderStudents();renderSupplies();renderDailySupplyTracking();renderClasses();renderEnrollmentMonitor();updateStudentAdministrativeDocumentCenter()}
  if(can("attendance"))renderAttendance();if(can("academic"))renderAcademic();if(can("timetable"))renderTimetable();if(can("discipline"))renderDiscipline();if(can("purchases"))renderPurchases();if(can("inventory"))renderInventory();if(can("staff")){renderStaff();renderStaffAttendance();renderStaffLoans();renderPayroll()}
  if(can("payments")){updateStudentSelect();renderPayments()}if(can("schedule")){renderSchedule();renderReminderCenter();}if(can("other"))renderOther();if(can("expenses"))renderExpenses();if(can("cash")){renderCash();renderTransfers()}if(can("closing")){renderClosings();updateClosingPreview();if(isOwner()){renderEndDayDepositControl();renderFounderCashReceipts()}}if(can("journal"))renderJournal();if(can("accounting")){updateAccountingTrackOptions();renderAccounting()}if(can("reconciliation"))renderReconciliation();if(can("reports")){updateReportAssignmentControls();updateAnnualAssignmentControls();renderReports();renderAnnualBalance()}if(can("direction"))renderDirectionNetwork();if(can("audit"))renderAudit();
  if(isOwner()){renderUsers();renderSchools();loadSettings();loadNotificationSettings();renderTrackCatalog();payrollSettingsLoad();renderDataQuality();populateRemoteKeySchools();populateCopyAppSchools();renderBackupTimeline()}else{if(usersTable)usersTable.innerHTML="";if(schoolsTable)schoolsTable.innerHTML="";if(trackCatalogTable)trackCatalogTable.innerHTML="";if(dataQualityBox)dataQualityBox.innerHTML=""}
@@ -4347,15 +4429,18 @@ function renderDashboard(){
  }
  if(roleName()==="Secrétariat"){
   const active=sts.filter(s=>s.status==="Actif").length,incomplete=sts.filter(s=>!studentAdminComplete(s)).length,attToday=currentRecords(db.attendance).filter(x=>x.date===today()).length,missingSupplies=sts.filter(s=>Number(s.reamReceived||0)<1||Number(s.markersReceived||0)<3).length;
-  kpiGrid.innerHTML=[["Étudiants",sts.length,"dans votre école"],["Actifs",active,"étudiants"],["Affectés de l’État",assignedCount,"étudiants"],["Non affectés",unassignedCount,"étudiants"],["Dossiers incomplets",incomplete,"à compléter"],["Présences aujourd’hui",attToday,"saisies"],["Fournitures incomplètes",missingSupplies,"dossiers"]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
+  const supToday=supplyReceiptStatsForDate(today());
+  kpiGrid.innerHTML=[["Étudiants",sts.length,"dans votre école"],["Actifs",active,"étudiants"],["Affectés de l’État",assignedCount,"étudiants"],["Non affectés",unassignedCount,"étudiants"],["Dossiers incomplets",incomplete,"à compléter"],["Présences aujourd’hui",attToday,"saisies"],["Rames reçues aujourd’hui",supToday.reams,"fournitures"],["Marqueurs reçus aujourd’hui",supToday.markers,"fournitures"],["Fournitures incomplètes",missingSupplies,"dossiers"]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
   const assignRows=PROGRAMS.map(p=>{const a=sts.filter(s=>s.program===p);return{p,total:a.length,assigned:a.filter(studentIsAssigned).length,unassigned:a.filter(studentIsNonAssigned).length,unspecified:a.filter(s=>studentAdmissionStatus(s)==="À préciser").length}});if(dashboardAssignments)dashboardAssignments.innerHTML=`<thead><tr><th>Programme</th><th>Effectif</th><th>Affectés de l’État</th><th>Non affectés</th><th>À préciser</th></tr></thead><tbody>${assignRows.map(x=>`<tr><td><b>${esc(x.p)}</b></td><td>${x.total}</td><td><span class="status valid">${x.assigned}</span></td><td><span class="status pending">${x.unassigned}</span></td><td><span class="status ${x.unspecified?"rejected":"valid"}">${x.unspecified}</span></td></tr>`).join("")}</tbody>`;return
  }
  if(roleName()==="Secrétariat & Caisse"){
   const active=sts.filter(s=>s.status==="Actif").length,incomplete=sts.filter(s=>!studentAdminComplete(s)).length,attToday=currentRecords(db.attendance).filter(x=>x.date===today()).length;
   const todayPays=validPayments().filter(x=>x.date===today()),pendingRows=currentRecords(db.payments).filter(p=>p.status==="En attente"),overdueStudents=sts.filter(s=>overdueAmount(s)>0),lc=[...currentRecords(db.closings)].sort((a,b)=>b.date.localeCompare(a.date))[0];
   const tp=todayPays.reduce((a,x)=>a+Number(x.amount||0),0),bal=balances();
+  const supToday=supplyReceiptStatsForDate(today());
   kpiGrid.innerHTML=[
    ["Étudiants",sts.length,"dans votre école"],["Actifs",active,"étudiants"],["Dossiers incomplets",incomplete,"à compléter"],["Présences aujourd’hui",attToday,"saisies"],
+   ["Rames aujourd’hui",supToday.reams,"fournitures"],["Marqueurs aujourd’hui",supToday.markers,"fournitures"],
    ["Paiements du jour",todayPays.length,"opération(s)"],["En attente",pendingRows.length,"paiement(s)"],["Étudiants en retard",overdueStudents.length,"à relancer"],["Dernière clôture",lc?.date||"Aucune","caisse"]
   ].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
   channelBalances.innerHTML=[["Espèces",bal["Espèces"]],["Caisse Fondateur",bal["Caisse Fondateur"]],["Wave",bal["Wave"]],["MTN Mobile Money",bal["MTN Mobile Money"]],["Orange Money",bal["Orange Money"]],["Banque",bal["Banque"]]].map(([k,v])=>`<div style="margin:12px 0"><div class="flex" style="justify-content:space-between"><b>${k}</b><span>${dashboardMoneyOrHidden(v,"cash")}</span></div></div>`).join("");
@@ -4400,7 +4485,8 @@ function renderDashboard(){
  }
  const totalDue=sts.reduce((a,s)=>a+studentDue(s),0),paid=validPayments().reduce((a,p)=>a+Number(p.amount||0),0),debtPaid=sts.reduce((a,s)=>a+studentDebtPaid(s.matricule),0),pending=currentRecords(db.payments).filter(p=>p.status==="En attente").reduce((a,p)=>a+Number(p.amount||0),0),rest=sts.reduce((a,s)=>a+studentRest(s),0),exp=validExpenses().reduce((a,x)=>a+Number(x.amount||0),0),oth=validOther().reduce((a,x)=>a+Number(x.amount||0),0),net=paid+oth-exp,over=sts.reduce((a,s)=>a+overdueAmount(s),0);
  const month=ym(today()),monthData=monthlySummary(month);
- const data=[["Étudiants",sts.length,"inscrits"],["Affectés de l’État",assignedCount,"étudiants"],["Non affectés",unassignedCount,"étudiants"],["Statut à préciser",unspecifiedCount,"anciens dossiers"],["Total facturé",fmt(totalDue),"après remises"],["Paiements validés",fmt(paid),"étudiants"],["Reste à recouvrer",fmt(rest),"global"],["Retards échus",fmt(over),"échéances dépassées"],["Paiements en attente",fmt(pending),"à contrôler"],["Dépenses",fmt(exp),"validées"],["Flux net",fmt(net),"recettes - dépenses"]];
+ const supToday=supplyReceiptStatsForDate(today());
+ const data=[["Étudiants",sts.length,"inscrits"],["Affectés de l’État",assignedCount,"étudiants"],["Non affectés",unassignedCount,"étudiants"],["Statut à préciser",unspecifiedCount,"anciens dossiers"],["Rames reçues aujourd’hui",supToday.reams,"fournitures"],["Marqueurs reçus aujourd’hui",supToday.markers,"fournitures"],["Total facturé",fmt(totalDue),"après remises"],["Paiements validés",fmt(paid),"étudiants"],["Reste à recouvrer",fmt(rest),"global"],["Retards échus",fmt(over),"échéances dépassées"],["Paiements en attente",fmt(pending),"à contrôler"],["Dépenses",fmt(exp),"validées"],["Flux net",fmt(net),"recettes - dépenses"]];
  kpiGrid.innerHTML=data.map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
  const bal=balances();channelBalances.innerHTML=[["Espèces",bal["Espèces"]],["Caisse Fondateur",bal["Caisse Fondateur"]],["Wave",bal["Wave"]],["MTN Mobile Money",bal["MTN Mobile Money"]],["Orange Money",bal["Orange Money"]],["Banque",bal["Banque"]]].map(([k,v])=>`<div style="margin:12px 0"><div class="flex" style="justify-content:space-between"><b>${k}</b><span>${fmt(v)}</span></div></div>`).join("");
  const rate=totalDue?Math.min(100,debtPaid/totalDue*100):0;recoveryBox.innerHTML=`<div class="kpi"><div class="value">${rate.toFixed(1)}%</div><div class="sub">Taux de recouvrement</div></div><div class="bar" style="margin-top:15px"><span style="width:${rate}%"></span></div><p class="small">${fmt(rest)} restent à recouvrer, dont <b>${fmt(over)}</b> déjà échus.</p>`;
@@ -4444,8 +4530,22 @@ studentForm.addEventListener("submit",async e=>{
  if(discount>regFee+tuition)return alert("La remise / bourse ne peut pas être supérieure au total inscription + scolarité.");
  if(discount>0&&!studentDiscountReason.value.trim())return alert("Indiquez le motif de la remise / bourse.");
  const admissionStatus=studentTrackAssigned.value,track=normalizeTrackName(studentTrack.value);if(!["Affecté État","Non affecté"].includes(admissionStatus))return alert("Choisissez le statut : Affecté de l’État ou Non affecté.");if(!track)return alert("Sélectionnez ou saisissez la filière de l'étudiant. La filière est obligatoire pour les Affectés de l’État comme pour les Non affectés.");const reamReceived=Math.max(0,Math.min(1,Math.trunc(Number(studentReamReceived.value||0)))),markersReceived=Math.max(0,Math.min(3,Math.trunc(Number(studentMarkersReceived.value||0))));const obj={schoolId:activeSchoolId(),academicYear:activeYear(),name:studentName.value.trim(),sex:studentSex.value,phone:normalizePhone(studentPhone.value),birthDate:studentBirthDate.value||"",birthPlace:studentBirthPlace.value.trim(),email:studentEmail.value.trim(),address:studentAddress.value.trim(),guardianName:studentGuardianName.value.trim(),guardianPhone:normalizePhone(studentGuardianPhone.value),guardianEmail:studentGuardianEmail.value.trim(),identityRef:studentIdentityRef.value.trim(),docs:{birth:studentDocBirth.checked,id:studentDocId.checked,diploma:studentDocDiploma.checked,photos:studentDocPhotos.checked},program:normalizeStudentProgram(studentProgram.value,studentLevel.value),admissionStatus,trackAssigned:true,track,level:studentLevel.value.trim(),date:studentDate.value,regFee,tuition,installments,firstDue,discount,discountReason:can("discount")?studentDiscountReason.value.trim():"",reamReceived,markersReceived,supplyDate:(reamReceived||markersReceived)?(studentSupplyDate.value||studentDate.value):"",supplyObs:studentSupplyObs.value.trim(),status:studentStatus.value};const duplicate=studentDuplicateMatch(obj,edit);if(duplicate)return alert(`Doublon bloqué : cette personne existe déjà dans l’année active sous le matricule ${duplicate.matricule} — ${duplicate.name}. Ouvrez son dossier existant au lieu de créer une deuxième fiche.`);const catalog=activeSchoolTrackCatalog();catalog[obj.program]=catalog[obj.program]||[];if(!catalog[obj.program].some(x=>textKey(x)===textKey(track)))catalog[obj.program].push(track)
- if(edit){const s=studentByMat(edit);obj.updatedAt=new Date().toISOString();obj.updatedBy=currentUserLabel();obj.updatedDevice=deviceName();Object.assign(s,obj);logAction("Modification étudiant",`${edit} - ${obj.name}`)}
- else{obj.createdAt=new Date().toISOString();obj.createdBy=currentUserLabel();obj.matricule=await nextUniqueAcademicId("student",`EIAFC-${activeSchoolCode()}`);if(!obj.matricule)return;obj.createdOffline=isOfflineId(obj.matricule);obj.device=deviceName();db.students.push(obj);logAction("Inscription étudiant",`${obj.matricule} - ${obj.name}`)}
+ if(edit){
+  const s=studentByMat(edit),oldR=Math.max(0,Number(s?.reamReceived||0)),oldM=Math.max(0,Number(s?.markersReceived||0)),deltaR=reamReceived-oldR,deltaM=markersReceived-oldM;
+  const hist=seedStoredSupplyHistory(s);
+  if(deltaR!==0||deltaM!==0){
+   const supplyDay=studentSupplyDate.value||today();
+   hist.push({id:makeUniqueId("SUP"),date:supplyDay,reams:deltaR,markers:deltaM,obs:studentSupplyObs.value.trim()||(deltaR<0||deltaM<0?"Correction fournitures":"Remise fournitures"),agent:currentUserLabel(),createdAt:new Date().toISOString(),kind:(deltaR<0||deltaM<0)?"Correction":"Réception"});
+   obj.supplyHistory=hist;obj.supplyDate=supplyDay;
+   logAction(deltaR<0||deltaM<0?"Correction fournitures étudiant":"Réception fournitures étudiant",`${edit} — Δ rame ${deltaR} — Δ marqueurs ${deltaM} — ${supplyDay}`)
+  }else if(storedSupplyHistory(s).length)obj.supplyHistory=storedSupplyHistory(s);
+  obj.updatedAt=new Date().toISOString();obj.updatedBy=currentUserLabel();obj.updatedDevice=deviceName();Object.assign(s,obj);logAction("Modification étudiant",`${edit} - ${obj.name}`)
+ }
+ else{
+  obj.createdAt=new Date().toISOString();obj.createdBy=currentUserLabel();obj.matricule=await nextUniqueAcademicId("student",`EIAFC-${activeSchoolCode()}`);if(!obj.matricule)return;obj.createdOffline=isOfflineId(obj.matricule);obj.device=deviceName();
+  if(reamReceived||markersReceived)obj.supplyHistory=[{id:makeUniqueId("SUP"),date:obj.supplyDate||obj.date,reams:reamReceived,markers:markersReceived,obs:obj.supplyObs||"Fournitures remises à l'inscription",agent:currentUserLabel(),createdAt:new Date().toISOString(),kind:"Réception"}];
+  db.students.push(obj);logAction("Inscription étudiant",`${obj.matricule} - ${obj.name}`)
+ }
  saveDB();clearStudentForm()
 });
 function clearStudentForm(){if(studentEditBanner)studentEditBanner.classList.remove("show");studentEditId.value="";studentForm.reset();studentBirthDate.value="";studentBirthPlace.value="";studentEmail.value="";studentAddress.value="";studentGuardianName.value="";studentGuardianPhone.value="";studentGuardianEmail.value="";studentIdentityRef.value="";studentDocBirth.checked=false;studentDocId.checked=false;studentDocDiploma.checked=false;studentDocPhotos.checked=false;studentProgram.value="Formation qualifiante";studentTrackAssigned.value="Non affecté";studentTrack.value="";updateStudentTrackState();studentDate.value=defaultManagementDate();studentFirstDue.value=academicBounds().firstDue;studentRegFee.value=0;studentTuition.value=0;studentInstallments.value=9;studentDiscount.value=0;studentReamReceived.value=0;studentMarkersReceived.value=0;studentSupplyDate.value="";studentSupplyObs.value="";renderStudentDigitalDocs()}
@@ -4481,6 +4581,171 @@ function renderStudents(){
 function updateSupplyTrackOptions(){fillTrackSelect(supplyTrackFilter,supplyProgramFilter?.value||"","Toutes filières",false)}
 function supplyFilteredStudents(){const pf=supplyProgramFilter?.value||"",tf=supplyTrackFilter?.value||"",af=supplyAssignmentFilter?.value||"",sf=supplyStatusFilter?.value||"";return currentStudents().filter(s=>(!pf||s.program===pf)&&(!tf||studentTrackValue(s)===tf)&&assignmentMatches(s,af)&&(sf!=="missing"||(Number(s.reamReceived||0)<1||Number(s.markersReceived||0)<3))&&(sf!=="complete"||(Number(s.reamReceived||0)>=1&&Number(s.markersReceived||0)>=3)))}
 function supplyValuation(){const v=activeSchoolSupplyValues();return{ream:Number(v.ream||0),marker:Number(v.marker||0)}}
+
+function normalizeSupplyEvent(e,s){
+ return{
+  id:String(e?.id||`SUP-${s?.matricule||"ETU"}-${String(e?.date||s?.supplyDate||s?.date||"").replace(/-/g,"")}`),
+  date:String(e?.date||s?.supplyDate||s?.date||""),
+  reams:Number(e?.reams??e?.ream??0),
+  markers:Number(e?.markers??e?.marker??0),
+  obs:String(e?.obs||e?.note||s?.supplyObs||""),
+  agent:String(e?.agent||e?.createdBy||s?.updatedBy||s?.createdBy||"Ancienne saisie"),
+  createdAt:String(e?.createdAt||s?.updatedAt||s?.createdAt||""),
+  kind:String(e?.kind||"Réception")
+ }
+}
+function storedSupplyHistory(s){
+ return Array.isArray(s?.supplyHistory)?s.supplyHistory.map(e=>normalizeSupplyEvent(e,s)):[]
+}
+function legacySupplyHistory(s){
+ const r=Math.max(0,Math.min(1,Number(s?.reamReceived||0))),m=Math.max(0,Math.min(3,Number(s?.markersReceived||0)));
+ if(!r&&!m)return[];
+ return[normalizeSupplyEvent({
+  id:`SUP-LEGACY-${s.matricule}`,
+  date:s.supplyDate||s.date||"",
+  reams:r,markers:m,obs:s.supplyObs||"Reprise de l'ancienne saisie",
+  agent:s.updatedBy||s.createdBy||"Ancienne saisie",
+  createdAt:s.updatedAt||s.createdAt||"",
+  kind:"Historique repris"
+ },s)]
+}
+function studentSupplyHistory(s){
+ const h=storedSupplyHistory(s);return h.length?h:legacySupplyHistory(s)
+}
+function seedStoredSupplyHistory(s){
+ const h=storedSupplyHistory(s);
+ return h.length?h:legacySupplyHistory(s)
+}
+function allSupplyReceiptEvents(){
+ const rows=[];
+ currentStudents().forEach(s=>{
+  studentSupplyHistory(s).forEach(e=>rows.push({...e,student:s.matricule,studentName:s.name,program:s.program,track:studentTrackValue(s),assignment:studentAssignmentLabel(s),schoolId:s.schoolId,academicYear:s.academicYear}))
+ });
+ return rows.sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.createdAt||"").localeCompare(String(a.createdAt||"")))
+}
+function supplyReceiptStatsForDate(date){
+ const rows=allSupplyReceiptEvents().filter(x=>x.date===date&&x.reams>=0&&x.markers>=0);
+ return{
+  students:new Set(rows.filter(x=>x.reams>0||x.markers>0).map(x=>x.student)).size,
+  reams:rows.reduce((z,x)=>z+Math.max(0,Number(x.reams||0)),0),
+  markers:rows.reduce((z,x)=>z+Math.max(0,Number(x.markers||0)),0)
+ }
+}
+function updateDailySupplyStudentSelect(){
+ const sel=document.getElementById("dailySupplyStudent");if(!sel)return;
+ const old=sel.value,rows=currentStudents().filter(s=>s.status==="Actif").sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"fr"));
+ sel.innerHTML='<option value="">— Choisir étudiant —</option>'+rows.map(s=>`<option value="${esc(s.matricule)}">${esc(s.name)} — ${esc(s.matricule)} — ${Number(s.reamReceived||0)}/1 rame • ${Number(s.markersReceived||0)}/3 marqueurs</option>`).join("");
+ if(old&&rows.some(s=>s.matricule===old))sel.value=old
+}
+function recordDailySupplyReceipt(){
+ if(!canEditStudents())return alert("Votre rôle ne peut pas enregistrer les fournitures étudiants.");
+ const mat=String(document.getElementById("dailySupplyStudent")?.value||""),date=String(document.getElementById("dailySupplyDate")?.value||"");
+ const r=Math.max(0,Math.trunc(Number(document.getElementById("dailySupplyReam")?.value||0)));
+ const m=Math.max(0,Math.trunc(Number(document.getElementById("dailySupplyMarkers")?.value||0)));
+ const obs=String(document.getElementById("dailySupplyObs")?.value||"").trim();
+ if(!mat)return alert("Choisissez un étudiant.");
+ if(!date)return alert("Choisissez la date de remise.");
+ if(!dateInManagementYear(date))return alert(`La date doit être dans la période de gestion de ${activeYear()}.`);
+ if(r<=0&&m<=0)return alert("Saisissez au moins 1 rame ou 1 marqueur reçu.");
+ if(r>1||m>3)return alert("Valeur invalide : maximum 1 rame et 3 marqueurs pour cette remise.");
+ const s=studentByMat(mat);if(!s)return;
+ const oldR=Math.max(0,Number(s.reamReceived||0)),oldM=Math.max(0,Number(s.markersReceived||0));
+ if(oldR+r>1)return alert(`Cet étudiant a déjà ${oldR}/1 rame. Vous ne pouvez pas dépasser 1 rame.`);
+ if(oldM+m>3)return alert(`Cet étudiant a déjà ${oldM}/3 marqueurs. Vous ne pouvez pas dépasser 3 marqueurs.`);
+ const history=seedStoredSupplyHistory(s);
+ history.push({
+  id:makeUniqueId("SUP"),
+  date,reams:r,markers:m,obs,
+  agent:currentUserLabel(),createdAt:new Date().toISOString(),kind:"Réception"
+ });
+ s.supplyHistory=history;
+ s.reamReceived=oldR+r;s.markersReceived=oldM+m;s.supplyDate=date;
+ s.supplyObs=obs||s.supplyObs||"";
+ s.updatedAt=new Date().toISOString();s.updatedBy=currentUserLabel();s.updatedDevice=deviceName();
+ logAction("Réception fournitures étudiant",`${s.matricule} — ${s.name} — ${r} rame(s) — ${m} marqueur(s) — ${date}`);
+ saveDB();
+ if(document.getElementById("dailySupplyReam"))dailySupplyReam.value=0;
+ if(document.getElementById("dailySupplyMarkers"))dailySupplyMarkers.value=0;
+ if(document.getElementById("dailySupplyObs"))dailySupplyObs.value="";
+ updateDailySupplyStudentSelect();renderSupplies();renderDailySupplyTracking();renderDashboard();
+}
+function filteredDailySupplyEvents(){
+ let rows=allSupplyReceiptEvents();
+ const from=String(document.getElementById("dailySupplyFrom")?.value||""),to=String(document.getElementById("dailySupplyTo")?.value||"");
+ const program=String(document.getElementById("dailySupplyProgram")?.value||""),q=textKey(document.getElementById("dailySupplySearch")?.value||"");
+ if(from)rows=rows.filter(x=>x.date>=from);
+ if(to)rows=rows.filter(x=>x.date<=to);
+ if(program)rows=rows.filter(x=>x.program===program);
+ if(q)rows=rows.filter(x=>textKey([x.studentName,x.student,x.track,x.obs,x.agent].join(" ")).includes(q));
+ return rows
+}
+function renderDailySupplyTracking(){
+ const card=document.getElementById("dailySupplyTrackingCard"),kpis=document.getElementById("dailySupplyKpis"),sum=document.getElementById("dailySupplySummaryTable"),detail=document.getElementById("dailySupplyDetailTable");
+ if(!card||!kpis||!sum||!detail)return;
+ const entry=document.getElementById("dailySupplyEntryBox");if(entry)entry.classList.toggle("hidden",!canEditStudents());
+ updateDailySupplyStudentSelect();
+ if(document.getElementById("dailySupplyDate")&&!dailySupplyDate.value)dailySupplyDate.value=today();
+ if(document.getElementById("dailySupplyFrom")&&!dailySupplyFrom.value)dailySupplyFrom.value=managementBounds().start;
+ if(document.getElementById("dailySupplyTo")&&!dailySupplyTo.value)dailySupplyTo.value=managementBounds().end;
+ const rows=filteredDailySupplyEvents(),todayRows=allSupplyReceiptEvents().filter(x=>x.date===today());
+ const positive=rows.filter(x=>Number(x.reams||0)>0||Number(x.markers||0)>0);
+ const totalR=positive.reduce((z,x)=>z+Math.max(0,Number(x.reams||0)),0),totalM=positive.reduce((z,x)=>z+Math.max(0,Number(x.markers||0)),0);
+ const todayR=todayRows.reduce((z,x)=>z+Math.max(0,Number(x.reams||0)),0),todayM=todayRows.reduce((z,x)=>z+Math.max(0,Number(x.markers||0)),0);
+ const todayStudents=new Set(todayRows.filter(x=>x.reams>0||x.markers>0).map(x=>x.student)).size;
+ const corrections=rows.filter(x=>Number(x.reams||0)<0||Number(x.markers||0)<0).length;
+ kpis.innerHTML=[
+  ["Rames reçues aujourd'hui",todayR],
+  ["Marqueurs reçus aujourd'hui",todayM],
+  ["Étudiants aujourd'hui",todayStudents],
+  ["Rames sur la période",totalR],
+  ["Marqueurs sur la période",totalM],
+  ["Jours avec remise",new Set(positive.map(x=>x.date)).size],
+  ["Corrections historiques",corrections]
+ ].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");
+
+ const dayMap={};
+ rows.forEach(x=>{
+  if(!dayMap[x.date])dayMap[x.date]={date:x.date,students:new Set(),reams:0,markers:0,corrections:0,details:[]};
+  const d=dayMap[x.date];
+  if(x.reams>0||x.markers>0)d.students.add(x.student);
+  if(x.reams>=0)d.reams+=Number(x.reams||0);else d.corrections++;
+  if(x.markers>=0)d.markers+=Number(x.markers||0);else d.corrections++;
+  d.details.push(x)
+ });
+ const days=Object.values(dayMap).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ sum.innerHTML=`<thead><tr><th>Date</th><th>Étudiants ayant remis</th><th>Rames reçues</th><th>Marqueurs reçus</th><th>Détail rapide</th></tr></thead><tbody>${days.length?days.map(d=>`<tr class="${d.date===today()?"supply-day-today":""}">
+  <td><b>${esc(d.date)}</b>${d.date===today()?'<br><span class="status valid">Aujourd’hui</span>':""}</td>
+  <td>${d.students.size}</td>
+  <td class="money"><span class="supply-positive">${d.reams}</span></td>
+  <td class="money"><span class="supply-positive">${d.markers}</span></td>
+  <td><div class="daily-supply-detail">${d.details.slice(0,4).map(x=>`<span class="daily-supply-pill">${esc(x.studentName)} : ${Math.max(0,x.reams)} R / ${Math.max(0,x.markers)} M</span>`).join("")}${d.details.length>4?`<span class="daily-supply-pill">+${d.details.length-4}</span>`:""}</div></td>
+ </tr>`).join(""):`<tr><td colspan="5" class="empty">Aucune remise de fournitures sur cette période.</td></tr>`}</tbody>`;
+
+ detail.innerHTML=`<thead><tr><th>Date</th><th>Matricule</th><th>Étudiant</th><th>Programme</th><th>Filière</th><th>Rame(s)</th><th>Marqueur(s)</th><th>Agent</th><th>Observation</th><th>Type</th></tr></thead><tbody>${rows.length?rows.map(x=>`<tr class="${x.date===today()?"supply-day-today":""}">
+  <td>${esc(x.date||"—")}</td><td>${esc(x.student)}</td><td><b>${esc(x.studentName)}</b></td><td>${esc(x.program)}</td><td>${esc(x.track||"—")}</td>
+  <td class="${x.reams<0?"supply-correction":"money"}">${x.reams}</td><td class="${x.markers<0?"supply-correction":"money"}">${x.markers}</td>
+  <td>${esc(x.agent||"—")}</td><td>${esc(x.obs||"—")}</td><td>${esc(x.kind||"Réception")}</td>
+ </tr>`).join(""):`<tr><td colspan="10" class="empty">Aucun détail disponible.</td></tr>`}</tbody>`
+}
+function setDailySupplyToday(){
+ const f=document.getElementById("dailySupplyFrom"),t=document.getElementById("dailySupplyTo");if(f)f.value=today();if(t)t.value=today();renderDailySupplyTracking()
+}
+function setDailySupplyLast7Days(){
+ const f=document.getElementById("dailySupplyFrom"),t=document.getElementById("dailySupplyTo");if(f)f.value=addDays(today(),-6);if(t)t.value=today();renderDailySupplyTracking()
+}
+function exportDailySuppliesCSV(){
+ const rows=filteredDailySupplyEvents();if(!rows.length)return alert("Aucune remise de fournitures à exporter.");
+ const head=["Date","Matricule","Etudiant","Programme","Filiere","Rames","Marqueurs","Agent","Observation","Type"];
+ const data=rows.map(x=>[x.date,x.student,x.studentName,x.program,x.track,x.reams,x.markers,x.agent,x.obs,x.kind]);
+ const q=v=>`"${String(v??"").replace(/"/g,'""')}"`,csv='\ufeff'+[head,...data].map(r=>r.map(q).join(';')).join('\n');
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`EIAFC_Rames_Marqueurs_Par_Jour_${activeSchoolCode()}_${activeYear()}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500)
+}
+window.renderDailySupplyTracking=renderDailySupplyTracking;
+window.recordDailySupplyReceipt=recordDailySupplyReceipt;
+window.setDailySupplyToday=setDailySupplyToday;
+window.setDailySupplyLast7Days=setDailySupplyLast7Days;
+window.exportDailySuppliesCSV=exportDailySuppliesCSV;
+
 function renderSupplies(){if(!document.getElementById("suppliesTable"))return;updateSupplyTrackOptions();const arr=supplyFilteredStudents(),dueR=arr.length,dueM=arr.length*3,gotR=arr.reduce((a,s)=>a+Math.min(1,Number(s.reamReceived||0)),0),gotM=arr.reduce((a,s)=>a+Math.min(3,Number(s.markersReceived||0)),0),val=supplyValuation(),est=gotR*val.ream+gotM*val.marker;supplyKpis.innerHTML=([["Rames attendues",dueR],["Rames reçues",gotR],["Marqueurs attendus",dueM],["Marqueurs reçus",gotM],["Rames manquantes",Math.max(0,dueR-gotR)],["Marqueurs manquants",Math.max(0,dueM-gotM)]].concat(canSeeGlobalMoney()?[["Valeur estimative reçue",fmt(est)]]:[])).map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");suppliesTable.innerHTML=`<thead><tr><th>Matricule</th><th>Étudiant</th><th>Programme</th><th>Statut d’affectation</th><th>Filière</th><th>Rame</th><th>Marqueurs</th><th>Date remise</th><th>État</th><th>Observation</th></tr></thead><tbody>${arr.length?arr.map(s=>{const ok=Number(s.reamReceived||0)>=1&&Number(s.markersReceived||0)>=3;return`<tr><td>${esc(s.matricule)}</td><td><b>${esc(s.name)}</b></td><td>${esc(s.program)}</td><td><span class="status ${studentIsAssigned(s)?"valid":"pending"}">${studentAssignmentLabel(s)}</span></td><td>${esc(s.track||"—")}</td><td>${Number(s.reamReceived||0)}/1</td><td>${Number(s.markersReceived||0)}/3</td><td>${esc(s.supplyDate||"—")}</td><td><span class="status ${ok?"valid":"pending"}">${ok?"Complet":"À compléter"}</span></td><td>${esc(s.supplyObs||"")}</td></tr>`}).join(""):`<tr><td colspan="10" class="empty">Aucun étudiant pour ce filtre</td></tr>`}</tbody>`}
 
 function classFilteredStudents(){const pf=classProgram?.value||"",tf=classTrack?.value||"",af=classAssignment?.value||"",lf=classLevel?.value||"",sf=classStatus?.value??"Actif",q=(classSearch?.value||"").toLowerCase();return currentStudents().filter(s=>(!pf||s.program===pf)&&(!tf||studentTrackValue(s)===tf)&&assignmentMatches(s,af)&&(!lf||s.level===lf)&&(!sf||s.status===sf)&&([s.matricule,s.name,s.phone,s.track,s.level].join(" ").toLowerCase().includes(q))).sort((a,b)=>String(a.name).localeCompare(String(b.name),"fr"))}
@@ -5368,7 +5633,7 @@ function exportCSV(kind){
  if(kind==="direction")rows=accessibleSchools().map(s=>{const f=networkSchoolSummary(s.id),a=schoolAcademicSummary(s.id);return{Ecole:s.code,Nom:s.name,Ville:s.city,Etudiants:a.students,Assiduite:a.attendance,Moyenne_notes:a.gradeAverage,Discipline_ouverte:a.discipline,Personnel:a.staff,Paiements:f.paid,Depenses:f.expenses,Flux_net:f.net,Dette_fournisseurs:a.supplierDebt}});
  if(kind==="expense_payments")rows=expensePaymentHistoryRows().map(p=>{const x=db.expenses.find(e=>e.id===p.expenseId);return{...p,Fournisseur:x?.beneficiary||"",Libelle_depense:x?.label||"",Programme:x?operationProgram(x):"",Filiere:x?operationTrack(x):""}});if(kind==="journal")rows=journalRows();if(kind==="audit")rows=auditFilteredRows().map(x=>{const sc=schoolById(recordSchoolId(x));return{Ecole_code:sc?.code||"",Ecole:sc?.name||x.schoolName||"",Ville:sc?.city||"",...x}});
  if(kind==="annual")rows=reportPeriods().map(m=>{const af=annualAssignmentFilter?.value||"",tf=annualTrackFilter?.value||"",x=monthlySummary(m,annualProgramFilter?.value||"",tf,af);return{Annee:activeYear(),Programme:annualProgramFilter?.value||"Tous",Affectation:assignmentLabelFromFilter(af),Filiere:tf||"Toutes",Periode:x.month,Effectif:x.students,Facture:x.billed,Paiements:x.pay,Autres_recettes:x.other,Depenses:x.exp,Resultat:x.net,Reste:x.rest,Echu:x.overdue}});
- if(kind==="programs")rows=programSummaryRows("",annualAssignmentFilter?.value||"").map(x=>({Annee:activeYear(),Programme:x.program,Affectation:assignmentLabelFromFilter(annualAssignmentFilter?.value||""),Effectif:x.students,Facture:x.billed,Paiements:x.paid,Autres_recettes:x.other,Depenses:x.expenses,Resultat:x.net,Reste_etudiants:x.rest}));if(kind==="assignments")rows=filiereAssignmentRows("",annualProgramFilter?.value||"").map(x=>({Annee:activeYear(),Programme:x.program,Filiere:x.track,Affectation:x.label,Effectif:x.students,Facture:x.billed,Paiements:x.paid,Reste:x.rest,Echu:x.overdue,Rames_recues:x.reams,Rames_attendues:x.students,Marqueurs_recus:x.markers,Marqueurs_attendus:x.students*3}));if(kind==="tracks"){const af=annualAssignmentFilter?.value||"";rows=filiereSummaryRows(annualProgramFilter?.value||"","",af).map(x=>({Annee:activeYear(),Programme:x.program,Affectation:assignmentLabelFromFilter(af),Filiere:x.track,Effectif:x.students,Facture:x.billed,Paiements:x.paid,Autres_recettes:x.other,Depenses_directes:x.expenses,Resultat_direct:x.net,Reste_etudiants:x.rest}))};if(kind==="supplies")rows=supplyFilteredStudents().map(s=>({Annee:s.academicYear,Matricule:s.matricule,Etudiant:s.name,Programme:s.program,Affectation:studentAssignmentLabel(s),Filiere:s.track||"",Rame_attendue:1,Rame_recue:s.reamReceived||0,Marqueurs_attendus:3,Marqueurs_recus:s.markersReceived||0,Date_remise:s.supplyDate||"",Observation:s.supplyObs||""}));
+ if(kind==="programs")rows=programSummaryRows("",annualAssignmentFilter?.value||"").map(x=>({Annee:activeYear(),Programme:x.program,Affectation:assignmentLabelFromFilter(annualAssignmentFilter?.value||""),Effectif:x.students,Facture:x.billed,Paiements:x.paid,Autres_recettes:x.other,Depenses:x.expenses,Resultat:x.net,Reste_etudiants:x.rest}));if(kind==="assignments")rows=filiereAssignmentRows("",annualProgramFilter?.value||"").map(x=>({Annee:activeYear(),Programme:x.program,Filiere:x.track,Affectation:x.label,Effectif:x.students,Facture:x.billed,Paiements:x.paid,Reste:x.rest,Echu:x.overdue,Rames_recues:x.reams,Rames_attendues:x.students,Marqueurs_recus:x.markers,Marqueurs_attendus:x.students*3}));if(kind==="tracks"){const af=annualAssignmentFilter?.value||"";rows=filiereSummaryRows(annualProgramFilter?.value||"","",af).map(x=>({Annee:activeYear(),Programme:x.program,Affectation:assignmentLabelFromFilter(af),Filiere:x.track,Effectif:x.students,Facture:x.billed,Paiements:x.paid,Autres_recettes:x.other,Depenses_directes:x.expenses,Resultat_direct:x.net,Reste_etudiants:x.rest}))};if(kind==="supplies")rows=supplyFilteredStudents().map(s=>({Annee:s.academicYear,Matricule:s.matricule,Etudiant:s.name,Programme:s.program,Affectation:studentAssignmentLabel(s),Filiere:s.track||"",Rame_attendue:1,Rame_recue:s.reamReceived||0,Marqueurs_attendus:3,Marqueurs_recus:s.markersReceived||0,Date_derniere_remise:s.supplyDate||"",Nombre_remises:studentSupplyHistory(s).length,Observation:s.supplyObs||""}));
  if(kind==="arrears")rows=currentStudents().filter(s=>s.status==="Actif"&&overdueAmount(s)>0).sort((a,b)=>overdueAmount(b)-overdueAmount(a)).map(s=>({Annee:s.academicYear,Matricule:s.matricule,Etudiant:s.name,Telephone:s.phone,Programme:s.program,Affectation:studentAssignmentLabel(s),Filiere:s.track||"",Niveau:s.level,Montant_echu:overdueAmount(s),Reste_total:studentRest(s),Prochaine_echeance:nextDue(s)?.date||""}));
  if(kind==="monthly_detail")rows=monthlyDetailRows().map(x=>({Annee:activeYear(),Periode:reportPeriodLabel(selectedReportPeriod()),Date:x.date,Nature:x.kind,Reference:x.ref,Programme:x.program,Affectation:x.assignment,Filiere_Centre:x.track,Libelle:x.label,Entree:x.inflow,Sortie:x.outflow,Solde:x.inflow-x.outflow}));
  if(kind==="accounting")rows=accountingRows(accMonth?.value||"",accProgram?.value||"",accTrack?.value||"").map(x=>({Annee:activeYear(),Date:x.date,Piece:x.piece,Journal:x.journal,Programme:x.program,Filiere:x.track,Origine:x.origin,Libelle:x.label,Compte_debit:x.debit,Intitule_debit:accountName(x.debit),Compte_credit:x.credit,Intitule_credit:accountName(x.credit),Montant:x.amount}));
