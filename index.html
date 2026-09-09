@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-09-v11-9-0-separation-totale">
+<meta name="eiafc-web-build" content="2026-09-09-v11-9-2-reconciliation-financiere">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -1550,7 +1550,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.9.0 • SÉPARATION TOTALE PAR PÔLE • CLOUD</span></div>
+    <div class="brand"><div class="brand-kicker">EIAFC GESTION CLOUD</div><h1>EIAFC</h1><p>Pilotage scolaire, financier & administratif</p><span class="version">VERSION 11.9.1 • RÉCONCILIATION FINANCIÈRE PAR PÔLE • CLOUD</span></div>
     <div class="user-mini"><b id="currentUserName">Non connecté</b><span id="currentUserRole"></span><br><button class="btn btn-light btn-sm" onclick="logout()">Déconnexion</button></div>
     <div class="nav">
       <div class="nav-group-title" data-nav-group="home">Accueil</div>
@@ -1599,7 +1599,7 @@ body[data-role-theme="secretariat"] .production-hero{
     <section id="dashboard" class="view active">
       <div class="production-hero">
         <div><span class="prod-eyebrow">CENTRE DE PILOTAGE EIAFC</span><h2 id="homeWelcomeTitle">Votre école, organisée dans un seul espace.</h2><p id="homeWelcomeText">Accédez rapidement aux étudiants, paiements, caisse, pédagogie, personnel, rapports et contrôles, avec une lecture claire de ce qui demande votre attention.</p></div>
-        <div class="prod-hero-badge"><b>11.9</b><span>SÉPARATION TOTALE PAR PÔLE • CLOUD</span></div>
+        <div class="prod-hero-badge"><b>11.9.1</b><span>RÉCONCILIATION FINANCIÈRE PAR PÔLE • CLOUD</span></div>
       </div>
       <div class="premium-context-strip">
         <div class="premium-context-card role-context">
@@ -2879,7 +2879,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.9.0";
+const APP_VERSION="11.9.1";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -4003,7 +4003,7 @@ function renderStabilityAudit(){
  const validRoles=new Set(roles),invalidRoles=(db.users||[]).filter(u=>u.deleted!==true&&u.active!==false&&!validRoles.has(String(u.role||""))).length;
  const duplicateStudents=(()=>{const m={};currentStudents().forEach(s=>{const k=String(s.matricule||"");if(k)m[k]=(m[k]||0)+1});return Object.values(m).filter(n=>n>1).length})();
  const pending=typeof pendingChangesCount==="function"?Number(pendingChangesCount()||0):0;
- const expectedBuild="2026-09-09-v11-9-0-separation-totale";let cacheOk=true;try{const stored=localStorage.getItem("eiafc_web_cache_build");cacheOk=!stored||stored===expectedBuild}catch(_e){}
+ const expectedBuild="2026-09-09-v11-9-2-reconciliation-financiere";let cacheOk=true;try{const stored=localStorage.getItem("eiafc_web_cache_build");cacheOk=!stored||stored===expectedBuild}catch(_e){}
  const checks=[
   {title:"Version / cache Web",value:cacheOk?"OK":"À actualiser",sub:cacheOk?"Build V11.8 cohérent":"Ancien identifiant de cache détecté",cls:cacheOk?"good":"warn"},
   {title:"Anciennes fournitures sans date",value:undated,sub:undated?"À corriger dans Étudiants → Rames & marqueurs":"Aucune date de remise inventée",cls:undated?"warn":"good"},
@@ -6085,7 +6085,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   const WEB_APIKEY='sb_publishable_gAPfLd6okuu42hvOwQp35Q_L87JA22Q';
   const WEB_WORKSPACE='EIAFC_V7';
   const WEB_TOKEN_KEY='eiafc_web_secure_session_v4';
-  const WEB_BUILD='2026-09-09-v11-9-0-separation-totale';
+  const WEB_BUILD='2026-09-09-v11-9-2-reconciliation-financiere';
 
   const WEB_PUBLIC_HOST=String(location.hostname||'').endsWith('.vercel.app');
   if(WEB_PUBLIC_HOST){
@@ -6868,7 +6868,7 @@ startApp();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("fo
   });
 
   // Marque visuellement l'environnement de production web pour faciliter l'audit.
-  document.documentElement.setAttribute('data-eiafc-version','11.9.0');
+  document.documentElement.setAttribute('data-eiafc-version','11.9.1');
   // Sécurité connexion : 5 échecs => blocage local de 15 minutes sur ce poste.
   try {
     const originalLogin = window.login;
@@ -6934,13 +6934,59 @@ const sepLabel=p=>p==="BTS"?"BTS (1 + 2)":String(p||"—");
 const sepFinancialRole=()=>["Fondateur","Comptable","Caissier","Secrétariat & Caisse"].includes(roleName());
 const sepClosingPole=()=>String(document.getElementById("closingPole")?.value||"").trim();
 
-function sepDirectCashPoleMap(date,{excludeClosingToday=false}={}){
- const map=emptyCashPoleMap();
- addPoleAmount(map,UNALLOCATED_CASH_POLE,Number(openingForYear().cash||0));
- applyCashPoleFlows(map,"",String(date||today()),{excludeClosingRemittanceDate:excludeClosingToday?String(date||today()):""});
+// ===== V11.9.2 — point de reprise vérifié au 08/09/2026 =====
+// Rapprochement confirmé à partir de la base EIAFC :
+// BTS = 1 855 000 espèces + 60 000 Wave = 1 915 000 encaissés.
+// Après 1 019 000 de sorties BTS : 896 000 de trésorerie BTS.
+// Les 60 000 encaissés via Wave ont ensuite été remis au Fondateur :
+// 655 000 Banque + 241 000 Caisse Fondateur + 0 Wave actuel.
+// Formation qualifiante : 1 205 000 remis intégralement au Fondateur.
+// Ce point de reprise empêche les anciennes clôtures globales non ventilées de réapparaître comme "disponibles".
+const SEP_RECON_DATE="2026-09-08";
+const SEP_RECON_NOTE="BTS: 60 000 FCFA encaissés via Wave puis remis au Fondateur";
+const SEP_RECON_ANCHOR={
+ "Espèces":{"BTS":0,"Formation qualifiante":0,"Licence":0,"Master":0,"Administration générale":0},
+ "Caisse Fondateur":{"BTS":241000,"Formation qualifiante":1205000,"Licence":0,"Master":0,"Administration générale":0},
+ "Banque":{"BTS":655000,"Formation qualifiante":0,"Licence":0,"Master":0,"Administration générale":0},
+ "Wave":{"BTS":0,"Formation qualifiante":0,"Licence":0,"Master":0,"Administration générale":0},
+ "MTN Mobile Money":{"BTS":0,"Formation qualifiante":0,"Licence":0,"Master":0,"Administration générale":0},
+ "Orange Money":{"BTS":0,"Formation qualifiante":0,"Licence":0,"Master":0,"Administration générale":0}
+};
+const SEP_PRE_CLOSE_0809={"BTS":836000,"Formation qualifiante":1205000,"Licence":0,"Master":0,"Administration générale":0};
+
+function sepAnchorMap(channel){
+ const map=emptyCashPoleMap(),src=SEP_RECON_ANCHOR[treasuryChannel(channel)]||{};
+ SEP_POLES.forEach(p=>addPoleAmount(map,p,Number(src[p]||0)));
  return map
 }
-// V11.9: la caisse par pôle est calculée depuis les mouvements réels, pas depuis une clôture globale précédente.
+function sepRawLegacyCashMap(date,{excludeClosingToday=false}={}){
+ const map=emptyCashPoleMap();addPoleAmount(map,UNALLOCATED_CASH_POLE,Number(openingForYear().cash||0));
+ applyCashPoleFlows(map,"",String(date||today()),{excludeClosingRemittanceDate:excludeClosingToday?String(date||today()):""});return map
+}
+function sepApplyChannelFlowsAfter(map,channel,fromExclusive,toInclusive,{excludeClosingRemittanceDate=""}={}){
+ channel=treasuryChannel(channel);
+ const match=d=>{d=String(d||"");return d>dString(fromExclusive)&&d<=dString(toInclusive)};
+ function dString(v){return String(v||"")}
+ validPayments().filter(x=>match(x.date)&&treasuryChannel(x.mode)===channel).forEach(x=>addPoleAmount(map,poleName(studentByMat(x.student)?.program),Number(x.amount||0)));
+ validOther().filter(x=>match(x.date)&&treasuryChannel(x.mode)===channel).forEach(x=>addPoleAmount(map,poleName(operationProgram(x)),Number(x.amount||0)));
+ expenseCashMovements().filter(x=>match(x.date)&&treasuryChannel(x.mode)===channel).forEach(x=>{const e=(db.expenses||[]).find(v=>String(v.id)===String(x.expenseId));addPoleAmount(map,poleName(operationProgram(e||{})),-Number(x.amount||0))});
+ payrollPaid().filter(x=>match(x.payDate)&&treasuryChannel(x.mode)===channel).forEach(x=>addPoleAmount(map,"Administration générale",-Number(x.net||0)));
+ currentRecords(db.staffLoans).filter(x=>x.status!=="Annulé"&&match(x.date)&&treasuryChannel(x.mode)===channel).forEach(x=>addPoleAmount(map,"Administration générale",-Number(x.amount||0)));
+ validTransfers().filter(x=>match(x.date)&&!(excludeClosingRemittanceDate&&String(x.date)===String(excludeClosingRemittanceDate)&&isClosingRemittanceTransfer(x))).forEach(tr=>transferPoleBreakdown(tr).forEach(part=>{if(treasuryChannel(tr.to)===channel)addPoleAmount(map,part.pole,part.amount);if(treasuryChannel(tr.from)===channel)addPoleAmount(map,part.pole,-part.amount)}));
+ return map
+}
+function sepDirectCashPoleMap(date,{excludeClosingToday=false}={}){
+ date=String(date||today());
+ if(date<SEP_RECON_DATE)return sepRawLegacyCashMap(date,{excludeClosingToday});
+ if(date===SEP_RECON_DATE&&excludeClosingToday){
+  const map=emptyCashPoleMap();SEP_POLES.forEach(p=>addPoleAmount(map,p,Number(SEP_PRE_CLOSE_0809[p]||0)));return map
+ }
+ const map=sepAnchorMap("Espèces");
+ if(date>SEP_RECON_DATE)sepApplyChannelFlowsAfter(map,"Espèces",SEP_RECON_DATE,date,{excludeClosingRemittanceDate:excludeClosingToday?date:""});
+ return map
+}
+// V11.9.2 : "avant clôture" exclut seulement les remises du jour courant;
+// après une clôture, le tableau de bord utilise le vrai solde post-remise.
 cashPoleMapBeforeClosing=function(date){return sepDirectCashPoleMap(date,{excludeClosingToday:true})};
 window.cashPoleMapBeforeClosing=cashPoleMapBeforeClosing;
 cashPoleBalanceAt=function(date,pole){return Number(cashPoleMapBeforeClosing(date)[pole]||0)};
@@ -6948,7 +6994,14 @@ window.cashPoleBalanceAt=cashPoleBalanceAt;
 
 function sepChannelOpening(channel){const o=openingForYear();return Number(({"Espèces":o.cash,"Caisse Fondateur":o.founderCash,"Banque":o.bank,"Wave":o.wave,"MTN Mobile Money":o.mtn,"Orange Money":o.orange})[channel]||0)}
 function sepChannelPoleMapAt(channel,date){
- channel=treasuryChannel(channel);date=String(date||today());const map=emptyCashPoleMap();addPoleAmount(map,UNALLOCATED_CASH_POLE,sepChannelOpening(channel));
+ channel=treasuryChannel(channel);date=String(date||today());
+ if(channel==="Espèces")return sepDirectCashPoleMap(date,{excludeClosingToday:false});
+ if(date>=SEP_RECON_DATE){
+  const map=sepAnchorMap(channel);
+  if(date>SEP_RECON_DATE)sepApplyChannelFlowsAfter(map,channel,SEP_RECON_DATE,date);
+  return map
+ }
+ const map=emptyCashPoleMap();addPoleAmount(map,UNALLOCATED_CASH_POLE,sepChannelOpening(channel));
  validPayments().filter(x=>String(x.date)<=date&&treasuryChannel(x.mode)===channel).forEach(x=>addPoleAmount(map,poleName(studentByMat(x.student)?.program),Number(x.amount||0)));
  validOther().filter(x=>String(x.date)<=date&&treasuryChannel(x.mode)===channel).forEach(x=>addPoleAmount(map,poleName(operationProgram(x)),Number(x.amount||0)));
  expenseCashMovements().filter(x=>String(x.date)<=date&&treasuryChannel(x.mode)===channel).forEach(x=>{const e=(db.expenses||[]).find(v=>String(v.id)===String(x.expenseId));addPoleAmount(map,poleName(operationProgram(e||{})),-Number(x.amount||0))});
@@ -6958,6 +7011,28 @@ function sepChannelPoleMapAt(channel,date){
  return map
 }
 window.eiafcChannelPoleMapAt=sepChannelPoleMapAt;
+
+// Les vues "Caisse Fondateur" utilisent le même rapprochement vérifié.
+founderCashPoleMapAt=function(date){return sepChannelPoleMapAt("Caisse Fondateur",date)};
+window.founderCashPoleMapAt=founderCashPoleMapAt;
+founderCashPoleBalanceAt=function(date,pole){return Number(founderCashPoleMapAt(date)[pole]||0)};
+window.founderCashPoleBalanceAt=founderCashPoleBalanceAt;
+founderCashPoleMovement=function(pole,a,b){
+ const start=Number(founderCashPoleMapAt(addDays(String(a||today()),-1))[pole]||0),end=Number(founderCashPoleMapAt(String(b||today()))[pole]||0),net=end-start;
+ return{inflow:Math.max(0,net),outflow:Math.max(0,-net),net}
+};
+window.founderCashPoleMovement=founderCashPoleMovement;
+
+function sepPoleCumulativeStats(date,pole){
+ date=String(date||today());
+ const pays=validPayments().filter(x=>String(x.date)<=date&&poleName(studentByMat(x.student)?.program)===pole);
+ const others=validOther().filter(x=>String(x.date)<=date&&poleName(operationProgram(x))===pole);
+ const ids=new Set(validExpenses().filter(x=>poleName(operationProgram(x))===pole).map(x=>String(x.id)));
+ const paidExpenses=expenseCashMovements().filter(x=>String(x.date)<=date&&ids.has(String(x.expenseId))).reduce((z,x)=>z+Number(x.amount||0),0);
+ const byMode=Object.fromEntries(SEP_CHANNELS.map(ch=>[ch,pays.filter(x=>treasuryChannel(x.mode)===ch).reduce((z,x)=>z+Number(x.amount||0),0)]));
+ const studentPaid=pays.reduce((z,x)=>z+Number(x.amount||0),0),otherPaid=others.reduce((z,x)=>z+Number(x.amount||0),0);
+ return{studentPaid,otherPaid,totalReceipts:studentPaid+otherPaid,paidExpenses,byMode}
+}
 
 function sepPoleDayParts(date,pole){
  date=String(date||today());
@@ -6994,12 +7069,12 @@ function renderDashboardPoleSeparation(){
   const ids=new Set(validExpenses().filter(x=>poleName(operationProgram(x))===pole).map(x=>String(x.id)));
   const expToday=expenseCashMovements().filter(x=>x.date===date&&ids.has(String(x.expenseId))).reduce((z,x)=>z+Number(x.amount||0),0)+(pole==="Administration générale"?payrollPaid().filter(x=>x.payDate===date).reduce((z,x)=>z+Number(x.net||0),0)+currentRecords(db.staffLoans).filter(x=>x.status!=="Annulé"&&x.date===date).reduce((z,x)=>z+Number(x.amount||0),0):0);
   const rest=ss.reduce((z,s)=>z+studentRest(s),0),over=ss.reduce((z,s)=>z+overdueAmount(s),0),close=sepClosingFor(date,pole),last=sepLastClosingFor(pole);
-  const cash=Number(channelMaps["Espèces"][pole]||0),founder=Number(channelMaps["Caisse Fondateur"][pole]||0),bank=Number(channelMaps["Banque"][pole]||0),wave=Number(channelMaps["Wave"][pole]||0),mtn=Number(channelMaps["MTN Mobile Money"][pole]||0),orange=Number(channelMaps["Orange Money"][pole]||0);
-  return{pole,students:ss.length,payToday,othToday,expToday,netToday:payToday+othToday-expToday,rest,over,cash,founder,bank,wave,mtn,orange,totalTreasury:cash+founder+bank+wave+mtn+orange,close,last,parts}
+  const cash=Number(channelMaps["Espèces"][pole]||0),founder=Number(channelMaps["Caisse Fondateur"][pole]||0),bank=Number(channelMaps["Banque"][pole]||0),wave=Number(channelMaps["Wave"][pole]||0),mtn=Number(channelMaps["MTN Mobile Money"][pole]||0),orange=Number(channelMaps["Orange Money"][pole]||0),cum=sepPoleCumulativeStats(date,pole);
+  return{pole,students:ss.length,payToday,othToday,expToday,netToday:payToday+othToday-expToday,rest,over,cash,founder,bank,wave,mtn,orange,totalTreasury:cash+founder+bank+wave+mtn+orange,studentPaidTotal:cum.studentPaid,totalReceipts:cum.totalReceipts,paidExpensesTotal:cum.paidExpenses,receivedCash:cum.byMode["Espèces"]||0,receivedWave:cum.byMode["Wave"]||0,receivedBank:cum.byMode["Banque"]||0,close,last,parts}
  });
- cards.innerHTML=rows.map(r=>`<div class="dashboard-pole-card"><div class="dashboard-pole-name">${esc(sepLabel(r.pole))}</div><div class="dashboard-pole-main">${dashboardMoneyOrHidden(r.cash,"cash")}</div><div class="dashboard-pole-sub">Caisse comptable actuelle</div><div class="dashboard-pole-mini"><span>Étudiants <b>${r.students}</b></span><span>Encaissements jour <b>${dashboardMoneyOrHidden(r.payToday,"cash")}</b></span><span>Caisse Fondateur <b>${dashboardMoneyOrHidden(r.founder,"cash")}</b></span><span>Reste étudiants <b>${dashboardMoneyOrHidden(r.rest,"finance")}</b></span></div></div>`).join("");
-  const legacyVals=SEP_CHANNELS.map(ch=>[ch,Number(channelMaps[ch][UNALLOCATED_CASH_POLE]||0)]).filter(x=>Math.abs(x[1])>0.01);if(legacy)legacy.innerHTML=legacyVals.length?`<div class="notice"><b>Ancien solde non ventilé isolé :</b> ${legacyVals.map(([ch,v])=>`${esc(ch)} ${dashboardMoneyOrHidden(v,"cash")}`).join(" • ")}. Ce montant n’est ajouté à aucune formation afin d’éviter de fausser les comptes.</div>`:"";
- tre.innerHTML=`<thead><tr><th>Formation / pôle</th><th class="money">Caisse comptable</th><th class="money">Caisse Fondateur</th><th class="money">Banque</th><th class="money">Wave</th><th class="money">MTN</th><th class="money">Orange</th><th class="money">Total du pôle</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>${esc(sepLabel(r.pole))}</b></td><td class="money">${dashboardMoneyOrHidden(r.cash,"cash")}</td><td class="money">${dashboardMoneyOrHidden(r.founder,"cash")}</td><td class="money">${dashboardMoneyOrHidden(r.bank,"cash")}</td><td class="money">${dashboardMoneyOrHidden(r.wave,"cash")}</td><td class="money">${dashboardMoneyOrHidden(r.mtn,"cash")}</td><td class="money">${dashboardMoneyOrHidden(r.orange,"cash")}</td><td class="money"><b>${dashboardMoneyOrHidden(r.totalTreasury,"cash")}</b></td></tr>`).join("")}</tbody>`;
+ cards.innerHTML=rows.map(r=>`<div class="dashboard-pole-card"><div class="dashboard-pole-name">${esc(sepLabel(r.pole))}</div><div class="dashboard-pole-main">${dashboardMoneyOrHidden(r.studentPaidTotal,"finance")}</div><div class="dashboard-pole-sub">Encaissements étudiants cumulés</div><div class="dashboard-pole-mini"><span>Caisse disponible <b>${dashboardMoneyOrHidden(r.cash,"cash")}</b></span><span>Caisse Fondateur <b>${dashboardMoneyOrHidden(r.founder,"cash")}</b></span><span>Banque <b>${dashboardMoneyOrHidden(r.bank,"cash")}</b></span><span>Wave actuel <b>${dashboardMoneyOrHidden(r.wave,"cash")}</b></span><span>Dépenses payées <b>${dashboardMoneyOrHidden(r.paidExpensesTotal,"finance")}</b></span><span>Encaissements jour <b>${dashboardMoneyOrHidden(r.payToday,"cash")}</b></span></div></div>`).join("");
+  const legacyVals=SEP_CHANNELS.map(ch=>[ch,Number(channelMaps[ch][UNALLOCATED_CASH_POLE]||0)]).filter(x=>Math.abs(x[1])>0.01);if(legacy){const bts=rows.find(r=>r.pole==="BTS"),fq=rows.find(r=>r.pole==="Formation qualifiante");legacy.innerHTML=`<div class="info"><b>Rapprochement vérifié au 08/09/2026 :</b> BTS encaissé = <b>${fmt(1915000)}</b> (Espèces ${fmt(1855000)} + Wave ${fmt(60000)}). Après dépenses BTS de ${fmt(1019000)}, la trésorerie BTS issue de cette période est ventilée : Banque ${fmt(655000)} + Fondateur ${fmt(241000)} + Wave actuel ${fmt(0)}. Les ${fmt(60000)} encaissés via Wave ont été remis au Fondateur. Formation qualifiante clôturée au 08/09 : ${fmt(1205000)} remis au Fondateur. Les nouveaux mouvements postérieurs s’ajoutent séparément.</div>${legacyVals.length?`<div class="notice" style="margin-top:8px"><b>Ancien solde non ventilé restant :</b> ${legacyVals.map(([ch,v])=>`${esc(ch)} ${dashboardMoneyOrHidden(v,"cash")}`).join(" • ")}.</div>`:""}`;}
+ tre.innerHTML=`<thead><tr><th>Formation / pôle</th><th class="money">Total encaissé étudiants</th><th class="money">Espèces encaissées</th><th class="money">Wave encaissé</th><th class="money">Dépenses payées</th><th class="money">Caisse disponible</th><th class="money">Caisse Fondateur</th><th class="money">Banque</th><th class="money">Wave actuel</th><th class="money">MTN</th><th class="money">Orange</th><th class="money">Trésorerie actuelle</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>${esc(sepLabel(r.pole))}</b></td><td class="money"><b>${dashboardMoneyOrHidden(r.studentPaidTotal,"finance")}</b></td><td class="money">${dashboardMoneyOrHidden(r.receivedCash,"finance")}</td><td class="money">${dashboardMoneyOrHidden(r.receivedWave,"finance")}</td><td class="money">${dashboardMoneyOrHidden(r.paidExpensesTotal,"finance")}</td><td class="money"><b>${dashboardMoneyOrHidden(r.cash,"cash")}</b></td><td class="money">${dashboardMoneyOrHidden(r.founder,"cash")}</td><td class="money">${dashboardMoneyOrHidden(r.bank,"cash")}</td><td class="money">${dashboardMoneyOrHidden(r.wave,"cash")}</td><td class="money">${dashboardMoneyOrHidden(r.mtn,"cash")}</td><td class="money">${dashboardMoneyOrHidden(r.orange,"cash")}</td><td class="money"><b>${dashboardMoneyOrHidden(r.totalTreasury,"cash")}</b></td></tr>`).join("")}</tbody>`;
  day.innerHTML=`<thead><tr><th>Formation / pôle</th><th>Effectif</th><th class="money">Paiements aujourd'hui</th><th class="money">Autres recettes</th><th class="money">Sorties payées</th><th class="money">Flux du jour</th><th class="money">Reste étudiants</th><th class="money">Échu</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>${esc(sepLabel(r.pole))}</b></td><td>${r.students}</td><td class="money">${dashboardMoneyOrHidden(r.payToday,"cash")}</td><td class="money">${dashboardMoneyOrHidden(r.othToday,"cash")}</td><td class="money">${dashboardMoneyOrHidden(r.expToday,"cash")}</td><td class="money"><b>${dashboardMoneyOrHidden(r.netToday,"cash")}</b></td><td class="money">${dashboardMoneyOrHidden(r.rest,"finance")}</td><td class="money">${dashboardMoneyOrHidden(r.over,"finance")}</td></tr>`).join("")}</tbody>`;
  clo.innerHTML=`<thead><tr><th>Formation / pôle</th><th class="money">Solde théorique avant clôture</th><th>Clôture aujourd'hui</th><th class="money">Compté</th><th class="money">Remis / versé</th><th class="money">Reste du pôle</th><th>Dernière clôture</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>${esc(sepLabel(r.pole))}</b></td><td class="money">${dashboardMoneyOrHidden(r.parts.available,"cash")}</td><td>${r.close?'<span class="status valid">✅ Clôturée</span>':'<span class="status pending">À clôturer</span>'}</td><td class="money">${r.close?dashboardMoneyOrHidden(Number(r.close.countedBefore??r.close.actual??0),"cash"):"—"}</td><td class="money">${r.close?dashboardMoneyOrHidden(Number(r.close.remittanceAmount||0),"cash"):"—"}</td><td class="money">${r.close?dashboardMoneyOrHidden(Number(r.close.actual||0),"cash"):dashboardMoneyOrHidden(r.cash,"cash")}</td><td>${r.last?`${esc(r.last.date)}<br><span class="small">${esc(r.last.id||"")}</span>`:"Aucune"}</td></tr>`).join("")}</tbody>`;
  // Les KPI financiers globaux sont remplacés par 5 cartes, une par pôle.
@@ -7054,7 +7129,7 @@ setTimeout(()=>{try{sepRenderClosingPreview();if(typeof renderDashboardPoleSepar
 })();
 </script>
 <style id="eiafc-v119-separation-style">
-.dashboard-pole-cards{display:grid;grid-template-columns:repeat(5,minmax(180px,1fr));gap:10px}.dashboard-pole-card{border:1px solid #dce6ec;border-radius:13px;padding:14px;background:#fbfdff;min-height:150px}.dashboard-pole-name{font-size:13px;font-weight:900;color:var(--navy);min-height:32px}.dashboard-pole-main{font-size:20px;font-weight:900;color:var(--navy);margin-top:8px}.dashboard-pole-sub{font-size:10px;color:var(--muted);margin-bottom:10px}.dashboard-pole-mini{display:grid;gap:5px;font-size:10px}.dashboard-pole-mini span{display:flex;justify-content:space-between;gap:8px;border-top:1px solid #edf1f4;padding-top:4px}.pole-top-kpi .label{white-space:normal!important}.dashboard-pole-control table{min-width:1050px}#closingPole{font-weight:800;border-color:#d4a62e;background:#fffdf5}@media(max-width:1250px){.dashboard-pole-cards{grid-template-columns:repeat(3,minmax(180px,1fr))}}@media(max-width:760px){.dashboard-pole-cards{grid-template-columns:1fr}.dashboard-pole-control{padding:12px}.dashboard-pole-control table{min-width:900px}}
+.dashboard-pole-cards{display:grid;grid-template-columns:repeat(5,minmax(180px,1fr));gap:10px}.dashboard-pole-card{border:1px solid #dce6ec;border-radius:13px;padding:14px;background:#fbfdff;min-height:150px}.dashboard-pole-name{font-size:13px;font-weight:900;color:var(--navy);min-height:32px}.dashboard-pole-main{font-size:20px;font-weight:900;color:var(--navy);margin-top:8px}.dashboard-pole-sub{font-size:10px;color:var(--muted);margin-bottom:10px}.dashboard-pole-mini{display:grid;gap:5px;font-size:10px}.dashboard-pole-mini span{display:flex;justify-content:space-between;gap:8px;border-top:1px solid #edf1f4;padding-top:4px}.pole-top-kpi .label{white-space:normal!important}.dashboard-pole-control table{min-width:1450px}#closingPole{font-weight:800;border-color:#d4a62e;background:#fffdf5}@media(max-width:1250px){.dashboard-pole-cards{grid-template-columns:repeat(3,minmax(180px,1fr))}}@media(max-width:760px){.dashboard-pole-cards{grid-template-columns:1fr}.dashboard-pole-control{padding:12px}.dashboard-pole-control table{min-width:900px}}
 </style>
 </body>
 </html>
