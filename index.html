@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-08-v11-8-0-stabilization">
+<meta name="eiafc-web-build" content="2026-09-09-v11-8-1-caisses-par-pole">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -2320,9 +2320,12 @@ body[data-role-theme="secretariat"] .production-hero{
         <div class="grid kpis" id="cashControlKpis" style="margin-bottom:12px"></div>
         <div id="cashControlAlerts" style="margin-bottom:12px"></div>
         <div class="table-wrap"><table id="cashTable"></table></div>
-        <div class="section-title" style="margin-top:18px"><h3>🎓 Caisse séparée par pôle</h3><span class="small">Encaissements et décaissements réels sur la période</span></div>
-        <div class="info" style="margin-bottom:12px"><b>Deux caisses sont distinguées :</b> « Espèces » = caisse tenue par la comptable pendant la journée ; « Caisse Fondateur » = espèces remises main à main au Fondateur/Direction. Une remise entre les deux n’est ni une recette ni une dépense. Les règlements fournisseurs restent rattachés au pôle de la dépense d’origine.</div>
+        <div class="section-title" style="margin-top:18px"><h3>🎓 Caisse séparée par pôle</h3><span class="small">BTS 1 + BTS 2 ensemble • autres pôles séparés</span></div>
+        <div class="info" style="margin-bottom:12px"><b>Règle EIAFC :</b> BTS 1 et BTS 2 sont regroupés dans une seule ligne <b>« BTS (1 + 2) »</b>. Formation qualifiante, Licence, Master et Administration générale restent séparés. « Espèces » = caisse tenue par la comptable ; « Caisse Fondateur » = espèces remises au Fondateur/Direction.</div>
         <div class="table-wrap"><table id="cashProgramTable"></table></div>
+        <div class="section-title" style="margin-top:18px"><h3>👑 Caisse Fondateur séparée par pôle</h3><span class="small">Même séparation que la caisse comptable</span></div>
+        <div class="notice" style="margin-bottom:12px">Le solde Fondateur est suivi par origine : <b>BTS (1 + 2)</b>, Formation qualifiante, Licence, Master et Administration générale. Les anciens soldes dont l'origine n'était pas enregistrée restent affichés séparément comme <b>« Ancien solde non ventilé »</b> afin de ne pas fausser les comptes.</div>
+        <div class="table-wrap"><table id="founderCashPoleTable"></table></div>
       </div>
       <div class="grid two-col" style="margin-top:16px">
         <div class="card" id="transferCard">
@@ -2333,6 +2336,7 @@ body[data-role-theme="secretariat"] .production-hero{
             <div class="field"><label>Depuis</label><select id="transferFrom"><option>Espèces</option><option>Caisse Fondateur</option><option>Wave</option><option>MTN Mobile Money</option><option>Orange Money</option><option>Banque</option></select></div>
             <div class="field"><label>Vers</label><select id="transferTo"><option>Banque</option><option>Caisse Fondateur</option><option>Espèces</option><option>Wave</option><option>MTN Mobile Money</option><option>Orange Money</option></select></div>
             <div class="field"><label>Montant</label><input type="number" min="1" id="transferAmount" required></div>
+            <div class="field"><label>Pôle de l'argent</label><select id="transferPole"><option value="">Choisir le pôle…</option><option value="BTS">BTS (1 + 2)</option><option>Formation qualifiante</option><option>Licence</option><option>Master</option><option>Administration générale</option><option value="Ancien solde non ventilé">Ancien solde non ventilé</option></select></div>
             <div class="field span-2"><label>Référence / bordereau</label><input id="transferRef" placeholder="Référence dépôt / retrait / transaction"></div>
             <div class="field span-2"><label>Observation</label><input id="transferObs" placeholder="Ex. dépôt espèces vers banque"></div>
             <div class="field span-4"><button class="btn btn-primary" type="submit">Enregistrer le transfert</button></div>
@@ -2425,6 +2429,11 @@ body[data-role-theme="secretariat"] .production-hero{
             <div class="field span-4">
               <div id="closingDailySummary" class="closing-daily-summary"></div>
             </div>
+            <div class="field span-4">
+              <div class="section-title" style="margin-top:4px"><h3>📊 Clôture séparée par pôle</h3><span class="small">BTS 1 + BTS 2 ensemble</span></div>
+              <div class="info" style="margin-bottom:10px">Le logiciel ventile automatiquement l'argent présent et la remise du soir entre <b>BTS (1 + 2)</b>, Formation qualifiante, Licence, Master et Administration générale. Une ancienne somme sans origine connue reste isolée et n'est pas attribuée artificiellement à un programme.</div>
+              <div class="table-wrap"><table id="closingPoleBreakdown"></table></div>
+            </div>
             <div class="field span-4"><label>Justification de l'écart</label><textarea id="closingNote" rows="3" placeholder="Obligatoire si le comptage réel diffère du montant attendu"></textarea></div>
             <div class="field"><label>Clôture saisie par</label><input id="closingAgent" readonly></div>
             <div class="field span-4"><button class="btn btn-primary" type="submit">✅ Enregistrer clôture + remise du soir</button></div>
@@ -2488,6 +2497,8 @@ body[data-role-theme="secretariat"] .production-hero{
         </div>
         <div class="grid kpis" id="founderCashReceiptKpis" style="margin-bottom:12px"></div>
         <div class="info" style="margin-bottom:12px"><b>Lecture :</b> chaque ligne correspond à une somme réellement enregistrée comme remise <b>Espèces → Caisse Fondateur</b>. Le solde Fondateur tient aussi compte des sorties ultérieures vers Banque, Wave, MTN, Orange Money ou la caisse comptable.</div>
+        <div class="section-title" style="margin-top:14px"><h3>Répartition actuelle de la Caisse Fondateur</h3><span class="small">BTS 1 + BTS 2 ensemble</span></div>
+        <div class="table-wrap" style="margin-bottom:14px"><table id="founderCashPoleTableClose"></table></div>
         <div class="table-wrap"><table id="founderCashReceiptsTable"></table></div>
       </div>
     </section>
@@ -4489,7 +4500,58 @@ const MANAGEMENT_POLES=["BTS","Formation qualifiante","Licence","Master","Admini
 function poleDashboardRows(){return MANAGEMENT_POLES.map(pole=>{const sts=currentStudents().filter(s=>poleName(s.program)===pole),studentPayments=validPayments().filter(p=>{const st=studentByMat(p.student);return poleName(st?.program)===pole}),others=validOther().filter(x=>poleName(operationProgram(x))===pole),expenses=validExpenses().filter(x=>poleName(operationProgram(x))===pole),expenseIds=new Set(expenses.map(x=>x.id)),supplierPaid=expenseCashMovements().filter(x=>expenseIds.has(x.expenseId)).reduce((a,x)=>a+Number(x.amount||0),0),billed=sts.reduce((a,s)=>a+studentDue(s),0),paid=studentPayments.reduce((a,x)=>a+Number(x.amount||0),0),other=others.reduce((a,x)=>a+Number(x.amount||0),0),engaged=expenses.reduce((a,x)=>a+expenseTotal(x),0),rest=sts.reduce((a,s)=>a+studentRest(s),0),overdue=sts.reduce((a,s)=>a+overdueAmount(s),0);return{pole,students:sts.length,billed,paid,other,engaged,supplierPaid,rest,overdue,netCash:paid+other-supplierPaid}})}
 function renderPoleDashboard(){const t=document.getElementById("dashboardPoles");if(!t)return;const rows=poleDashboardRows();t.innerHTML=`<thead><tr><th>Pôle</th><th>Effectif</th><th class="money">Facturé étudiants</th><th class="money">Encaissements étudiants</th><th class="money">Autres recettes</th><th class="money">Reste étudiants</th><th class="money">Échu</th><th class="money">Dépenses engagées</th><th class="money">Dépenses payées</th><th class="money">Flux réel</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.pole)}</b></td><td>${x.students}</td><td class="money">${fmt(x.billed)}</td><td class="money"><b>${fmt(x.paid)}</b></td><td class="money">${fmt(x.other)}</td><td class="money">${fmt(x.rest)}</td><td class="money">${fmt(x.overdue)}</td><td class="money">${fmt(x.engaged)}</td><td class="money">${fmt(x.supplierPaid)}</td><td class="money"><b>${fmt(x.netCash)}</b></td></tr>`).join("")}</tbody>`}
 function cashPoleRows(a,b){return MANAGEMENT_POLES.map(pole=>{const pin=validPayments().filter(p=>p.date>=a&&p.date<=b&&poleName(studentByMat(p.student)?.program)===pole).reduce((z,x)=>z+Number(x.amount||0),0),oi=validOther().filter(x=>x.date>=a&&x.date<=b&&poleName(operationProgram(x))===pole).reduce((z,x)=>z+Number(x.amount||0),0),ids=new Set(validExpenses().filter(x=>poleName(operationProgram(x))===pole).map(x=>x.id)),supplier=expenseCashMovements().filter(x=>x.date>=a&&x.date<=b&&ids.has(x.expenseId)).reduce((z,x)=>z+Number(x.amount||0),0),payroll=pole==="Administration générale"?payrollPaid().filter(x=>x.payDate>=a&&x.payDate<=b).reduce((z,x)=>z+Number(x.net||0),0):0,loans=pole==="Administration générale"?currentRecords(db.staffLoans).filter(x=>x.status!=="Annulé"&&x.date>=a&&x.date<=b).reduce((z,x)=>z+Number(x.amount||0),0):0;return{pole,pin,oi,supplier,payroll,loans,inflow:pin+oi,outflow:supplier+payroll+loans,net:pin+oi-supplier-payroll-loans}})}
-function renderCashPoles(a,b){const t=document.getElementById("cashProgramTable");if(!t)return;const rows=cashPoleRows(a,b);t.innerHTML=`<thead><tr><th>Pôle</th><th class="money">Paiements étudiants</th><th class="money">Autres recettes</th><th class="money">Total entrées</th><th class="money">Fournisseurs payés</th><th class="money">Salaires payés</th><th class="money">Avances personnel</th><th class="money">Total sorties</th><th class="money">Flux net réel</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.pole)}</b></td><td class="money">${fmt(x.pin)}</td><td class="money">${fmt(x.oi)}</td><td class="money"><b>${fmt(x.inflow)}</b></td><td class="money">${fmt(x.supplier)}</td><td class="money">${fmt(x.payroll)}</td><td class="money">${fmt(x.loans)}</td><td class="money">${fmt(x.outflow)}</td><td class="money"><b>${fmt(x.net)}</b></td></tr>`).join("")}</tbody>`}
+function renderCashPoles(a,b){const t=document.getElementById("cashProgramTable");if(!t)return;const rows=cashPoleRows(a,b);t.innerHTML=`<thead><tr><th>Pôle</th><th class="money">Paiements étudiants</th><th class="money">Autres recettes</th><th class="money">Total entrées</th><th class="money">Fournisseurs payés</th><th class="money">Salaires payés</th><th class="money">Avances personnel</th><th class="money">Total sorties</th><th class="money">Flux net réel</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(poleDisplayName(x.pole))}</b></td><td class="money">${fmt(x.pin)}</td><td class="money">${fmt(x.oi)}</td><td class="money"><b>${fmt(x.inflow)}</b></td><td class="money">${fmt(x.supplier)}</td><td class="money">${fmt(x.payroll)}</td><td class="money">${fmt(x.loans)}</td><td class="money">${fmt(x.outflow)}</td><td class="money"><b>${fmt(x.net)}</b></td></tr>`).join("")}</tbody>`}
+const UNALLOCATED_CASH_POLE="Ancien solde non ventilé";
+const CASH_POLES=[...MANAGEMENT_POLES,UNALLOCATED_CASH_POLE];
+function poleDisplayName(pole){return pole==="BTS"?"BTS (1 + 2)":String(pole||UNALLOCATED_CASH_POLE)}
+function emptyCashPoleMap(){return Object.fromEntries(CASH_POLES.map(p=>[p,0]))}
+function transferPoleBreakdown(tr){
+ const total=Math.max(0,Number(tr?.amount||0));
+ if(Array.isArray(tr?.poleBreakdown)&&tr.poleBreakdown.length){
+  const rows=tr.poleBreakdown.map(x=>({pole:CASH_POLES.includes(String(x?.pole||""))?String(x.pole):UNALLOCATED_CASH_POLE,amount:Math.max(0,Number(x?.amount??x?.remitted??0))})).filter(x=>x.amount>0.001),sum=rows.reduce((z,x)=>z+x.amount,0);
+  if(total>sum+0.01)rows.push({pole:UNALLOCATED_CASH_POLE,amount:total-sum});return rows
+ }
+ const pole=CASH_POLES.includes(String(tr?.pole||""))?String(tr.pole):UNALLOCATED_CASH_POLE;return total>0?[{pole,amount:total}]:[]
+}
+function transferPoleAmount(tr,pole){return transferPoleBreakdown(tr).filter(x=>x.pole===pole).reduce((z,x)=>z+x.amount,0)}
+function addPoleAmount(map,pole,amount){pole=CASH_POLES.includes(String(pole||""))?String(pole):UNALLOCATED_CASH_POLE;map[pole]=(map[pole]||0)+Number(amount||0)}
+function applyCashPoleFlows(map,fromExclusive,toInclusive,{excludeClosingRemittanceDate=""}={}){
+ const match=d=>{d=String(d||"");return d&&d<=String(toInclusive||"")&&(!fromExclusive||d>String(fromExclusive))};
+ validPayments().filter(x=>match(x.date)&&treasuryChannel(x.mode)==="Espèces").forEach(x=>addPoleAmount(map,poleName(studentByMat(x.student)?.program),Number(x.amount||0)));
+ validOther().filter(x=>match(x.date)&&treasuryChannel(x.mode)==="Espèces").forEach(x=>addPoleAmount(map,poleName(operationProgram(x)),Number(x.amount||0)));
+ expenseCashMovements().filter(x=>match(x.date)&&treasuryChannel(x.mode)==="Espèces").forEach(x=>{const e=db.expenses.find(v=>String(v.id)===String(x.expenseId));addPoleAmount(map,poleName(operationProgram(e||{})),-Number(x.amount||0))});
+ payrollPaid().filter(x=>match(x.payDate)&&treasuryChannel(x.mode)==="Espèces").forEach(x=>addPoleAmount(map,"Administration générale",-Number(x.net||0)));
+ currentRecords(db.staffLoans).filter(x=>x.status!=="Annulé"&&match(x.date)&&treasuryChannel(x.mode)==="Espèces").forEach(x=>addPoleAmount(map,"Administration générale",-Number(x.amount||0)));
+ validTransfers().filter(x=>match(x.date)&&!(excludeClosingRemittanceDate&&String(x.date)===String(excludeClosingRemittanceDate)&&isClosingRemittanceTransfer(x))).forEach(x=>transferPoleBreakdown(x).forEach(part=>{if(treasuryChannel(x.to)==="Espèces")addPoleAmount(map,part.pole,part.amount);if(treasuryChannel(x.from)==="Espèces")addPoleAmount(map,part.pole,-part.amount)}));return map
+}
+function cashPoleMapBeforeClosing(date){
+ date=String(date||today());const prev=[...currentRecords(db.closings)].filter(x=>String(x.date||"")<date).sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))||String(b.time||"").localeCompare(String(a.time||"")))[0]||null,map=emptyCashPoleMap();
+ if(prev&&Array.isArray(prev.poleBreakdown)&&prev.poleBreakdown.length)prev.poleBreakdown.forEach(x=>addPoleAmount(map,x.pole,Number(x.remaining??x.after??0)));else if(prev)addPoleAmount(map,UNALLOCATED_CASH_POLE,Number(prev.actual||0));else addPoleAmount(map,UNALLOCATED_CASH_POLE,Number(openingForYear().cash||0));
+ applyCashPoleFlows(map,prev?String(prev.date||""):"",date,{excludeClosingRemittanceDate:date});
+ const expected=cashClosingComputation(date).available,current=CASH_POLES.reduce((z,p)=>z+Number(map[p]||0),0);if(Math.abs(expected-current)>0.01)addPoleAmount(map,UNALLOCATED_CASH_POLE,expected-current);return map
+}
+function cashPoleBalanceAt(date,pole){const map=cashPoleMapBeforeClosing(date);return Number(map[pole]||0)}
+function founderCashPoleMapAt(date){
+ const map=emptyCashPoleMap();addPoleAmount(map,UNALLOCATED_CASH_POLE,Number(openingForYear().founderCash||0));
+ validPayments().filter(x=>String(x.date)<=String(date)&&treasuryChannel(x.mode)==="Caisse Fondateur").forEach(x=>addPoleAmount(map,poleName(studentByMat(x.student)?.program),Number(x.amount||0)));
+ validOther().filter(x=>String(x.date)<=String(date)&&treasuryChannel(x.mode)==="Caisse Fondateur").forEach(x=>addPoleAmount(map,poleName(operationProgram(x)),Number(x.amount||0)));
+ expenseCashMovements().filter(x=>String(x.date)<=String(date)&&treasuryChannel(x.mode)==="Caisse Fondateur").forEach(x=>{const e=db.expenses.find(v=>String(v.id)===String(x.expenseId));addPoleAmount(map,poleName(operationProgram(e||{})),-Number(x.amount||0))});
+ payrollPaid().filter(x=>String(x.payDate)<=String(date)&&treasuryChannel(x.mode)==="Caisse Fondateur").forEach(x=>addPoleAmount(map,"Administration générale",-Number(x.net||0)));
+ currentRecords(db.staffLoans).filter(x=>x.status!=="Annulé"&&String(x.date)<=String(date)&&treasuryChannel(x.mode)==="Caisse Fondateur").forEach(x=>addPoleAmount(map,"Administration générale",-Number(x.amount||0)));
+ validTransfers().filter(x=>String(x.date)<=String(date)).forEach(x=>transferPoleBreakdown(x).forEach(part=>{if(treasuryChannel(x.to)==="Caisse Fondateur")addPoleAmount(map,part.pole,part.amount);if(treasuryChannel(x.from)==="Caisse Fondateur")addPoleAmount(map,part.pole,-part.amount)}));return map
+}
+function founderCashPoleBalanceAt(date,pole){return Number(founderCashPoleMapAt(date)[pole]||0)}
+function founderCashPoleMovement(pole,a,b){let inflow=0,outflow=0;const between=d=>String(d)>=String(a)&&String(d)<=String(b);validTransfers().filter(x=>between(x.date)).forEach(x=>transferPoleBreakdown(x).forEach(part=>{if(part.pole!==pole)return;if(treasuryChannel(x.to)==="Caisse Fondateur")inflow+=part.amount;if(treasuryChannel(x.from)==="Caisse Fondateur")outflow+=part.amount}));return{inflow,outflow,net:inflow-outflow}}
+function renderFounderCashPoles(a,b){
+ a=String(a||managementBounds().start);b=String(b||today());const startMap=founderCashPoleMapAt(addDays(a,-1)),endMap=founderCashPoleMapAt(b),rows=CASH_POLES.map(pole=>{const m=founderCashPoleMovement(pole,a,b);return{pole,start:Number(startMap[pole]||0),...m,end:Number(endMap[pole]||0)}}).filter(x=>x.pole!==UNALLOCATED_CASH_POLE||Math.abs(x.start)+Math.abs(x.inflow)+Math.abs(x.outflow)+Math.abs(x.end)>0.01),tot=rows.reduce((z,x)=>({start:z.start+x.start,inflow:z.inflow+x.inflow,outflow:z.outflow+x.outflow,end:z.end+x.end}),{start:0,inflow:0,outflow:0,end:0});
+ const html=`<thead><tr><th>Pôle</th><th class="money">Solde début</th><th class="money">Entrées Fondateur</th><th class="money">Sorties Fondateur</th><th class="money">Solde fin</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(poleDisplayName(x.pole))}</b></td><td class="money">${fmt(x.start)}</td><td class="money">${fmt(x.inflow)}</td><td class="money">${fmt(x.outflow)}</td><td class="money"><b>${fmt(x.end)}</b></td></tr>`).join("")}<tr><td><b>TOTAL CAISSE FONDATEUR</b></td><td class="money"><b>${fmt(tot.start)}</b></td><td class="money"><b>${fmt(tot.inflow)}</b></td><td class="money"><b>${fmt(tot.outflow)}</b></td><td class="money"><b>${fmt(tot.end)}</b></td></tr></tbody>`;[document.getElementById("founderCashPoleTable"),document.getElementById("founderCashPoleTableClose")].filter(Boolean).forEach(t=>t.innerHTML=html)
+}
+function allocateAcrossPoles(total,source){total=Math.max(0,Number(total||0));const out=emptyCashPoleMap(),weights=CASH_POLES.map(p=>Math.max(0,Number(source[p]||0))),sum=weights.reduce((a,v)=>a+v,0);if(total<=0)return out;if(sum<=0){out[UNALLOCATED_CASH_POLE]=total;return out}let used=0;CASH_POLES.forEach((p,i)=>{const v=i===CASH_POLES.length-1?Math.max(0,total-used):total*weights[i]/sum;out[p]=v;used+=v});return out}
+function closingPoleBreakdownData(date,counted,distributed){
+ const available=cashPoleMapBeforeClosing(date),availableTotal=CASH_POLES.reduce((z,p)=>z+Number(available[p]||0),0),countedMap={...available};addPoleAmount(countedMap,UNALLOCATED_CASH_POLE,Number(counted||0)-availableTotal);const remitted=allocateAcrossPoles(Math.min(Math.max(0,Number(distributed||0)),Math.max(0,Number(counted||0))),countedMap);return CASH_POLES.map(pole=>({pole,available:Number(available[pole]||0),counted:Number(countedMap[pole]||0),remitted:Number(remitted[pole]||0),remaining:Number(countedMap[pole]||0)-Number(remitted[pole]||0)}))
+}
+function renderClosingPoleBreakdown(date,counted,distributed){const t=document.getElementById("closingPoleBreakdown");if(!t)return;const rows=closingPoleBreakdownData(date,counted,distributed).filter(x=>x.pole!==UNALLOCATED_CASH_POLE||Math.abs(x.available)+Math.abs(x.counted)+Math.abs(x.remitted)+Math.abs(x.remaining)>0.01);t.innerHTML=`<thead><tr><th>Pôle</th><th class="money">Disponible théorique</th><th class="money">Part comptée</th><th class="money">Remis / versé</th><th class="money">Reste</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(poleDisplayName(x.pole))}</b></td><td class="money">${fmt(x.available)}</td><td class="money">${fmt(x.counted)}</td><td class="money"><b>${fmt(x.remitted)}</b></td><td class="money">${fmt(x.remaining)}</td></tr>`).join("")}</tbody>`}
+function poleMapFromBreakdown(rows,field="remitted"){const m=emptyCashPoleMap();(rows||[]).forEach(x=>addPoleAmount(m,x.pole,Number(x?.[field]??x?.amount??0)));return m}
 function assignmentSummary(program,assignment,month=""){
  const sts=studentScope(program,"",assignment),monthOk=x=>!month||inReportPeriod(x.date,month),ps=validPayments().filter(p=>{const st=studentByMat(p.student);return monthOk(p)&&st?.program===program&&assignmentMatches(st,assignment)}),newStudents=sts.filter(s=>monthOk(s)).length;
  const billed=sts.reduce((a,s)=>a+studentDue(s),0),paid=ps.reduce((a,p)=>a+Number(p.amount||0),0),rest=sts.reduce((a,s)=>a+studentRest(s),0),overdue=sts.reduce((a,s)=>a+overdueAmount(s),0),reams=sts.reduce((a,s)=>a+Math.min(1,Number(s.reamReceived||0)),0),markers=sts.reduce((a,s)=>a+Math.min(3,Number(s.markersReceived||0)),0);
@@ -5345,8 +5407,8 @@ function renderExpenses(){const pf=expProgramFilter?.value||"",q=textKey(expSear
 function selectExpenseForPayment(id){updateExpensePaymentSelect();expensePaymentExpense.value=id;expensePaymentDate.value=defaultManagementDate();const x=db.expenses.find(v=>v.id===id);expensePaymentAmount.value=x?expenseRest(x):"";expensePaymentMode.value=x?.mode||"Espèces";expensePaymentRef.value="";expensePaymentObs.value="";expensePaymentExpense.scrollIntoView({behavior:"smooth",block:"center"})}
 function cancelExpense(id){const x=db.expenses.find(a=>a.id===id),r=prompt("Motif de l'annulation :");if(!x||!r?.trim())return;if(expensePaidTotal(x)>0&&!confirm(`Cette dépense a déjà ${fmt(expensePaidTotal(x))} de règlement(s). L'annulation exclura la charge et les règlements de la trésorerie. Continuer ?`))return;x.status="Annulé";x.cancelReason=r.trim();logAction("Annulation dépense",`${id} - ${r.trim()}`);saveDB()}
 
-transferForm?.addEventListener("submit",e=>{e.preventDefault();if(!can("transfer"))return alert("Transfert réservé au Fondateur / Comptable.");if(!requireManagementDate(transferDate.value,"La date du transfert")||!requireOpenPeriod(transferDate.value,"Le transfert"))return;const from=transferFrom.value,to=transferTo.value,amount=Number(transferAmount.value||0);if(from===to)return alert("Le compte source et le compte destination doivent être différents.");if(amount<=0)return alert("Montant du transfert invalide.");if(!transferRef.value.trim())return alert("La référence / bordereau du transfert est obligatoire pour l’audit.");if(!requireTreasuryFunds(from,amount,transferDate.value,"Le transfert"))return;const x={id:makeUniqueId("TRF"),schoolId:activeSchoolId(),academicYear:activeYear(),date:transferDate.value,from,to,amount,ref:transferRef.value.trim(),obs:transferObs.value.trim(),status:"Validé",agent:currentUserLabel(),device:deviceName(),createdAt:new Date().toISOString()};db.transfers.unshift(x);logAction("Transfert trésorerie",`${x.id} — ${from} → ${to} — ${fmt(amount)}`);saveDB();transferForm.reset();transferDate.value=defaultManagementDate();transferFrom.value="Espèces";transferTo.value="Banque"});
-function renderTransfers(){if(!transfersTable)return;const arr=currentRecords(db.transfers).sort((a,b)=>String(b.date).localeCompare(String(a.date)));transfersTable.innerHTML=`<thead><tr><th>Date</th><th>N°</th><th>Depuis</th><th>Vers</th><th class="money">Montant</th><th>Référence</th><th>Agent</th><th>Action</th></tr></thead><tbody>${arr.length?arr.map(x=>`<tr><td>${x.date}</td><td>${esc(x.id)}</td><td>${esc(x.from)}</td><td>${esc(x.to)}</td><td class="money"><b>${fmt(x.amount)}</b></td><td>${esc(x.ref||"")}</td><td>${esc(x.agent||"")}</td><td>${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="founderDeleteOperation('transfers','${x.id}')">Supprimer</button>`:""}</td></tr>`).join(""):`<tr><td colspan="8" class="empty">Aucun transfert</td></tr>`}</tbody>`}
+transferForm?.addEventListener("submit",e=>{e.preventDefault();if(!can("transfer"))return alert("Transfert réservé au Fondateur / Comptable.");if(!requireManagementDate(transferDate.value,"La date du transfert")||!requireOpenPeriod(transferDate.value,"Le transfert"))return;const from=transferFrom.value,to=transferTo.value,amount=Number(transferAmount.value||0),pole=String(transferPole?.value||"").trim();if(from===to)return alert("Le compte source et le compte destination doivent être différents.");if(amount<=0)return alert("Montant du transfert invalide.");if([from,to].some(x=>["Espèces","Caisse Fondateur"].includes(x))&&!pole)return alert("Choisissez le pôle de l'argent. Pour le BTS, utilisez « BTS (1 + 2) ».");if(!transferRef.value.trim())return alert("La référence / bordereau du transfert est obligatoire pour l’audit.");if(!requireTreasuryFunds(from,amount,transferDate.value,"Le transfert"))return;if(from==="Caisse Fondateur"&&amount>founderCashPoleBalanceAt(transferDate.value,pole)+0.01)return alert(`Solde Caisse Fondateur insuffisant pour ${poleDisplayName(pole)}. Disponible : ${fmt(founderCashPoleBalanceAt(transferDate.value,pole))}.`);if(from==="Espèces"&&amount>cashPoleBalanceAt(transferDate.value,pole)+0.01)return alert(`Solde caisse insuffisant pour ${poleDisplayName(pole)}. Disponible : ${fmt(cashPoleBalanceAt(transferDate.value,pole))}.`);const x={id:makeUniqueId("TRF"),schoolId:activeSchoolId(),academicYear:activeYear(),date:transferDate.value,from,to,amount,pole,poleBreakdown:pole?[{pole,amount}]:[],ref:transferRef.value.trim(),obs:transferObs.value.trim(),status:"Validé",agent:currentUserLabel(),device:deviceName(),createdAt:new Date().toISOString()};db.transfers.unshift(x);logAction("Transfert trésorerie",`${x.id} — ${from} → ${to} — ${poleDisplayName(pole)} — ${fmt(amount)}`);saveDB();transferForm.reset();transferDate.value=defaultManagementDate();transferFrom.value="Espèces";transferTo.value="Banque";if(transferPole)transferPole.value=""});
+function renderTransfers(){if(!transfersTable)return;const arr=currentRecords(db.transfers).sort((a,b)=>String(b.date).localeCompare(String(a.date)));transfersTable.innerHTML=`<thead><tr><th>Date</th><th>N°</th><th>Depuis</th><th>Vers</th><th>Pôle</th><th class="money">Montant</th><th>Référence</th><th>Agent</th><th>Action</th></tr></thead><tbody>${arr.length?arr.map(x=>`<tr><td>${x.date}</td><td>${esc(x.id)}</td><td>${esc(x.from)}</td><td>${esc(x.to)}</td><td>${transferPoleBreakdown(x).map(p=>`${esc(poleDisplayName(p.pole))}: ${fmt(p.amount)}`).join("<br>")||"—"}</td><td class="money"><b>${fmt(x.amount)}</b></td><td>${esc(x.ref||"")}</td><td>${esc(x.agent||"")}</td><td>${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="founderDeleteOperation('transfers','${x.id}')">Supprimer</button>`:""}</td></tr>`).join(""):`<tr><td colspan="9" class="empty">Aucun transfert</td></tr>`}</tbody>`}
 function treasuryBalanceAt(date,channel){
  const op=openingForYear(),out={"Espèces":Number(op.cash||0),"Caisse Fondateur":Number(op.founderCash||0),"Wave":Number(op.wave||0),"MTN Mobile Money":Number(op.mtn||0),"Banque":Number(op.bank||0),"Orange Money":Number(op.orange||0)};
  [...validPayments(),...validOther()].filter(x=>String(x.date)<=String(date)).forEach(x=>{const ch=treasuryChannel(x.mode);if(out[ch]!==undefined)out[ch]+=Number(x.amount||0)});
@@ -5375,7 +5437,7 @@ function renderCash(){
  const periodIn=validPayments().filter(x=>x.date>=a&&x.date<=b&&x.mode==="Espèces").reduce((z,x)=>z+Number(x.amount||0),0)+validOther().filter(x=>x.date>=a&&x.date<=b&&x.mode==="Espèces").reduce((z,x)=>z+Number(x.amount||0),0),periodOut=expenseCashMovements().filter(x=>x.date>=a&&x.date<=b&&treasuryChannel(x.mode)==="Espèces").reduce((z,x)=>z+Number(x.amount||0),0)+payrollPaid().filter(x=>x.payDate>=a&&x.payDate<=b&&treasuryChannel(x.mode)==="Espèces").reduce((z,x)=>z+Number(x.net||0),0)+currentRecords(db.staffLoans).filter(x=>x.status!=="Annulé"&&x.date>=a&&x.date<=b&&treasuryChannel(x.mode)==="Espèces").reduce((z,x)=>z+Number(x.amount||0),0),endBal=cashBalanceAt(b),lastClosing=[...currentRecords(db.closings)].filter(x=>x.date<=b).sort((x,y)=>String(y.date).localeCompare(String(x.date))||String(y.time).localeCompare(String(x.time)))[0],unclosedDates=arr.filter(d=>!currentRecords(db.closings).some(c=>c.date===d)).length;
  if(cashControlKpis){const bnow=balances();cashControlKpis.innerHTML=[["Caisse comptable début",fmt(a?cashBalanceAt(addDays(a,-1)):Number(openingForYear().cash||0))],["Entrées espèces",fmt(periodIn)],["Sorties espèces",fmt(periodOut)],["Caisse comptable fin",fmt(endBal)],["Caisse Fondateur actuelle",fmt(bnow["Caisse Fondateur"]||0)]].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("")}
  if(cashControlAlerts){const msgs=[];if(endBal<0)msgs.push(`<div class="danger-note"><b>ALERTE :</b> la caisse théorique est négative de ${fmt(Math.abs(endBal))}. Vérifiez les dates, dépenses, avances, transferts et soldes d’ouverture.</div>`);if(lastClosing&&Number(lastClosing.difference||0)!==0)msgs.push(`<div class="notice"><b>Dernière clôture (${lastClosing.date}) :</b> écart de ${fmt(lastClosing.difference)} entre le comptage physique et le théorique.</div>`);if(unclosedDates>0)msgs.push(`<div class="info"><b>Contrôle quotidien :</b> ${unclosedDates} jour(s) avec mouvement dans la période n’ont pas de clôture de caisse enregistrée.</div>`);const supplierRest=validExpenses().reduce((z,x)=>z+expenseRest(x),0);if(supplierRest>0)msgs.push(`<div class="info"><b>Dettes fournisseurs :</b> ${fmt(supplierRest)} restent à payer. Elles ne sont pas retirées de la caisse tant qu’un règlement n’est pas saisi.</div>`);cashControlAlerts.innerHTML=msgs.join("")}
- cashTable.innerHTML=`<thead><tr><th>Date</th><th class="money">Ouverture espèces</th><th class="money">Entrées opérations</th><th class="money">Sorties opérations</th><th class="money">Transferts reçus</th><th class="money">Transferts sortis</th><th class="money">Caisse comptable fin</th><th class="money">Recettes totales</th><th class="money">Décaissements totaux</th><th class="money">Flux net opérations</th></tr></thead><tbody>${rows.length?rows.map(x=>`<tr><td>${x.date}</td><td class="money">${fmt(x.op)}</td><td class="money">${fmt(x.incCash)}</td><td class="money">${fmt(x.outCash)}</td><td class="money">${fmt(x.trIn)}</td><td class="money">${fmt(x.trOut)}</td><td class="money"><b>${fmt(x.close)}</b></td><td class="money">${fmt(x.inc)}</td><td class="money">${fmt(x.out)}</td><td class="money">${fmt(x.net)}</td></tr>`).join(""):`<tr><td colspan="10" class="empty">Aucun mouvement</td></tr>`}</tbody>`;renderCashPoles(a,b)
+ cashTable.innerHTML=`<thead><tr><th>Date</th><th class="money">Ouverture espèces</th><th class="money">Entrées opérations</th><th class="money">Sorties opérations</th><th class="money">Transferts reçus</th><th class="money">Transferts sortis</th><th class="money">Caisse comptable fin</th><th class="money">Recettes totales</th><th class="money">Décaissements totaux</th><th class="money">Flux net opérations</th></tr></thead><tbody>${rows.length?rows.map(x=>`<tr><td>${x.date}</td><td class="money">${fmt(x.op)}</td><td class="money">${fmt(x.incCash)}</td><td class="money">${fmt(x.outCash)}</td><td class="money">${fmt(x.trIn)}</td><td class="money">${fmt(x.trOut)}</td><td class="money"><b>${fmt(x.close)}</b></td><td class="money">${fmt(x.inc)}</td><td class="money">${fmt(x.out)}</td><td class="money">${fmt(x.net)}</td></tr>`).join(""):`<tr><td colspan="10" class="empty">Aucun mouvement</td></tr>`}</tbody>`;renderCashPoles(a,b);renderFounderCashPoles(a,b)
 }
 function addDays(dateStr,n){const d=new Date(dateStr+"T12:00:00");d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
 
@@ -5497,8 +5559,9 @@ function updateClosingPreview(){
    <div class="cash-day-item"><span>Compté réellement</span><b>${hasCount?fmt(counted):"—"}</b></div>
    <div class="cash-day-item founder"><span>Réparti ce soir</span><b>${fmt(distributed)}</b></div>
    <div class="cash-day-item final"><span>Reste caisse comptable</span><b>${hasCount?fmt(actualAfter):"—"}</b></div>
-   <div class="cash-day-note"><b>Répartition :</b> ${esc(closingSplitSummary(split))}. Le reste non réparti demeure dans la <b>caisse comptable</b> et devient l'ouverture du lendemain.</div>`;
+   <div class="cash-day-note"><b>Répartition :</b> ${esc(closingSplitSummary(split))}. Le reste non réparti demeure dans la <b>caisse comptable</b> et devient l'ouverture du lendemain. La ventilation par pôle conserve <b>BTS 1 et BTS 2 ensemble</b>.</div>`;
  }
+ renderClosingPoleBreakdown(d,hasCount?counted:calc.available,distributed);
 }
 
 closingForm.addEventListener("submit",async e=>{
@@ -5513,6 +5576,7 @@ closingForm.addEventListener("submit",async e=>{
  if(!Number.isFinite(countedBefore)||countedBefore<0)return alert("Le montant compté doit être un nombre valide et positif ou nul.");
 
  const split=closingSplitData(),remittanceAmount=split.reduce((z,x)=>z+x.amount,0);
+ const poleBreakdown=closingPoleBreakdownData(date,countedBefore,remittanceAmount),remittedByPole=poleMapFromBreakdown(poleBreakdown,"remitted");
  if(remittanceAmount>countedBefore+0.01)return alert(`La répartition dépasse les espèces comptées.\n\nCompté : ${fmt(countedBefore)}\nRéparti : ${fmt(remittanceAmount)}.`);
  const founder=split.find(x=>x.to==="Caisse Fondateur");
  if(founder&&!founder.receiver)return alert("Indiquez qui a reçu la part remise au Fondateur.");
@@ -5530,9 +5594,10 @@ closingForm.addEventListener("submit",async e=>{
  for(const part of split){
   const transferId=makeUniqueId("TRF"),suffix=part.to==="Caisse Fondateur"?"FONDATEUR":part.to.replace(/[^A-Za-z0-9]/g,"").toUpperCase();
   const ref=part.ref||`REMISE-${id}-${suffix}`;
+  const partPoleMap=allocateAcrossPoles(part.amount,remittedByPole);
   const tr={
    id:transferId,schoolId:activeSchoolId(),academicYear:activeYear(),date,
-   from:"Espèces",to:part.to,amount:part.amount,ref,
+   from:"Espèces",to:part.to,amount:part.amount,poleBreakdown:CASH_POLES.map(pole=>({pole,amount:Number(partPoleMap[pole]||0)})).filter(x=>x.amount>0.001),ref,
    obs:part.to==="Caisse Fondateur"?`Remise main à main du soir — reçu par ${part.receiver||"Fondateur / Direction"} — clôture ${id}`:`Répartition de fin de journée — clôture ${id}`,
    status:"Validé",agent:currentUserLabel(),device:deviceName(),createdAt:new Date().toISOString(),
    kind:"Remise du soir",closingRemittance:true,closingId:id,receiver:part.receiver||"",
@@ -5548,7 +5613,7 @@ closingForm.addEventListener("submit",async e=>{
   opening:calc.opening,cashIn:calc.cashIn,cashOut:calc.cashOut,transferIn:calc.transferIn,transferOut:calc.transferOut,bridgeNet:calc.bridge.net,
   availableBefore:available,countedBefore,countDifference,
   remittanceAmount,remittanceTo:destinationLabel,remittanceTransferId:transferIds[0]||"",remittanceTransferIds:transferIds,
-  remittanceBreakdown:breakdown,receiver:founder?.receiver||"",remittanceRef:breakdown.map(p=>`${p.to}:${p.ref}`).join(" | "),
+  remittanceBreakdown:breakdown,poleBreakdown,receiver:founder?.receiver||"",remittanceRef:breakdown.map(p=>`${p.to}:${p.ref}`).join(" | "),
   theoretical:theoreticalAfter,actual:actualAfter,difference:finalDifference,nextOpening:actualAfter,note,
   agent:currentUserLabel(),time:new Date().toISOString()
  };
@@ -5589,6 +5654,7 @@ function renderClosings(){
   <th class="money">Compté</th>
   <th class="money">Remis / versé</th>
   <th>Destination</th>
+  <th>Répartition par pôle</th>
   <th class="money">Reste caisse</th>
   <th class="money">Écart</th>
   <th>Reçu par / justification</th><th>Responsable</th><th>Action</th>
@@ -5603,13 +5669,14 @@ function renderClosings(){
    <td class="money">${fmt(c.counted)}</td>
    <td class="money"><b>${fmt(c.remittance)}</b></td>
    <td>${esc(c.remittanceTo)}</td>
+   <td>${Array.isArray(x.poleBreakdown)&&x.poleBreakdown.length?x.poleBreakdown.filter(p=>Number(p.remitted??p.amount??0)>0.01).map(p=>`<b>${esc(poleDisplayName(p.pole))}</b>: ${fmt(Number(p.remitted??p.amount??0))}`).join("<br>"):"<span class=\"small\">Ancienne clôture non ventilée</span>"}</td>
    <td class="money"><b>${fmt(c.remaining)}</b></td>
    <td class="money" style="color:${Math.abs(Number(x.difference||0))<0.01?'var(--green)':'var(--red)'}"><b>${fmt(x.difference)}</b></td>
    <td>${esc([x.receiver,x.note].filter(Boolean).join(" — ")||"—")}</td>
    <td>${esc(x.agent||"")}</td>
    <td>${canFounderDelete()?`<button class="btn btn-danger btn-sm" onclick="deleteClosingWithRemittance('${x.id}')">Supprimer erreur</button>`:""}</td>
   </tr>`
- }).join(""):`<tr><td colspan="14" class="empty">Aucune clôture</td></tr>`}</tbody>`
+ }).join(""):`<tr><td colspan="15" class="empty">Aucune clôture</td></tr>`}</tbody>`
 }
 
 
@@ -5669,7 +5736,7 @@ function founderCashReceiptRows(){
 function renderFounderCashReceipts(){
  if(!isOwner())return;
  const table=document.getElementById("founderCashReceiptsTable"),kpis=document.getElementById("founderCashReceiptKpis");if(!table||!kpis)return;
- const rows=founderCashReceiptRows(),ledger=founderCashLedger(),totalReceived=rows.reduce((z,x)=>z+x.amount,0),out=ledger.rows.filter(x=>x.from==="Caisse Fondateur").reduce((z,x)=>z+x.amount,0),otherIn=ledger.rows.filter(x=>x.to==="Caisse Fondateur"&&!rows.some(r=>r.transferId===x.id)).reduce((z,x)=>z+x.amount,0),current=Number(balances()["Caisse Fondateur"]||0);
+ const rows=founderCashReceiptRows(),ledger=founderCashLedger(),totalReceived=rows.reduce((z,x)=>z+x.amount,0),out=ledger.rows.filter(x=>x.from==="Caisse Fondateur").reduce((z,x)=>z+x.amount,0),otherIn=ledger.rows.filter(x=>x.to==="Caisse Fondateur"&&!rows.some(r=>r.transferId===x.id)).reduce((z,x)=>z+x.amount,0),current=Number(balances()["Caisse Fondateur"]||0);renderFounderCashPoles(managementBounds().start,today());
  kpis.innerHTML=[
   ["Remises reçues",rows.length+" opération(s)"],
   ["Total reçu en clôture",fmt(totalReceived)],
