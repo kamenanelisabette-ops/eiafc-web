@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-14-v11-21-login-fix">
+<meta name="eiafc-web-build" content="2026-09-14-v11-22-auto-update">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -3018,7 +3018,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.21.0";
+const APP_VERSION="11.22.0";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -3072,8 +3072,84 @@ let deferredInstallPrompt=null;
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstallPrompt=e;document.getElementById("installBanner")?.classList.add("show")});
 window.addEventListener("appinstalled",()=>{deferredInstallPrompt=null;document.getElementById("installBanner")?.classList.remove("show")});
 function compareAppVersions(a,b){const A=String(a||"").split(".").map(Number),B=String(b||"").split(".").map(Number);for(let i=0;i<Math.max(A.length,B.length);i++){const x=A[i]||0,y=B[i]||0;if(x!==y)return x>y?1:-1}return 0}
-async function autoLoadLatestRelease(){return false}
-async function checkForAppUpdate(){return false}
+const EIAFC_VERSION_URL="./version.json";
+let eiafcUpdateCheckBusy=false;
+let eiafcUpdateRetryTimer=null;
+function eiafcUpdateNotice(msg,kind="ok"){
+ try{
+  if(typeof showToast==="function")showToast(`<b>Mise à jour EIAFC</b><br>${msg}`);
+  if(typeof setUnifiedStatus==="function"&&kind!=="ok")setUnifiedStatus(msg,kind==="bad"?"bad":"warn");
+ }catch(_e){}
+}
+async function eiafcPrepareForReload(latestVersion){
+ if(navigator.onLine===false)return {ok:false,reason:"hors ligne"};
+ try{
+  if(window.currentUser||typeof currentUser!=="undefined"&&currentUser){
+   if(typeof window.cloudPush==="function")await window.cloudPush(false);
+   const left=typeof window.pendingChangesCount==="function"?Number(window.pendingChangesCount()||0):0;
+   if(left>0){
+    eiafcUpdateNotice(`${left} saisie(s) restent à confirmer dans le Cloud. La mise à jour attend pour éviter toute perte.`,"warn");
+    return {ok:false,reason:`${left} en attente`};
+   }
+  }
+ }catch(e){
+  console.warn("Préparation mise à jour EIAFC",e);
+  return {ok:false,reason:String(e?.message||e)};
+ }
+ try{
+  if(typeof createLocalSnapshot==="function"&&typeof currentUser!=="undefined"&&currentUser)createLocalSnapshot(`Avant mise à jour automatique ${latestVersion}`,true);
+ }catch(_e){}
+ return {ok:true};
+}
+async function eiafcReloadLatest(latestVersion){
+ const prep=await eiafcPrepareForReload(latestVersion);
+ if(!prep.ok){
+  clearTimeout(eiafcUpdateRetryTimer);
+  eiafcUpdateRetryTimer=setTimeout(()=>checkForAppUpdate(true),60000);
+  return false;
+ }
+ try{sessionStorage.setItem("eiafc_auto_update_to",latestVersion)}catch(_e){}
+ eiafcUpdateNotice(`Nouvelle version ${latestVersion} prête. Rechargement automatique…`);
+ try{
+  if("serviceWorker" in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()))}
+  if("caches" in window){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}
+ }catch(e){console.warn("Nettoyage cache avant mise à jour",e)}
+ setTimeout(()=>{
+  const u=new URL(location.href);
+  u.searchParams.set("_eiafc_update",Date.now());
+  location.replace(u.toString());
+ },1200);
+ return true;
+}
+async function autoLoadLatestRelease(){
+ try{
+  const done=sessionStorage.getItem("eiafc_auto_update_to");
+  if(done&&compareAppVersions(APP_VERSION,done)>=0){
+   sessionStorage.removeItem("eiafc_auto_update_to");
+   setTimeout(()=>eiafcUpdateNotice(`Version ${APP_VERSION} installée automatiquement.`),1200);
+  }
+ }catch(_e){}
+ setTimeout(()=>checkForAppUpdate(false),8000);
+ return false;
+}
+async function checkForAppUpdate(force=false){
+ if(eiafcUpdateCheckBusy||navigator.onLine===false)return false;
+ if(!force&&document.visibilityState==="hidden")return false;
+ eiafcUpdateCheckBusy=true;
+ try{
+  const sep=EIAFC_VERSION_URL.includes("?")?"&":"?";
+  const r=await fetch(`${EIAFC_VERSION_URL}${sep}t=${Date.now()}`,{cache:"no-store",credentials:"same-origin",headers:{"Cache-Control":"no-cache"}});
+  if(!r.ok)throw new Error(`version ${r.status}`);
+  const info=await r.json();
+  const latest=String(info?.version||"").trim();
+  if(!/^\d+\.\d+\.\d+$/.test(latest))return false;
+  if(compareAppVersions(latest,APP_VERSION)<=0)return false;
+  return await eiafcReloadLatest(latest);
+ }catch(e){
+  console.warn("Contrôle mise à jour EIAFC",e);
+  return false;
+ }finally{eiafcUpdateCheckBusy=false}
+}
 async function installEiafcPwa(){if(!deferredInstallPrompt)return alert("L’installation automatique n’est pas disponible ici. Ouvrez le logiciel depuis son adresse HTTPS dans Chrome ou Edge, puis utilisez l’option Installer l’application.");await deferredInstallPrompt.prompt();deferredInstallPrompt=null}
 document.addEventListener("DOMContentLoaded",()=>document.getElementById("installAppBtn")?.addEventListener("click",installEiafcPwa));
 const YEAR_RE=/^(\d{4})-(\d{4})$/;
@@ -6679,7 +6755,7 @@ function enforceExpenseBtsSinglePole(){
  const f=document.getElementById("expProgramFilter");
  if(f){const cur=String(f.value||"");f.innerHTML='<option value="">Tous les pôles</option><option value="BTS">BTS (1 + 2) — pôle unique</option><option>Formation qualifiante</option><option>Licence</option><option>Master</option><option>Administration générale</option>';f.value=(cur==="BTS 1"||cur==="BTS 2"||cur==="BTS à classer"||cur==="BTS")?"BTS":cur;}
 }
-startApp();enforceExpenseBtsSinglePole();setInterval(checkForAppUpdate,30*60*1000);window.addEventListener("focus",()=>{enforceExpenseBtsSinglePole();checkForAppUpdate()});
+startApp();enforceExpenseBtsSinglePole();setInterval(()=>checkForAppUpdate(false),60*1000);window.addEventListener("focus",()=>{enforceExpenseBtsSinglePole();checkForAppUpdate(true)});window.addEventListener("online",()=>checkForAppUpdate(true));
 </script>
 
 <script id="eiafc-web-secure-patch">
