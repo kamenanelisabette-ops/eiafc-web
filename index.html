@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-10-v11-18-moteur-auto-finance-bts-unique">
+<meta name="eiafc-web-build" content="2026-09-14-v11-19-sync-confirmation">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -3018,7 +3018,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.16.0";
+const APP_VERSION="11.19.0";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -3307,11 +3307,17 @@ function academicIdExists(type,id){
 }
 async function nextUniqueAcademicId(type,label){
  for(let attempt=0;attempt<5;attempt++){
-  const id=await nextAcademicId(type,label);
+  let id="";
+  try{id=await nextAcademicId(type,label)}catch(e){
+   console.error("EIAFC: génération numéro Cloud refusée",e);
+   alert(`Numéro EIAFC non généré : ${e?.message||e}\n\nAucune nouvelle fiche n'a été validée. Vérifiez la connexion et la synchronisation avant de continuer.`);
+   return ""
+  }
   if(id&&!academicIdExists(type,id))return id;
   console.warn("EIAFC: collision de numéro détectée, nouvelle génération",type,id);
  }
- throw new Error("Impossible de générer un numéro EIAFC unique. Vérifiez la synchronisation avant de continuer.");
+ alert("Impossible de générer un numéro EIAFC unique. Vérifiez la synchronisation avant de continuer.");
+ return ""
 }
 function persist(){localStorage.setItem(KEY,JSON.stringify(db))}
 function saveDB(){persist();maybeDailySnapshot();capturePendingPatch();refreshAll();queueNetworkPush()}
@@ -5068,7 +5074,17 @@ studentForm.addEventListener("submit",async e=>{
   if(reamReceived||markersReceived)obj.supplyHistory=[{id:makeUniqueId("SUP"),date:obj.supplyDate||obj.date,reams:reamReceived,markers:markersReceived,obs:obj.supplyObs||"Fournitures remises à l'inscription",agent:currentUserLabel(),createdAt:new Date().toISOString(),kind:"Réception"}];
   db.students.push(obj);logAction("Inscription étudiant",`${obj.matricule} - ${obj.name}`)
  }
- saveDB();clearStudentForm()
+ saveDB();
+ const expectedStudent=edit?db.students.find(x=>String(x.matricule||"")===String(edit)):obj;
+ if(typeof window.eiafcConfirmStudentCloud==="function"){
+  const confirmed=await window.eiafcConfirmStudentCloud(expectedStudent);
+  if(!confirmed){
+   alert(`⚠️ ${edit?"MODIFICATION":"INSCRIPTION"} NON CONFIRMÉE DANS LE CLOUD.\n\nLa fiche reste sauvegardée sur ce poste et dans la file d'attente. Ne créez pas un autre dossier pour cet étudiant et ne fermez pas cette page. Utilisez « Réessayer maintenant » jusqu'à confirmation.`);
+   return
+  }
+  showToast(`<b>${edit?"Modification":"Inscription"} confirmée dans le Cloud</b><br>${esc(expectedStudent?.name||"")} — ${esc(expectedStudent?.matricule||"")}`)
+ }
+ clearStudentForm()
 });
 function clearStudentForm(){if(studentEditBanner)studentEditBanner.classList.remove("show");studentEditId.value="";studentForm.reset();studentBirthDate.value="";studentBirthPlace.value="";studentEmail.value="";studentAddress.value="";studentGuardianName.value="";studentGuardianPhone.value="";studentGuardianEmail.value="";studentIdentityRef.value="";studentDocBirth.checked=false;studentDocId.checked=false;studentDocDiploma.checked=false;studentDocPhotos.checked=false;studentProgram.value="Formation qualifiante";studentTrackAssigned.value="Non affecté";studentTrack.value="";updateStudentTrackState();studentDate.value=defaultManagementDate();studentFirstDue.value=academicBounds().firstDue;studentRegFee.value=0;studentTuition.value=0;studentInstallments.value=9;studentDiscount.value=0;studentReamReceived.value=0;studentMarkersReceived.value=0;studentSupplyDate.value="";studentSupplyObs.value="";renderStudentDigitalDocs()}
 function editStudent(mat){if(!canEditStudents())return alert("Votre rôle est en lecture seule sur les dossiers étudiants.");const s=studentByMat(mat);if(!s)return;studentEditId.value=s.matricule;studentName.value=s.name;studentSex.value=s.sex;studentPhone.value=s.phone;studentBirthDate.value=s.birthDate||"";studentBirthPlace.value=s.birthPlace||"";studentEmail.value=s.email||"";studentAddress.value=s.address||"";studentGuardianName.value=s.guardianName||"";studentGuardianPhone.value=s.guardianPhone||"";studentGuardianEmail.value=s.guardianEmail||"";studentIdentityRef.value=s.identityRef||"";studentDocBirth.checked=!!s.docs?.birth;studentDocId.checked=!!s.docs?.id;studentDocDiploma.checked=!!s.docs?.diploma;studentDocPhotos.checked=!!s.docs?.photos;studentProgram.value=s.program;studentTrackAssigned.value=studentAdmissionStatus(s);studentTrack.value=s.track||"";updateStudentTrackState();studentTrack.value=s.track||"";studentLevel.value=s.level;studentDate.value=s.date;studentRegFee.value=s.regFee;studentTuition.value=s.tuition;studentInstallments.value=s.installments||9;studentFirstDue.value=s.firstDue||s.date;studentDiscount.value=s.discount||0;studentDiscountReason.value=s.discountReason||"";studentReamReceived.value=Number(s.reamReceived||0);studentMarkersReceived.value=Number(s.markersReceived||0);studentSupplyDate.value=s.supplyDate||"";studentSupplyObs.value=s.supplyObs||"";studentStatus.value=s.status;renderStudentDigitalDocs();document.querySelector('[data-view="students"]').click();showStudentArea("registration");
@@ -6650,7 +6666,7 @@ startApp();enforceExpenseBtsSinglePole();setInterval(checkForAppUpdate,30*60*100
   const WEB_APIKEY='sb_publishable_gAPfLd6okuu42hvOwQp35Q_L87JA22Q';
   const WEB_WORKSPACE='EIAFC_V7';
   const WEB_TOKEN_KEY='eiafc_web_secure_session_v4';
-  const WEB_BUILD='2026-09-10-v11-18-moteur-auto-finance-bts-unique';
+  const WEB_BUILD='2026-09-14-v11-19-sync-confirmation';
 
   const WEB_PUBLIC_HOST=String(location.hostname||'').endsWith('.vercel.app');
   if(WEB_PUBLIC_HOST){
@@ -7371,7 +7387,40 @@ startApp();enforceExpenseBtsSinglePole();setInterval(checkForAppUpdate,30*60*100
   window.cloudPull=cloudPull=securePull;
   window.syncNow=syncNow=async function(){const pushed=await securePush(),pulled=await securePull(false);if(pushed||pulled)showToast(`<b>Synchronisation Web terminée</b><br>${pendingChangesCount()?pendingChangesCount()+' élément(s) restent en attente.':'Toutes les données sont à jour.'}`)};
   window.cloudNextId=cloudNextId=async function(type,label){const j=await webApi('next_id',{year:activeYear(),kind:type,label},webToken());return j.id};
-  window.nextAcademicId=nextAcademicId=async function(type,label){if(webToken()&&navigator.onLine!==false){try{return await cloudNextId(type,label)}catch(e){console.error(e)}}return nextOfflineId(type,label)};
+  window.nextAcademicId=nextAcademicId=async function(type,label){
+    if(webToken()){
+      if(navigator.onLine===false)throw new Error('Connexion Internet requise pour créer un nouveau numéro EIAFC. La saisie reste sur le formulaire.');
+      return await cloudNextId(type,label)
+    }
+    return nextOfflineId(type,label)
+  };
+  window.eiafcConfirmStudentCloud=async function(expected){
+    const mat=String(expected?.matricule||'').trim();
+    if(!mat)return false;
+    if(!webToken())return true;
+    if(navigator.onLine===false)return false;
+    const expectedStamp=String(expected?.updatedAt||expected?.createdAt||'');
+    try{
+      // saveDB() place d'abord la fiche dans la file; attendre cet envoi avant le contrôle.
+      await webPushChain;
+      for(let attempt=0;attempt<4;attempt++){
+        if(attempt>0){await securePush(false);await webPushChain}
+        const j=await webApi('get_state',{},webToken());
+        const row=(j?.state?.students||[]).find(x=>String(x?.matricule||'')===mat);
+        const serverStamp=String(row?.updatedAt||row?.createdAt||'');
+        const sameCore=!!row&&String(row?.name||'')===String(expected?.name||'')&&String(row?.date||'')===String(expected?.date||'');
+        if(row&&(!expectedStamp||serverStamp===expectedStamp||sameCore)){
+          webRevision=Number(j.revision||webRevision);
+          return true
+        }
+        await new Promise(r=>setTimeout(r,700*(attempt+1)))
+      }
+    }catch(e){
+      console.error('Confirmation Cloud étudiant',e);
+      window.eiafcLastSyncFailures=[...(window.eiafcLastSyncFailures||[]),{label:`Étudiant ${mat}`,error:String(e?.message||e).slice(0,240)}]
+    }
+    return false
+  };
   window.saveDB=saveDB=function(){persist();capturePendingPatch();refreshAll();queueSecurePush()};
   const originalRenderUsersWeb=window.renderUsers||renderUsers;
   window.renderUsers=renderUsers=function(){originalRenderUsersWeb();populateSessionRevokeUsers()};
