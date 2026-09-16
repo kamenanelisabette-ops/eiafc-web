@@ -1,4 +1,10 @@
 {
+  "rewrites": [
+    {
+      "source": "/bilan",
+      "destination": "/api/app"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
