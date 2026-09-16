@@ -1,6 +1,6 @@
 {
-  "version": "11.23.0",
-  "build": "2026-09-16-v11-23-daily-report",
-  "releasedAt": "2026-09-16T12:45:00Z",
+  "version": "11.22.0",
+  "build": "2026-09-14-v11-22-auto-update",
+  "releasedAt": "2026-09-14T13:55:00Z",
   "minimumVersion": "11.22.0"
 }
