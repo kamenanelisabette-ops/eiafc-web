@@ -7989,5 +7989,99 @@ setTimeout(()=>{try{sepRenderClosingPreview();if(typeof renderDashboardPoleSepar
 </style>
 
 <script src="/daily-report.js?v=11.23.0"></script>
+
+<script id="eiafc-daily-print-fix-v2">
+(function(){
+  'use strict';
+  if(window.__EIAFC_DAILY_PRINT_FIX_V2__) return;
+  window.__EIAFC_DAILY_PRINT_FIX_V2__ = true;
+
+  function printDailyReportSafe(){
+    const area = document.getElementById('dailyDetailedReportPrintArea');
+    if(!area){
+      alert("Ouvrez d'abord le Bilan journalier puis cliquez sur Imprimer / PDF.");
+      return;
+    }
+
+    const date = document.getElementById('dailyDetailedReportDate')?.value || '';
+    const css = `
+      @page{size:A4 landscape;margin:8mm}
+      *{box-sizing:border-box}
+      body{font-family:Arial,sans-serif;color:#17212b;margin:0;background:#fff}
+      h2,h3{color:#12304a}h2{margin:3px 0}
+      .card{border:1px solid #d9e1e8;border-radius:7px;padding:9px;margin:8px 0;box-shadow:none}
+      .grid{display:grid;gap:6px}.kpis{grid-template-columns:repeat(4,1fr)}
+      .kpi .label{font-size:9px;text-transform:uppercase;color:#667085}
+      .kpi .value{font-size:14px;font-weight:800;color:#12304a}
+      .small,.sub{font-size:9px;color:#667085}
+      .djr-two{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+      .table-wrap{overflow:visible!important;max-height:none!important}
+      table{width:100%;border-collapse:collapse;font-size:7.8px;min-width:0!important}
+      th,td{border:1px solid #d9e1e8;padding:3px 4px;text-align:left;vertical-align:top}
+      th{background:#edf3f7;color:#12304a}
+      .money{text-align:right}.status{font-weight:700}
+      .djr-head{display:flex;justify-content:space-between;gap:10px}
+      .djr-state{font-weight:800}.djr-check{padding:4px;margin:3px 0;border:1px solid #ddd;font-size:8.5px}
+      .djr-foot{text-align:center;font-size:8px;margin-top:10px}
+      .djr-section{break-inside:auto}.djr-section .section-title{margin:0 0 5px}
+      tr{break-inside:avoid;page-break-inside:avoid}
+      thead{display:table-header-group}
+      .card.kpi,.djr-head,.djr-checks{break-inside:avoid}
+    `;
+
+    const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
+      <title>EIAFC - Bilan journalier ${date}</title><style>${css}</style></head>
+      <body>${area.outerHTML}</body></html>`;
+
+    const frame = document.createElement('iframe');
+    frame.setAttribute('aria-hidden','true');
+    Object.assign(frame.style,{
+      position:'fixed',right:'0',bottom:'0',width:'1px',height:'1px',
+      border:'0',opacity:'0',pointerEvents:'none'
+    });
+    document.body.appendChild(frame);
+
+    try{
+      const doc = frame.contentWindow.document;
+      doc.open();
+      doc.write(html);
+      doc.close();
+
+      const doPrint = () => {
+        try{
+          frame.contentWindow.focus();
+          frame.contentWindow.print();
+        }catch(err){
+          console.error('Impression bilan journalier EIAFC', err);
+          alert("Impossible d'ouvrir l'impression. Réessayez avec Chrome ou Edge.");
+        }
+      };
+
+      if(doc.readyState === 'complete') setTimeout(doPrint, 250);
+      else frame.onload = () => setTimeout(doPrint, 250);
+
+      try{
+        frame.contentWindow.onafterprint = () => setTimeout(() => frame.remove(), 500);
+      }catch(_e){}
+      setTimeout(() => { if(frame.isConnected) frame.remove(); }, 60000);
+    }catch(err){
+      frame.remove();
+      console.error('Préparation impression bilan journalier EIAFC', err);
+      alert("Erreur pendant la préparation du bilan à imprimer.");
+    }
+  }
+
+  document.addEventListener('click', function(e){
+    const btn = e.target && e.target.closest ? e.target.closest('#djrPrintBtn') : null;
+    if(!btn) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    printDailyReportSafe();
+  }, true);
+
+  window.eiafcPrintDailyDetailedSafe = printDailyReportSafe;
+})();
+</script>
+
 </body>
 </html>
