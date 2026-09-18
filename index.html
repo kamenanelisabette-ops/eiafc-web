@@ -8083,5 +8083,247 @@ setTimeout(()=>{try{sepRenderClosingPreview();if(typeof renderDashboardPoleSepar
 })();
 </script>
 
+<script id="eiafc-detailed-reports-v1124">
+/* EIAFC V11.24 — Rapports détaillés mensuels et annuels
+   Module autonome : synthèse, détails, impression PDF et export CSV.
+*/
+(function EiafcDetailedReports(){
+  'use strict';
+  if(window.__EIAFC_DETAILED_REPORTS_V1124__) return;
+  window.__EIAFC_DETAILED_REPORTS_V1124__=true;
+
+  const VIEW_ID='detailedReports';
+  const NAV_ID='detailedReportsNav';
+  const POLES=['BTS','Formation qualifiante','Licence','Master','Administration générale'];
+  const CHANNELS=['Espèces','Caisse Fondateur','Banque','Wave','MTN Mobile Money','Orange Money'];
+
+  function coreReady(){return typeof db!=='undefined'&&typeof currentRecords==='function'}
+  function safe(fn,fallback){try{return fn()}catch(e){console.warn('EIAFC rapports détaillés',e);return fallback}}
+  function escR(v){if(typeof esc==='function')return esc(v);return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+  function fmtR(n){if(typeof fmt==='function')return fmt(Number(n||0));return new Intl.NumberFormat('fr-FR',{maximumFractionDigits:0}).format(Number(n||0))+' FCFA'}
+  function money(v){return Number(v||0)}
+  function recs(arr){return coreReady()?currentRecords(arr||[]):((arr||[]).filter(x=>x&&x.deleted!==true))}
+  function yearLabel(){return safe(()=>typeof activeYear==='function'?activeYear():String(db?.settings?.year||''),String(db?.settings?.year||''))}
+  function schoolLabelR(){return safe(()=>typeof schoolLabel==='function'?schoolLabel():(typeof activeSchool==='function'?activeSchool()?.name:'EIAFC'),'EIAFC')}
+  function roleR(){return safe(()=>typeof roleName==='function'?roleName():'','')}
+  function canSee(){return safe(()=>typeof isOwner==='function'&&isOwner(),false)||roleR()==='Comptable'||safe(()=>typeof can==='function'&&can('reports'),false)}
+  function todayR(){return typeof today==='function'?today():new Date().toISOString().slice(0,10)}
+  function ymNow(){return todayR().slice(0,7)}
+  function normDate(v){return String(v||'').slice(0,10)}
+  function createdTime(x){const raw=String(x?.createdAt||x?.time||'');if(!raw)return'—';const d=new Date(raw);return Number.isNaN(d.getTime())?'—':d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}
+  function dateFR(v){if(!v)return'—';try{return new Date(v+'T00:00:00').toLocaleDateString('fr-FR')}catch(_e){return v}}
+  function monthFR(ym){if(!/^\d{4}-\d{2}$/.test(String(ym||'')))return ym||'—';const [y,m]=ym.split('-').map(Number);return new Date(y,m-1,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'})}
+
+  function academicRange(){
+    const y=yearLabel(),m=String(y).match(/^(\d{4})-(\d{4})$/);
+    if(typeof academicBounds==='function'){
+      const b=safe(()=>academicBounds(),null);
+      if(b?.start&&b?.end)return{start:b.start,end:b.end};
+    }
+    if(m)return{start:`${m[1]}-09-01`,end:`${m[2]}-08-31`};
+    const cy=new Date().getFullYear();return{start:`${cy}-09-01`,end:`${cy+1}-08-31`};
+  }
+  function academicMonths(){
+    const r=academicRange(),out=[];let d=new Date(r.start+'T00:00:00'),end=new Date(r.end+'T00:00:00');
+    while(d<=end){out.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);d=new Date(d.getFullYear(),d.getMonth()+1,1)}
+    return out;
+  }
+  function defaultMonth(){const ms=academicMonths(),now=ymNow();return ms.includes(now)?now:(ms[0]||now)}
+
+  function studentByMatR(mat){return safe(()=>typeof studentByMat==='function'?studentByMat(mat):recs(db.students).find(s=>String(s.matricule)===String(mat)),null)}
+  function programPole(v){
+    if(typeof poleName==='function')return safe(()=>poleName(v),String(v||'Administration générale'));
+    const s=String(v||'');if(/^BTS/.test(s))return'BTS';return s||'Administration générale';
+  }
+  function operationPole(x){
+    if(x?.program==='BTS'||x?.program==='Formation qualifiante'||x?.program==='Licence'||x?.program==='Master'||x?.program==='Administration générale')return x.program;
+    const p=safe(()=>typeof operationProgram==='function'?operationProgram(x):(x?.program||x?.service||'Administration générale'),x?.program||x?.service||'Administration générale');
+    return programPole(p);
+  }
+  function channel(v){return safe(()=>typeof treasuryChannel==='function'?treasuryChannel(v):String(v||'Autre'),String(v||'Autre'))}
+  function validPaymentsR(){return typeof validPayments==='function'?safe(()=>validPayments(),[]):recs(db.payments).filter(x=>x.status==='Validé')}
+  function validOtherR(){return typeof validOther==='function'?safe(()=>validOther(),[]):recs(db.other).filter(x=>x.status==='Validé')}
+  function outflowsR(){
+    if(typeof eiafcUnifiedOutflowRows==='function')return safe(()=>eiafcUnifiedOutflowRows(),[]);
+    const out=[];
+    recs(db.expenses).filter(x=>x.status==='Validé').forEach(x=>out.push({id:x.id,date:x.date,amount:x.amount||x.totalAmount,mode:x.mode,program:operationPole(x),sourceType:'Dépense',label:x.label||x.category||'Dépense',beneficiary:x.beneficiary||'',ref:x.ref||'',agent:x.agent||''}));
+    return out;
+  }
+  function transfersR(){return typeof validTransfers==='function'?safe(()=>validTransfers(),[]):recs(db.transfers).filter(x=>x.status!=='Annulé')}
+  function closingsR(){return recs(db.closings)}
+  function studentsR(){return typeof currentStudents==='function'?safe(()=>currentStudents(),[]):recs(db.students)}
+  function suppliesR(){return typeof allSupplyReceiptEvents==='function'?safe(()=>allSupplyReceiptEvents(),[]):[]}
+
+  function periodState(){
+    const mode=document.getElementById('detailReportMode')?.value||'month';
+    const month=document.getElementById('detailReportMonth')?.value||defaultMonth();
+    const pole=document.getElementById('detailReportPole')?.value||'';
+    const range=academicRange();
+    return{mode,month,pole,start:mode==='month'?month+'-01':range.start,end:mode==='month'?month+'-31':range.end,label:mode==='month'?monthFR(month):`Année académique ${yearLabel()}`};
+  }
+  function inPeriod(date,p){const d=normDate(date);if(!d)return false;return p.mode==='month'?d.slice(0,7)===p.month:(d>=p.start&&d<=p.end)}
+  function poleMatch(pole,p){return !p.pole||String(pole)===String(p.pole)}
+  function studentDate(s){return normDate(s?.date||s?.createdAt)}
+
+  function collect(p){
+    const students=studentsR().filter(s=>inPeriod(studentDate(s),p)&&poleMatch(programPole(s.program),p));
+    const payments=validPaymentsR().filter(x=>inPeriod(x.date,p)).map(x=>{const st=studentByMatR(x.student);return{...x,_student:st,_pole:programPole(st?.program)}}).filter(x=>poleMatch(x._pole,p));
+    const others=validOtherR().filter(x=>inPeriod(x.date,p)).map(x=>({...x,_pole:operationPole(x)})).filter(x=>poleMatch(x._pole,p));
+    const outflows=outflowsR().filter(x=>inPeriod(x.date,p)).map(x=>({...x,_pole:programPole(x.program||operationPole(x))})).filter(x=>poleMatch(x._pole,p));
+    const transfers=transfersR().filter(x=>inPeriod(x.date,p)).filter(x=>{
+      if(!p.pole)return true;
+      if(String(x.pole||'')===p.pole)return true;
+      if(Array.isArray(x.poleBreakdown))return x.poleBreakdown.some(z=>String(z.pole)===p.pole&&money(z.amount)!==0);
+      return false;
+    });
+    const closings=closingsR().filter(x=>inPeriod(x.date,p)&&poleMatch(String(x.pole||'Administration générale'),p));
+    const supplies=suppliesR().filter(x=>inPeriod(x.date,p)).map(x=>{const st=studentByMatR(x.student);return{...x,_student:st,_pole:programPole(x.program||st?.program)}}).filter(x=>poleMatch(x._pole,p));
+    return{students,payments,others,outflows,transfers,closings,supplies};
+  }
+
+  function transferAmountForPole(x,pole){
+    if(!pole)return money(x.amount);
+    if(Array.isArray(x.poleBreakdown)&&x.poleBreakdown.length)return x.poleBreakdown.filter(z=>String(z.pole)===pole).reduce((a,z)=>a+money(z.amount),0);
+    return String(x.pole||'')===pole?money(x.amount):0;
+  }
+  function metrics(d,p){
+    const studentIn=d.payments.reduce((a,x)=>a+money(x.amount),0),otherIn=d.others.reduce((a,x)=>a+money(x.amount),0),out=d.outflows.reduce((a,x)=>a+money(x.amount),0);
+    const founder=d.transfers.filter(x=>channel(x.to)==='Caisse Fondateur').reduce((a,x)=>a+transferAmountForPole(x,p.pole),0);
+    const bank=d.transfers.filter(x=>channel(x.to)==='Banque').reduce((a,x)=>a+transferAmountForPole(x,p.pole),0);
+    const wave=d.transfers.filter(x=>channel(x.to)==='Wave').reduce((a,x)=>a+transferAmountForPole(x,p.pole),0);
+    const mobile=d.transfers.filter(x=>['Wave','MTN Mobile Money','Orange Money'].includes(channel(x.to))).reduce((a,x)=>a+transferAmountForPole(x,p.pole),0);
+    const closeDiff=d.closings.reduce((a,x)=>a+money(x.difference),0);
+    return{studentIn,otherIn,totalIn:studentIn+otherIn,out,net:studentIn+otherIn-out,founder,bank,wave,mobile,closeDiff};
+  }
+
+  function groupBy(rows,keyFn){const m=new Map();rows.forEach(x=>{const k=keyFn(x);if(!m.has(k))m.set(k,[]);m.get(k).push(x)});return m}
+  function buildDailyRows(d,p){
+    const dates=new Set();[d.students,d.payments,d.others,d.outflows,d.transfers,d.closings,d.supplies].forEach(arr=>arr.forEach(x=>dates.add(normDate(x.date||x.createdAt))));
+    return [...dates].filter(Boolean).sort().map(date=>{
+      const students=d.students.filter(x=>studentDate(x)===date),payments=d.payments.filter(x=>x.date===date),others=d.others.filter(x=>x.date===date),outs=d.outflows.filter(x=>x.date===date),trs=d.transfers.filter(x=>x.date===date),clos=d.closings.filter(x=>x.date===date),sup=d.supplies.filter(x=>x.date===date);
+      return{date,students:students.length,payments:payments.length,studentIn:payments.reduce((a,x)=>a+money(x.amount),0),otherIn:others.reduce((a,x)=>a+money(x.amount),0),out:outs.reduce((a,x)=>a+money(x.amount),0),founder:trs.filter(x=>channel(x.to)==='Caisse Fondateur').reduce((a,x)=>a+transferAmountForPole(x,p.pole),0),bank:trs.filter(x=>channel(x.to)==='Banque').reduce((a,x)=>a+transferAmountForPole(x,p.pole),0),supplies:sup.reduce((a,x)=>a+money(x.reams)+money(x.markers),0),closings:clos.length,difference:clos.reduce((a,x)=>a+money(x.difference),0)};
+    });
+  }
+  function buildMonthRows(p){
+    return academicMonths().map(month=>{
+      const mp={...p,mode:'month',month,start:month+'-01',end:month+'-31'};const d=collect(mp),m=metrics(d,mp);
+      return{month,newStudents:d.students.length,payments:d.payments.length,...m,closings:d.closings.length};
+    });
+  }
+  function poleRows(p){
+    const poles=p.pole?[p.pole]:POLES;
+    return poles.map(pole=>{const pp={...p,pole};const d=collect(pp),m=metrics(d,pp);return{pole,newStudents:d.students.length,payments:d.payments.length,...m,closings:d.closings.length}}).filter(x=>x.newStudents||x.totalIn||x.out||x.founder||x.bank||x.closings);
+  }
+  function channelRows(d,p){
+    const map=new Map();const get=c=>{c=channel(c)||'Autre';if(!map.has(c))map.set(c,{channel:c,inflow:0,outflow:0,transferIn:0,transferOut:0});return map.get(c)};
+    d.payments.forEach(x=>get(x.mode).inflow+=money(x.amount));d.others.forEach(x=>get(x.mode).inflow+=money(x.amount));d.outflows.forEach(x=>get(x.mode).outflow+=money(x.amount));
+    d.transfers.forEach(x=>{const amt=transferAmountForPole(x,p.pole);get(x.to).transferIn+=amt;get(x.from).transferOut+=amt});
+    return [...map.values()].filter(x=>x.inflow||x.outflow||x.transferIn||x.transferOut).map(x=>({...x,balance:x.inflow+x.transferIn-x.outflow-x.transferOut}));
+  }
+  function agentRows(d){
+    const map=new Map();const get=a=>{a=String(a||'Non renseigné');if(!map.has(a))map.set(a,{agent:a,payments:0,amount:0,students:new Set()});return map.get(a)};
+    d.payments.forEach(x=>{const a=get(x.agent||x.createdBy);a.payments++;a.amount+=money(x.amount);if(x.student)a.students.add(x.student)});
+    return [...map.values()].map(x=>({agent:x.agent,payments:x.payments,amount:x.amount,students:x.students.size})).sort((a,b)=>b.amount-a.amount);
+  }
+
+  function table(title,subtitle,thead,tbody,emptyCols=1){return `<div class="card dr-card"><div class="section-title"><div><h3>${title}</h3>${subtitle?`<span class="small">${subtitle}</span>`:''}</div></div><div class="table-wrap"><table><thead>${thead}</thead><tbody>${tbody||`<tr><td colspan="${emptyCols}" class="empty">Aucune donnée pour cette période.</td></tr>`}</tbody></table></div></div>`}
+  function kpi(label,value,sub=''){return `<div class="card kpi"><div class="label">${label}</div><div class="value">${value}</div>${sub?`<div class="sub">${sub}</div>`:''}</div>`}
+
+  function render(){
+    const host=document.getElementById('detailedReportsBody');if(!host||!coreReady())return;
+    const p=periodState(),d=collect(p),m=metrics(d,p),daily=buildDailyRows(d,p),months=p.mode==='year'?buildMonthRows(p):[],poles=poleRows(p),channels=channelRows(d,p),agents=agentRows(d);
+    const reams=d.supplies.reduce((a,x)=>a+money(x.reams),0),markers=d.supplies.reduce((a,x)=>a+money(x.markers),0);
+    const pending=recs(db.payments).filter(x=>inPeriod(x.date,p)&&x.status==='En attente').reduce((a,x)=>a+money(x.amount),0);
+    const titlePole=p.pole?` • ${p.pole}`:'';
+
+    const dailyBody=daily.map(x=>`<tr><td><b>${dateFR(x.date)}</b></td><td>${x.students}</td><td>${x.payments}</td><td class="money">${fmtR(x.studentIn)}</td><td class="money">${fmtR(x.otherIn)}</td><td class="money">${fmtR(x.out)}</td><td class="money"><b>${fmtR(x.studentIn+x.otherIn-x.out)}</b></td><td class="money">${fmtR(x.founder)}</td><td class="money">${fmtR(x.bank)}</td><td>${x.closings}</td><td class="money">${fmtR(x.difference)}</td></tr>`).join('');
+    const monthBody=months.map(x=>`<tr><td><b>${escR(monthFR(x.month))}</b></td><td>${x.newStudents}</td><td>${x.payments}</td><td class="money">${fmtR(x.studentIn)}</td><td class="money">${fmtR(x.otherIn)}</td><td class="money">${fmtR(x.out)}</td><td class="money"><b>${fmtR(x.net)}</b></td><td class="money">${fmtR(x.founder)}</td><td class="money">${fmtR(x.bank)}</td><td>${x.closings}</td><td class="money">${fmtR(x.closeDiff)}</td></tr>`).join('');
+    const poleBody=poles.map(x=>`<tr><td><b>${escR(x.pole)}</b></td><td>${x.newStudents}</td><td>${x.payments}</td><td class="money">${fmtR(x.studentIn)}</td><td class="money">${fmtR(x.otherIn)}</td><td class="money">${fmtR(x.out)}</td><td class="money"><b>${fmtR(x.net)}</b></td><td class="money">${fmtR(x.founder)}</td><td class="money">${fmtR(x.bank)}</td><td>${x.closings}</td><td class="money">${fmtR(x.closeDiff)}</td></tr>`).join('');
+    const channelBody=channels.map(x=>`<tr><td><b>${escR(x.channel)}</b></td><td class="money">${fmtR(x.inflow)}</td><td class="money">${fmtR(x.outflow)}</td><td class="money">${fmtR(x.transferIn)}</td><td class="money">${fmtR(x.transferOut)}</td><td class="money"><b>${fmtR(x.balance)}</b></td></tr>`).join('');
+    const agentBody=agents.map(x=>`<tr><td><b>${escR(x.agent)}</b></td><td>${x.students}</td><td>${x.payments}</td><td class="money">${fmtR(x.amount)}</td></tr>`).join('');
+
+    const studentBody=d.students.slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))).map(s=>`<tr><td>${dateFR(studentDate(s))}</td><td><b>${escR(s.matricule||'—')}</b></td><td><b>${escR(s.name||'—')}</b></td><td>${escR(s.program||'—')}</td><td>${escR(s.track||'—')}</td><td>${escR(s.level||'—')}</td><td>${escR(s.createdBy||s.agent||'—')}</td></tr>`).join('');
+    const payBody=d.payments.slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))||String(a.createdAt||'').localeCompare(String(b.createdAt||''))).map(x=>`<tr><td>${dateFR(x.date)}</td><td>${createdTime(x)}</td><td><b>${escR(x.receipt||'—')}</b></td><td>${escR(x.student||'—')}</td><td><b>${escR(x._student?.name||'—')}</b></td><td>${escR(x._pole)}</td><td>${escR(x.type||'—')}</td><td>${escR(channel(x.mode))}</td><td class="money"><b>${fmtR(x.amount)}</b></td><td>${escR(x.ref||'—')}</td><td>${escR(x.agent||x.createdBy||'—')}</td></tr>`).join('');
+    const outBody=d.outflows.slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))).map(x=>`<tr><td>${dateFR(x.date)}</td><td><b>${escR(x.sourceType||'Sortie')}</b></td><td>${escR(x.label||'—')}</td><td>${escR(x.beneficiary||'—')}</td><td>${escR(x._pole||'—')}</td><td>${escR(channel(x.mode))}</td><td class="money"><b>${fmtR(x.amount)}</b></td><td>${escR(x.ref||'—')}</td><td>${escR(x.agent||'—')}</td></tr>`).join('');
+    const transferBody=d.transfers.slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))).map(x=>`<tr><td>${dateFR(x.date)}</td><td><b>${escR(x.id||'—')}</b></td><td>${escR(channel(x.from))}</td><td>${escR(channel(x.to))}</td><td>${escR(x.pole||'—')}</td><td class="money"><b>${fmtR(transferAmountForPole(x,p.pole))}</b></td><td>${escR(x.ref||'—')}</td><td>${escR(x.kind||'Transfert')}</td><td>${escR(x.receiver||x.agent||'—')}</td></tr>`).join('');
+    const closingBody=d.closings.slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))).map(x=>`<tr><td>${dateFR(x.date)}</td><td><b>${escR(x.id||'—')}</b></td><td>${escR(x.pole||'—')}</td><td class="money">${fmtR(x.cashIn)}</td><td class="money">${fmtR(x.cashOut)}</td><td class="money">${fmtR(x.remittanceAmount)}</td><td class="money">${fmtR(x.actual)}</td><td class="money"><b>${fmtR(x.difference)}</b></td><td>${escR(x.note||'—')}</td></tr>`).join('');
+
+    host.innerHTML=`<div id="detailedReportsPrintArea">
+      <div class="card dr-head"><div><div class="dr-eyebrow">EIAFC • Rapport détaillé ${p.mode==='month'?'mensuel':'annuel'}</div><h2>${escR(schoolLabelR())}</h2><div class="small"><b>${escR(p.label)}</b>${escR(titlePole)} • Année active ${escR(yearLabel())} • Généré le ${new Date().toLocaleString('fr-FR')}</div></div><div class="dr-badge">${p.mode==='month'?'MENSUEL':'ANNUEL'}</div></div>
+      <div class="grid kpis dr-kpis">
+        ${kpi('Nouvelles inscriptions',d.students.length,`${p.label}`)}
+        ${kpi('Versements étudiants',fmtR(m.studentIn),`${d.payments.length} paiement(s)`)}
+        ${kpi('Autres recettes',fmtR(m.otherIn),`${d.others.length} opération(s)`)}
+        ${kpi('Total encaissements',fmtR(m.totalIn),'hors transferts internes')}
+        ${kpi('Sorties de trésorerie',fmtR(m.out),`${d.outflows.length} sortie(s)`)}
+        ${kpi('Flux net',fmtR(m.net),'encaissements - sorties')}
+        ${kpi('Remis au Fondateur',fmtR(m.founder),`${d.transfers.filter(x=>channel(x.to)==='Caisse Fondateur').length} transfert(s)`)}
+        ${kpi('Versé en Banque',fmtR(m.bank),`${d.transfers.filter(x=>channel(x.to)==='Banque').length} transfert(s)`)}
+        ${kpi('Paiements en attente',fmtR(pending),'non inclus dans les encaissements validés')}
+        ${kpi('Clôtures',d.closings.length,`Écart cumulé : ${fmtR(m.closeDiff)}`)}
+        ${kpi('Rames reçues',reams,`${d.supplies.length} remise(s) fournitures`)}
+        ${kpi('Marqueurs reçus',markers,'sur la période')}
+      </div>
+      ${p.mode==='year'?table('📆 Synthèse mois par mois','Lecture complète de l’année académique','<tr><th>Mois</th><th>Inscriptions</th><th>Paiements</th><th class="money">Versements</th><th class="money">Autres recettes</th><th class="money">Sorties</th><th class="money">Flux net</th><th class="money">Fondateur</th><th class="money">Banque</th><th>Clôtures</th><th class="money">Écart</th></tr>',monthBody,11):table('📅 Détail jour par jour','Toutes les journées avec activité dans le mois','<tr><th>Date</th><th>Inscriptions</th><th>Paiements</th><th class="money">Versements</th><th class="money">Autres recettes</th><th class="money">Sorties</th><th class="money">Flux net</th><th class="money">Fondateur</th><th class="money">Banque</th><th>Clôtures</th><th class="money">Écart</th></tr>',dailyBody,11)}
+      ${table('🎯 Répartition par pôle','BTS, Formation qualifiante, Licence, Master et Administration générale','<tr><th>Pôle</th><th>Inscriptions</th><th>Paiements</th><th class="money">Versements</th><th class="money">Autres recettes</th><th class="money">Sorties</th><th class="money">Flux net</th><th class="money">Fondateur</th><th class="money">Banque</th><th>Clôtures</th><th class="money">Écart</th></tr>',poleBody,11)}
+      <div class="dr-two">${table('💰 Répartition par canal','Mouvements de trésorerie sans double comptage','<tr><th>Canal</th><th class="money">Entrées</th><th class="money">Sorties</th><th class="money">Transferts reçus</th><th class="money">Transferts envoyés</th><th class="money">Solde période</th></tr>',channelBody,6)}${table('👤 Activité par agent','Versements étudiants saisis/validés','<tr><th>Agent</th><th>Étudiants</th><th>Paiements</th><th class="money">Montant</th></tr>',agentBody,4)}</div>
+      ${table('🎓 Inscriptions de la période',`${d.students.length} dossier(s) daté(s) de la période`,'<tr><th>Date</th><th>Matricule</th><th>Étudiant</th><th>Programme</th><th>Filière</th><th>Niveau</th><th>Agent</th></tr>',studentBody,7)}
+      ${table('💳 Détail des versements étudiants',`${d.payments.length} paiement(s) validé(s)`,'<tr><th>Date</th><th>Heure</th><th>Reçu</th><th>Matricule</th><th>Étudiant</th><th>Pôle</th><th>Type</th><th>Mode</th><th class="money">Montant</th><th>Référence</th><th>Agent</th></tr>',payBody,11)}
+      ${table('🧾 Détail des sorties de trésorerie','Dépenses fournisseurs, salaires, avances et prêts','<tr><th>Date</th><th>Nature</th><th>Libellé</th><th>Bénéficiaire</th><th>Pôle</th><th>Mode</th><th class="money">Montant</th><th>Référence</th><th>Agent</th></tr>',outBody,9)}
+      ${table('🔄 Détail des transferts','Fondateur, Banque et Mobile Money — séparés des recettes/dépenses','<tr><th>Date</th><th>N°</th><th>Depuis</th><th>Vers</th><th>Pôle</th><th class="money">Montant</th><th>Référence</th><th>Nature</th><th>Reçu par / Agent</th></tr>',transferBody,9)}
+      ${table('🔒 Détail des clôtures','Contrôle des espèces, remises et écarts','<tr><th>Date</th><th>N° clôture</th><th>Pôle</th><th class="money">Entrées espèces</th><th class="money">Sorties espèces</th><th class="money">Remis</th><th class="money">Reste</th><th class="money">Écart</th><th>Observation</th></tr>',closingBody,9)}
+      <div class="dr-foot">Rapport de gestion interne EIAFC • Les transferts internes sont présentés séparément afin d’éviter le double comptage des recettes et dépenses.</div>
+    </div>`;
+  }
+
+  function csvQuote(v){return `"${String(v??'').replace(/"/g,'""')}"`}
+  function exportCSV(){
+    const p=periodState(),d=collect(p),rows=[];
+    d.students.forEach(s=>rows.push(['INSCRIPTION',studentDate(s),'',s.matricule||'',s.name||'',programPole(s.program),s.track||'',0,'','',s.createdBy||s.agent||'']));
+    d.payments.forEach(x=>rows.push(['PAIEMENT',x.date,x.receipt||'',x.student||'',x._student?.name||'',x._pole,x.type||'',money(x.amount),channel(x.mode),x.ref||'',x.agent||x.createdBy||'']));
+    d.others.forEach(x=>rows.push(['AUTRE RECETTE',x.date,x.receipt||'',x.id||'',x.label||x.type||'',x._pole,x.type||'',money(x.amount),channel(x.mode),x.ref||'',x.agent||'']));
+    d.outflows.forEach(x=>rows.push(['SORTIE',x.date,x.id||x.sourceId||'',x.sourceId||'',x.label||x.beneficiary||'',x._pole,x.sourceType||'',-money(x.amount),channel(x.mode),x.ref||'',x.agent||'']));
+    d.transfers.forEach(x=>rows.push(['TRANSFERT',x.date,x.id||'',x.id||'',`${x.from||''} -> ${x.to||''}`,x.pole||'',x.kind||'',transferAmountForPole(x,p.pole),`${channel(x.from)} -> ${channel(x.to)}`,x.ref||'',x.agent||'']));
+    const head=['Nature','Date','Piece','Matricule_ID','Etudiant_Libelle','Pole','Detail','Montant_FCFA','Mode_Canal','Reference','Agent'];
+    const csv='\ufeff'+[head,...rows].map(r=>r.map(csvQuote).join(';')).join('\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`EIAFC_Rapport_${p.mode==='month'?p.month:yearLabel().replace('-','_')}_${p.pole||'Tous_poles'}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+  }
+
+  function printReport(){
+    const area=document.getElementById('detailedReportsPrintArea');if(!area)return alert('Générez d’abord le rapport détaillé.');
+    const p=periodState();
+    const css=`@page{size:A4 landscape;margin:7mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#17212b;margin:0;background:#fff}h2,h3{color:#12304a;margin:3px 0}.card{border:1px solid #d9e1e8;border-radius:7px;padding:8px;margin:7px 0;box-shadow:none}.grid{display:grid;gap:5px}.kpis{grid-template-columns:repeat(4,1fr)}.kpi .label{font-size:8px;text-transform:uppercase;color:#667085}.kpi .value{font-size:13px;font-weight:800;color:#12304a}.small,.sub{font-size:8px;color:#667085}.dr-two{display:grid;grid-template-columns:1fr 1fr;gap:6px}.table-wrap{overflow:visible!important;max-height:none!important}table{width:100%;border-collapse:collapse;font-size:7px;min-width:0!important}th,td{border:1px solid #d9e1e8;padding:2.5px 3px;text-align:left;vertical-align:top}th{background:#edf3f7}.money{text-align:right}.dr-head{display:flex;justify-content:space-between}.dr-badge{font-weight:800}.dr-foot{text-align:center;font-size:7px;margin-top:9px}thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}.card.kpi,.dr-head{break-inside:avoid}.dr-card{break-inside:auto}`;
+    const html=`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>EIAFC - Rapport ${escR(p.label)}</title><style>${css}</style></head><body>${area.outerHTML}</body></html>`;
+    const frame=document.createElement('iframe');frame.setAttribute('aria-hidden','true');Object.assign(frame.style,{position:'fixed',right:'0',bottom:'0',width:'1px',height:'1px',border:'0',opacity:'0',pointerEvents:'none'});document.body.appendChild(frame);
+    try{const doc=frame.contentWindow.document;doc.open();doc.write(html);doc.close();const run=()=>{try{frame.contentWindow.focus();frame.contentWindow.print()}catch(e){alert("Impossible d'ouvrir l'impression du rapport.")}};if(doc.readyState==='complete')setTimeout(run,250);else frame.onload=()=>setTimeout(run,250);try{frame.contentWindow.onafterprint=()=>setTimeout(()=>frame.remove(),500)}catch(_e){}setTimeout(()=>{if(frame.isConnected)frame.remove()},60000)}catch(e){frame.remove();alert("Erreur pendant la préparation du rapport à imprimer.")}
+  }
+
+  function updateControls(){
+    const mode=document.getElementById('detailReportMode')?.value||'month',m=document.getElementById('detailReportMonth');if(m)m.style.display=mode==='month'?'':'none';
+  }
+  function injectStyle(){
+    if(document.getElementById('eiafc-detailed-reports-style'))return;const s=document.createElement('style');s.id='eiafc-detailed-reports-style';s.textContent=`#${VIEW_ID}{padding-bottom:40px}.dr-toolbar{border-left:5px solid var(--gold)}.dr-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;border-left:5px solid var(--navy)}.dr-eyebrow{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--gold)}.dr-head h2{margin:5px 0;color:var(--navy)}.dr-badge{padding:8px 12px;border-radius:999px;background:#edf5ff;color:#12304a;font-size:11px;font-weight:900}.dr-kpis{margin-top:14px}.dr-card{margin-top:14px}.dr-card .table-wrap{max-height:520px}.dr-card table{min-width:900px}.dr-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.dr-foot{text-align:center;color:var(--muted);font-size:11px;margin:18px 0}@media(max-width:1000px){.dr-two{grid-template-columns:1fr}.dr-card table{min-width:850px}}`;
+    document.head.appendChild(s);
+  }
+  function injectUI(){
+    if(document.getElementById(VIEW_ID))return;
+    const view=document.createElement('section');view.id=VIEW_ID;view.className='view';view.innerHTML=`<div class="card dr-toolbar"><div class="section-title"><div><h3>📊 Rapports détaillés</h3><span class="small">Rapport mensuel ou annuel complet : inscriptions, finances, transferts, fournitures et clôtures.</span></div></div><div class="toolbar"><select id="detailReportMode"><option value="month">Rapport mensuel</option><option value="year">Rapport annuel</option></select><input type="month" id="detailReportMonth"><select id="detailReportPole"><option value="">Tous les pôles</option><option value="BTS">BTS (1 + 2)</option><option>Formation qualifiante</option><option>Licence</option><option>Master</option><option>Administration générale</option></select><button class="btn btn-primary" id="detailReportGenerate" type="button">Générer le rapport</button><button class="btn btn-light" id="detailReportPrint" type="button">🖨 Imprimer / PDF</button><button class="btn btn-light" id="detailReportCsv" type="button">⬇ Exporter CSV</button></div></div><div id="detailedReportsBody"></div>`;
+    const main=document.querySelector('.main');if(main)main.appendChild(view);else document.body.appendChild(view);
+    const nav=document.createElement('button');nav.id=NAV_ID;nav.type='button';nav.className='nav-btn';nav.dataset.view=VIEW_ID;nav.innerHTML='📊 Rapports détaillés';
+    const anchor=document.getElementById('dailyDetailedReportNav')||document.querySelector('.nav-btn[data-view="reports"]')||document.querySelector('.nav-btn[data-view="closing"]');if(anchor)anchor.insertAdjacentElement('afterend',nav);else document.querySelector('.sidebar')?.appendChild(nav);
+    document.getElementById('detailReportMonth').value=defaultMonth();
+    nav.addEventListener('click',()=>{if(!canSee())return alert('Votre rôle ne permet pas de consulter les rapports financiers détaillés.');document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));nav.classList.add('active');view.classList.add('active');const t=document.getElementById('pageTitle');if(t)t.textContent='Rapports détaillés';updateControls();render()});
+    document.getElementById('detailReportMode').addEventListener('change',()=>{updateControls();render()});
+    document.getElementById('detailReportMonth').addEventListener('change',render);document.getElementById('detailReportPole').addEventListener('change',render);document.getElementById('detailReportGenerate').addEventListener('click',render);document.getElementById('detailReportPrint').addEventListener('click',printReport);document.getElementById('detailReportCsv').addEventListener('click',exportCSV);
+    updateAccess();
+  }
+  function updateAccess(){const nav=document.getElementById(NAV_ID);if(nav)nav.style.display=canSee()?'':'none'}
+
+  injectStyle();injectUI();setInterval(updateAccess,2500);
+  window.eiafcRenderDetailedReports=render;window.eiafcPrintDetailedReports=printReport;window.eiafcExportDetailedReportsCSV=exportCSV;
+})();
+
+</script>
+
 </body>
 </html>
