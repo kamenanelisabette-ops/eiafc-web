@@ -8084,7 +8084,7 @@ setTimeout(()=>{try{sepRenderClosingPreview();if(typeof renderDashboardPoleSepar
 </script>
 
 <script id="eiafc-detailed-reports-v1124">
-/* EIAFC V11.24 — Rapports détaillés mensuels et annuels
+/* EIAFC V11.24.1 — Rapports détaillés mensuels et annuels
    Module autonome : synthèse, détails, impression PDF et export CSV.
 */
 (function EiafcDetailedReports(){
@@ -8186,14 +8186,40 @@ setTimeout(()=>{try{sepRenderClosingPreview();if(typeof renderDashboardPoleSepar
     if(Array.isArray(x.poleBreakdown)&&x.poleBreakdown.length)return x.poleBreakdown.filter(z=>String(z.pole)===pole).reduce((a,z)=>a+money(z.amount),0);
     return String(x.pole||'')===pole?money(x.amount):0;
   }
+  function closingAdjustmentInfo(c){
+    const rawDifference=money(c?.difference);
+    const note=String(c?.note||'').toLowerCase();
+    const source=String(c?.reconciliationSource||'').toLowerCase();
+    const administrative=Math.abs(rawDifference)>0.01&&(
+      /post[- ]cl[oô]ture|ajustement[s]? post|reclass|antidat|saisi[^.]*dat[ée] du|correction administrative/.test(note)||
+      /post|reclass|antidat/.test(source)
+    );
+    return{
+      rawDifference,
+      realDifference:administrative?0:rawDifference,
+      postClosingAdjustment:administrative?Math.abs(rawDifference):0,
+      administrative
+    };
+  }
+
   function metrics(d,p){
     const studentIn=d.payments.reduce((a,x)=>a+money(x.amount),0),otherIn=d.others.reduce((a,x)=>a+money(x.amount),0),out=d.outflows.reduce((a,x)=>a+money(x.amount),0);
     const founder=d.transfers.filter(x=>channel(x.to)==='Caisse Fondateur').reduce((a,x)=>a+transferAmountForPole(x,p.pole),0);
     const bank=d.transfers.filter(x=>channel(x.to)==='Banque').reduce((a,x)=>a+transferAmountForPole(x,p.pole),0);
     const wave=d.transfers.filter(x=>channel(x.to)==='Wave').reduce((a,x)=>a+transferAmountForPole(x,p.pole),0);
     const mobile=d.transfers.filter(x=>['Wave','MTN Mobile Money','Orange Money'].includes(channel(x.to))).reduce((a,x)=>a+transferAmountForPole(x,p.pole),0);
-    const closeDiff=d.closings.reduce((a,x)=>a+money(x.difference),0);
-    return{studentIn,otherIn,totalIn:studentIn+otherIn,out,net:studentIn+otherIn-out,founder,bank,wave,mobile,closeDiff};
+    const closingControl=d.closings.reduce((a,x)=>{
+      const c=closingAdjustmentInfo(x);
+      a.realDifference+=c.realDifference;
+      a.postClosingAdjustment+=c.postClosingAdjustment;
+      return a;
+    },{realDifference:0,postClosingAdjustment:0});
+    return{
+      studentIn,otherIn,totalIn:studentIn+otherIn,out,net:studentIn+otherIn-out,
+      founder,bank,wave,mobile,
+      closeDiff:closingControl.realDifference,
+      postCloseAdjustments:closingControl.postClosingAdjustment
+    };
   }
 
   function groupBy(rows,keyFn){const m=new Map();rows.forEach(x=>{const k=keyFn(x);if(!m.has(k))m.set(k,[]);m.get(k).push(x)});return m}
@@ -8201,7 +8227,8 @@ setTimeout(()=>{try{sepRenderClosingPreview();if(typeof renderDashboardPoleSepar
     const dates=new Set();[d.students,d.payments,d.others,d.outflows,d.transfers,d.closings,d.supplies].forEach(arr=>arr.forEach(x=>dates.add(normDate(x.date||x.createdAt))));
     return [...dates].filter(Boolean).sort().map(date=>{
       const students=d.students.filter(x=>studentDate(x)===date),payments=d.payments.filter(x=>x.date===date),others=d.others.filter(x=>x.date===date),outs=d.outflows.filter(x=>x.date===date),trs=d.transfers.filter(x=>x.date===date),clos=d.closings.filter(x=>x.date===date),sup=d.supplies.filter(x=>x.date===date);
-      return{date,students:students.length,payments:payments.length,studentIn:payments.reduce((a,x)=>a+money(x.amount),0),otherIn:others.reduce((a,x)=>a+money(x.amount),0),out:outs.reduce((a,x)=>a+money(x.amount),0),founder:trs.filter(x=>channel(x.to)==='Caisse Fondateur').reduce((a,x)=>a+transferAmountForPole(x,p.pole),0),bank:trs.filter(x=>channel(x.to)==='Banque').reduce((a,x)=>a+transferAmountForPole(x,p.pole),0),supplies:sup.reduce((a,x)=>a+money(x.reams)+money(x.markers),0),closings:clos.length,difference:clos.reduce((a,x)=>a+money(x.difference),0)};
+      const closingControl=clos.reduce((a,x)=>{const c=closingAdjustmentInfo(x);a.realDifference+=c.realDifference;a.postClosingAdjustment+=c.postClosingAdjustment;return a},{realDifference:0,postClosingAdjustment:0});
+      return{date,students:students.length,payments:payments.length,studentIn:payments.reduce((a,x)=>a+money(x.amount),0),otherIn:others.reduce((a,x)=>a+money(x.amount),0),out:outs.reduce((a,x)=>a+money(x.amount),0),founder:trs.filter(x=>channel(x.to)==='Caisse Fondateur').reduce((a,x)=>a+transferAmountForPole(x,p.pole),0),bank:trs.filter(x=>channel(x.to)==='Banque').reduce((a,x)=>a+transferAmountForPole(x,p.pole),0),supplies:sup.reduce((a,x)=>a+money(x.reams)+money(x.markers),0),closings:clos.length,difference:closingControl.realDifference,postCloseAdjustments:closingControl.postClosingAdjustment};
     });
   }
   function buildMonthRows(p){
@@ -8236,9 +8263,9 @@ setTimeout(()=>{try{sepRenderClosingPreview();if(typeof renderDashboardPoleSepar
     const pending=recs(db.payments).filter(x=>inPeriod(x.date,p)&&x.status==='En attente').reduce((a,x)=>a+money(x.amount),0);
     const titlePole=p.pole?` • ${p.pole}`:'';
 
-    const dailyBody=daily.map(x=>`<tr><td><b>${dateFR(x.date)}</b></td><td>${x.students}</td><td>${x.payments}</td><td class="money">${fmtR(x.studentIn)}</td><td class="money">${fmtR(x.otherIn)}</td><td class="money">${fmtR(x.out)}</td><td class="money"><b>${fmtR(x.studentIn+x.otherIn-x.out)}</b></td><td class="money">${fmtR(x.founder)}</td><td class="money">${fmtR(x.bank)}</td><td>${x.closings}</td><td class="money">${fmtR(x.difference)}</td></tr>`).join('');
-    const monthBody=months.map(x=>`<tr><td><b>${escR(monthFR(x.month))}</b></td><td>${x.newStudents}</td><td>${x.payments}</td><td class="money">${fmtR(x.studentIn)}</td><td class="money">${fmtR(x.otherIn)}</td><td class="money">${fmtR(x.out)}</td><td class="money"><b>${fmtR(x.net)}</b></td><td class="money">${fmtR(x.founder)}</td><td class="money">${fmtR(x.bank)}</td><td>${x.closings}</td><td class="money">${fmtR(x.closeDiff)}</td></tr>`).join('');
-    const poleBody=poles.map(x=>`<tr><td><b>${escR(x.pole)}</b></td><td>${x.newStudents}</td><td>${x.payments}</td><td class="money">${fmtR(x.studentIn)}</td><td class="money">${fmtR(x.otherIn)}</td><td class="money">${fmtR(x.out)}</td><td class="money"><b>${fmtR(x.net)}</b></td><td class="money">${fmtR(x.founder)}</td><td class="money">${fmtR(x.bank)}</td><td>${x.closings}</td><td class="money">${fmtR(x.closeDiff)}</td></tr>`).join('');
+    const dailyBody=daily.map(x=>`<tr><td><b>${dateFR(x.date)}</b></td><td>${x.students}</td><td>${x.payments}</td><td class="money">${fmtR(x.studentIn)}</td><td class="money">${fmtR(x.otherIn)}</td><td class="money">${fmtR(x.out)}</td><td class="money"><b>${fmtR(x.studentIn+x.otherIn-x.out)}</b></td><td class="money">${fmtR(x.founder)}</td><td class="money">${fmtR(x.bank)}</td><td>${x.closings}</td><td class="money"><b>${fmtR(x.difference)}</b></td><td class="money">${fmtR(x.postCloseAdjustments)}</td></tr>`).join('');
+    const monthBody=months.map(x=>`<tr><td><b>${escR(monthFR(x.month))}</b></td><td>${x.newStudents}</td><td>${x.payments}</td><td class="money">${fmtR(x.studentIn)}</td><td class="money">${fmtR(x.otherIn)}</td><td class="money">${fmtR(x.out)}</td><td class="money"><b>${fmtR(x.net)}</b></td><td class="money">${fmtR(x.founder)}</td><td class="money">${fmtR(x.bank)}</td><td>${x.closings}</td><td class="money"><b>${fmtR(x.closeDiff)}</b></td><td class="money">${fmtR(x.postCloseAdjustments)}</td></tr>`).join('');
+    const poleBody=poles.map(x=>`<tr><td><b>${escR(x.pole)}</b></td><td>${x.newStudents}</td><td>${x.payments}</td><td class="money">${fmtR(x.studentIn)}</td><td class="money">${fmtR(x.otherIn)}</td><td class="money">${fmtR(x.out)}</td><td class="money"><b>${fmtR(x.net)}</b></td><td class="money">${fmtR(x.founder)}</td><td class="money">${fmtR(x.bank)}</td><td>${x.closings}</td><td class="money"><b>${fmtR(x.closeDiff)}</b></td><td class="money">${fmtR(x.postCloseAdjustments)}</td></tr>`).join('');
     const channelBody=channels.map(x=>`<tr><td><b>${escR(x.channel)}</b></td><td class="money">${fmtR(x.inflow)}</td><td class="money">${fmtR(x.outflow)}</td><td class="money">${fmtR(x.transferIn)}</td><td class="money">${fmtR(x.transferOut)}</td><td class="money"><b>${fmtR(x.balance)}</b></td></tr>`).join('');
     const agentBody=agents.map(x=>`<tr><td><b>${escR(x.agent)}</b></td><td>${x.students}</td><td>${x.payments}</td><td class="money">${fmtR(x.amount)}</td></tr>`).join('');
 
@@ -8246,7 +8273,7 @@ setTimeout(()=>{try{sepRenderClosingPreview();if(typeof renderDashboardPoleSepar
     const payBody=d.payments.slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))||String(a.createdAt||'').localeCompare(String(b.createdAt||''))).map(x=>`<tr><td>${dateFR(x.date)}</td><td>${createdTime(x)}</td><td><b>${escR(x.receipt||'—')}</b></td><td>${escR(x.student||'—')}</td><td><b>${escR(x._student?.name||'—')}</b></td><td>${escR(x._pole)}</td><td>${escR(x.type||'—')}</td><td>${escR(channel(x.mode))}</td><td class="money"><b>${fmtR(x.amount)}</b></td><td>${escR(x.ref||'—')}</td><td>${escR(x.agent||x.createdBy||'—')}</td></tr>`).join('');
     const outBody=d.outflows.slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))).map(x=>`<tr><td>${dateFR(x.date)}</td><td><b>${escR(x.sourceType||'Sortie')}</b></td><td>${escR(x.label||'—')}</td><td>${escR(x.beneficiary||'—')}</td><td>${escR(x._pole||'—')}</td><td>${escR(channel(x.mode))}</td><td class="money"><b>${fmtR(x.amount)}</b></td><td>${escR(x.ref||'—')}</td><td>${escR(x.agent||'—')}</td></tr>`).join('');
     const transferBody=d.transfers.slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))).map(x=>`<tr><td>${dateFR(x.date)}</td><td><b>${escR(x.id||'—')}</b></td><td>${escR(channel(x.from))}</td><td>${escR(channel(x.to))}</td><td>${escR(x.pole||'—')}</td><td class="money"><b>${fmtR(transferAmountForPole(x,p.pole))}</b></td><td>${escR(x.ref||'—')}</td><td>${escR(x.kind||'Transfert')}</td><td>${escR(x.receiver||x.agent||'—')}</td></tr>`).join('');
-    const closingBody=d.closings.slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))).map(x=>`<tr><td>${dateFR(x.date)}</td><td><b>${escR(x.id||'—')}</b></td><td>${escR(x.pole||'—')}</td><td class="money">${fmtR(x.cashIn)}</td><td class="money">${fmtR(x.cashOut)}</td><td class="money">${fmtR(x.remittanceAmount)}</td><td class="money">${fmtR(x.actual)}</td><td class="money"><b>${fmtR(x.difference)}</b></td><td>${escR(x.note||'—')}</td></tr>`).join('');
+    const closingBody=d.closings.slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))).map(x=>{const c=closingAdjustmentInfo(x);return`<tr><td>${dateFR(x.date)}</td><td><b>${escR(x.id||'—')}</b></td><td>${escR(x.pole||'—')}</td><td class="money">${fmtR(x.cashIn)}</td><td class="money">${fmtR(x.cashOut)}</td><td class="money">${fmtR(x.remittanceAmount)}</td><td class="money">${fmtR(x.actual)}</td><td class="money"><b>${fmtR(c.realDifference)}</b></td><td class="money">${fmtR(c.postClosingAdjustment)}</td><td>${escR(x.note||'—')}</td></tr>`}).join('');
 
     host.innerHTML=`<div id="detailedReportsPrintArea">
       <div class="card dr-head"><div><div class="dr-eyebrow">EIAFC • Rapport détaillé ${p.mode==='month'?'mensuel':'annuel'}</div><h2>${escR(schoolLabelR())}</h2><div class="small"><b>${escR(p.label)}</b>${escR(titlePole)} • Année active ${escR(yearLabel())} • Généré le ${new Date().toLocaleString('fr-FR')}</div></div><div class="dr-badge">${p.mode==='month'?'MENSUEL':'ANNUEL'}</div></div>
@@ -8260,18 +8287,20 @@ setTimeout(()=>{try{sepRenderClosingPreview();if(typeof renderDashboardPoleSepar
         ${kpi('Remis au Fondateur',fmtR(m.founder),`${d.transfers.filter(x=>channel(x.to)==='Caisse Fondateur').length} transfert(s)`)}
         ${kpi('Versé en Banque',fmtR(m.bank),`${d.transfers.filter(x=>channel(x.to)==='Banque').length} transfert(s)`)}
         ${kpi('Paiements en attente',fmtR(pending),'non inclus dans les encaissements validés')}
-        ${kpi('Clôtures',d.closings.length,`Écart cumulé : ${fmtR(m.closeDiff)}`)}
+        ${kpi('Écart réel de caisse',fmtR(m.closeDiff),`${d.closings.length} clôture(s) contrôlée(s)`)}
+        ${kpi('Ajustements après clôture',fmtR(m.postCloseAdjustments),'corrections administratives — pas un manque de caisse')}
         ${kpi('Rames reçues',reams,`${d.supplies.length} remise(s) fournitures`)}
         ${kpi('Marqueurs reçus',markers,'sur la période')}
       </div>
-      ${p.mode==='year'?table('📆 Synthèse mois par mois','Lecture complète de l’année académique','<tr><th>Mois</th><th>Inscriptions</th><th>Paiements</th><th class="money">Versements</th><th class="money">Autres recettes</th><th class="money">Sorties</th><th class="money">Flux net</th><th class="money">Fondateur</th><th class="money">Banque</th><th>Clôtures</th><th class="money">Écart</th></tr>',monthBody,11):table('📅 Détail jour par jour','Toutes les journées avec activité dans le mois','<tr><th>Date</th><th>Inscriptions</th><th>Paiements</th><th class="money">Versements</th><th class="money">Autres recettes</th><th class="money">Sorties</th><th class="money">Flux net</th><th class="money">Fondateur</th><th class="money">Banque</th><th>Clôtures</th><th class="money">Écart</th></tr>',dailyBody,11)}
-      ${table('🎯 Répartition par pôle','BTS, Formation qualifiante, Licence, Master et Administration générale','<tr><th>Pôle</th><th>Inscriptions</th><th>Paiements</th><th class="money">Versements</th><th class="money">Autres recettes</th><th class="money">Sorties</th><th class="money">Flux net</th><th class="money">Fondateur</th><th class="money">Banque</th><th>Clôtures</th><th class="money">Écart</th></tr>',poleBody,11)}
+      ${m.postCloseAdjustments>0?`<div class="card dr-adjust-note"><b>ℹ️ Ajustements après clôture : ${fmtR(m.postCloseAdjustments)}</b><br><span class="small">Ces montants correspondent à des corrections administratives enregistrées après une clôture (par exemple reclassification ou paiement antidaté). Ils ne sont pas présentés comme un manque de caisse.</span></div>`:''}
+      ${p.mode==='year'?table('📆 Synthèse mois par mois','Lecture complète de l’année académique','<tr><th>Mois</th><th>Inscriptions</th><th>Paiements</th><th class="money">Versements</th><th class="money">Autres recettes</th><th class="money">Sorties</th><th class="money">Flux net</th><th class="money">Fondateur</th><th class="money">Banque</th><th>Clôtures</th><th class="money">Écart réel</th><th class="money">Ajustements après clôture</th></tr>',monthBody,12):table('📅 Détail jour par jour','Toutes les journées avec activité dans le mois','<tr><th>Date</th><th>Inscriptions</th><th>Paiements</th><th class="money">Versements</th><th class="money">Autres recettes</th><th class="money">Sorties</th><th class="money">Flux net</th><th class="money">Fondateur</th><th class="money">Banque</th><th>Clôtures</th><th class="money">Écart réel</th><th class="money">Ajustements après clôture</th></tr>',dailyBody,12)}
+      ${table('🎯 Répartition par pôle','BTS, Formation qualifiante, Licence, Master et Administration générale','<tr><th>Pôle</th><th>Inscriptions</th><th>Paiements</th><th class="money">Versements</th><th class="money">Autres recettes</th><th class="money">Sorties</th><th class="money">Flux net</th><th class="money">Fondateur</th><th class="money">Banque</th><th>Clôtures</th><th class="money">Écart réel</th><th class="money">Ajustements après clôture</th></tr>',poleBody,12)}
       <div class="dr-two">${table('💰 Répartition par canal','Mouvements de trésorerie sans double comptage','<tr><th>Canal</th><th class="money">Entrées</th><th class="money">Sorties</th><th class="money">Transferts reçus</th><th class="money">Transferts envoyés</th><th class="money">Solde période</th></tr>',channelBody,6)}${table('👤 Activité par agent','Versements étudiants saisis/validés','<tr><th>Agent</th><th>Étudiants</th><th>Paiements</th><th class="money">Montant</th></tr>',agentBody,4)}</div>
       ${table('🎓 Inscriptions de la période',`${d.students.length} dossier(s) daté(s) de la période`,'<tr><th>Date</th><th>Matricule</th><th>Étudiant</th><th>Programme</th><th>Filière</th><th>Niveau</th><th>Agent</th></tr>',studentBody,7)}
       ${table('💳 Détail des versements étudiants',`${d.payments.length} paiement(s) validé(s)`,'<tr><th>Date</th><th>Heure</th><th>Reçu</th><th>Matricule</th><th>Étudiant</th><th>Pôle</th><th>Type</th><th>Mode</th><th class="money">Montant</th><th>Référence</th><th>Agent</th></tr>',payBody,11)}
       ${table('🧾 Détail des sorties de trésorerie','Dépenses fournisseurs, salaires, avances et prêts','<tr><th>Date</th><th>Nature</th><th>Libellé</th><th>Bénéficiaire</th><th>Pôle</th><th>Mode</th><th class="money">Montant</th><th>Référence</th><th>Agent</th></tr>',outBody,9)}
       ${table('🔄 Détail des transferts','Fondateur, Banque et Mobile Money — séparés des recettes/dépenses','<tr><th>Date</th><th>N°</th><th>Depuis</th><th>Vers</th><th>Pôle</th><th class="money">Montant</th><th>Référence</th><th>Nature</th><th>Reçu par / Agent</th></tr>',transferBody,9)}
-      ${table('🔒 Détail des clôtures','Contrôle des espèces, remises et écarts','<tr><th>Date</th><th>N° clôture</th><th>Pôle</th><th class="money">Entrées espèces</th><th class="money">Sorties espèces</th><th class="money">Remis</th><th class="money">Reste</th><th class="money">Écart</th><th>Observation</th></tr>',closingBody,9)}
+      ${table('🔒 Détail des clôtures','Écart réel de caisse séparé des corrections administratives après clôture','<tr><th>Date</th><th>N° clôture</th><th>Pôle</th><th class="money">Entrées espèces</th><th class="money">Sorties espèces</th><th class="money">Remis</th><th class="money">Reste</th><th class="money">Écart réel</th><th class="money">Ajustement après clôture</th><th>Observation</th></tr>',closingBody,10)}
       <div class="dr-foot">Rapport de gestion interne EIAFC • Les transferts internes sont présentés séparément afin d’éviter le double comptage des recettes et dépenses.</div>
     </div>`;
   }
@@ -8302,7 +8331,7 @@ setTimeout(()=>{try{sepRenderClosingPreview();if(typeof renderDashboardPoleSepar
     const mode=document.getElementById('detailReportMode')?.value||'month',m=document.getElementById('detailReportMonth');if(m)m.style.display=mode==='month'?'':'none';
   }
   function injectStyle(){
-    if(document.getElementById('eiafc-detailed-reports-style'))return;const s=document.createElement('style');s.id='eiafc-detailed-reports-style';s.textContent=`#${VIEW_ID}{padding-bottom:40px}.dr-toolbar{border-left:5px solid var(--gold)}.dr-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;border-left:5px solid var(--navy)}.dr-eyebrow{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--gold)}.dr-head h2{margin:5px 0;color:var(--navy)}.dr-badge{padding:8px 12px;border-radius:999px;background:#edf5ff;color:#12304a;font-size:11px;font-weight:900}.dr-kpis{margin-top:14px}.dr-card{margin-top:14px}.dr-card .table-wrap{max-height:520px}.dr-card table{min-width:900px}.dr-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.dr-foot{text-align:center;color:var(--muted);font-size:11px;margin:18px 0}@media(max-width:1000px){.dr-two{grid-template-columns:1fr}.dr-card table{min-width:850px}}`;
+    if(document.getElementById('eiafc-detailed-reports-style'))return;const s=document.createElement('style');s.id='eiafc-detailed-reports-style';s.textContent=`#${VIEW_ID}{padding-bottom:40px}.dr-toolbar{border-left:5px solid var(--gold)}.dr-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;border-left:5px solid var(--navy)}.dr-eyebrow{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--gold)}.dr-head h2{margin:5px 0;color:var(--navy)}.dr-badge{padding:8px 12px;border-radius:999px;background:#edf5ff;color:#12304a;font-size:11px;font-weight:900}.dr-kpis{margin-top:14px}.dr-card{margin-top:14px}.dr-card .table-wrap{max-height:520px}.dr-card table{min-width:900px}.dr-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.dr-adjust-note{margin-top:14px;border-left:5px solid #d4a62e;background:#fffaf0;color:#624a00}.dr-foot{text-align:center;color:var(--muted);font-size:11px;margin:18px 0}@media(max-width:1000px){.dr-two{grid-template-columns:1fr}.dr-card table{min-width:850px}}`;
     document.head.appendChild(s);
   }
   function injectUI(){
