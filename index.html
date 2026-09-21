@@ -1826,8 +1826,8 @@ body[data-role-theme="secretariat"] .production-hero{
         <div class="table-wrap student-table-wrap"><table id="studentsTable"></table></div>
       </div>
       <div class="card" style="margin-top:16px" id="studentPanelSuppliesSummary">
-        <div class="section-title"><h3>📦 Rames & marqueurs remis par les étudiants</h3><div class="toolbar"><select id="supplyProgramFilter" onchange="renderSupplies()"><option value="">Tous programmes</option><option>Formation qualifiante</option><option>BTS 1</option><option>BTS 2</option><option>Licence</option><option>Master</option></select><select id="supplyTrackFilter" onchange="renderSupplies()"><option value="">Toutes filières</option></select><select id="supplyAssignmentFilter" onchange="renderSupplies()"><option value="">Tous statuts d’affectation</option><option value="assigned">Affectés de l’État</option><option value="unassigned">Non affectés</option><option value="unspecified">⚠ À préciser</option></select><select id="supplyStatusFilter" onchange="renderSupplies()"><option value="">Tous</option><option value="none">Rien remis</option><option value="partial">Remise partielle</option><option value="missing">À compléter (rien + partiel)</option><option value="complete">Tout remis</option><option value="exempt">Non concernés (Licence / Master)</option></select><button class="btn btn-light btn-sm" onclick="printSupplyList('none')">🖨 Ceux qui n'ont rien remis</button><button class="btn btn-light btn-sm" onclick="printSupplyList('complete')">🖨 Ceux qui ont tout remis</button><button class="btn btn-light btn-sm" onclick="printSupplyList('partial')">🖨 Remises partielles</button><button class="btn btn-light btn-sm" onclick="exportCSV('supplies')">Exporter bilan fournitures</button></div></div>
-        <div class="notice"><b>Règle EIAFC :</b> BTS 2 remet uniquement <b>3 marqueurs</b> — <b>aucune rame n’est exigée</b>. Pour les autres programmes : <b>1 rame + 3 marqueurs</b>. La valorisation éventuelle est un indicateur de gestion et n'est pas comptabilisée automatiquement comme recette.</div>
+        <div class="section-title"><h3>📦 Rames & marqueurs remis par les étudiants</h3><div class="toolbar"><select id="supplyProgramFilter" onchange="supplyTrackFilter.value='';renderSupplies()"><option value="">Tous programmes</option><option>Formation qualifiante</option><option>BTS 1</option><option>BTS 2</option><option>Licence</option><option>Master</option></select><select id="supplyTrackFilter" onchange="renderSupplies()"><option value="">Toutes filières</option></select><select id="supplyAssignmentFilter" onchange="renderSupplies()"><option value="">Tous statuts d’affectation</option><option value="assigned">Affectés de l’État</option><option value="unassigned">Non affectés</option><option value="unspecified">⚠ À préciser</option></select><select id="supplyStatusFilter" onchange="renderSupplies()"><option value="">Tous</option><option value="none">Rien remis</option><option value="partial">Remise partielle</option><option value="missing">À compléter (rien + partiel)</option><option value="complete">Tout remis</option><option value="exempt">Non concernés (Licence / Master)</option></select><button class="btn btn-primary btn-sm" onclick="printSupplyList('current')">🖨 Imprimer la sélection</button><button class="btn btn-light btn-sm" onclick="printSupplyList('none')">🖨 Ceux qui n'ont rien remis</button><button class="btn btn-light btn-sm" onclick="printSupplyList('complete')">🖨 Ceux qui ont tout remis</button><button class="btn btn-light btn-sm" onclick="printSupplyList('partial')">🖨 Remises partielles</button><button class="btn btn-light btn-sm" onclick="exportCSV('supplies')">Exporter bilan fournitures</button></div></div>
+        <div class="notice"><b>Règle EIAFC :</b> <b>BTS 1 et Formation qualifiante = 1 rame + 3 marqueurs</b> • <b>BTS 2 = 3 marqueurs seulement</b> • <b>Licence et Master = aucune fourniture exigée</b>.<br><span class="small"><b>Impression :</b> choisissez d’abord le programme, la filière, le statut d’affectation et/ou l’état de remise, puis cliquez sur <b>🖨 Imprimer la sélection</b>. Vous pouvez ainsi tirer une liste BTS 1 uniquement ou une filière précise uniquement.</span></div>
         <div class="grid kpis" id="supplyKpis" style="margin-top:12px"></div>
         <div class="table-wrap" style="margin-top:12px"><table id="suppliesTable"></table></div>
       </div>
@@ -5507,25 +5507,61 @@ window.setDailySupplyLast7Days=setDailySupplyLast7Days;
 window.exportDailySuppliesCSV=exportDailySuppliesCSV;
 
 
+function supplyPrintScope(){
+ return{
+  program:String(document.getElementById("supplyProgramFilter")?.value||""),
+  track:String(document.getElementById("supplyTrackFilter")?.value||""),
+  assignment:String(document.getElementById("supplyAssignmentFilter")?.value||""),
+  status:String(document.getElementById("supplyStatusFilter")?.value||"")
+ }
+}
+function supplyMatchesPrintScope(s,scope){
+ if(scope.program&&String(s.program||"")!==scope.program)return false;
+ if(scope.track&&studentTrackValue(s)!==scope.track)return false;
+ if(scope.assignment&&!assignmentMatches(s,scope.assignment))return false;
+ return true
+}
 function supplyRowsByStatus(kind){
+ const scope=supplyPrintScope();
  return currentStudents().filter(s=>{
-  if(kind==="none")return studentSupplyNone(s);
-  if(kind==="partial")return studentSupplyPartial(s);
-  if(kind==="complete")return studentSupplyRequired(s)&&studentSupplyComplete(s);
-  if(kind==="missing")return studentSupplyMissing(s);
-  return studentSupplyRequired(s)
- }).sort((a,b)=>String(a.program||"").localeCompare(String(b.program||""),"fr")||String(a.name||"").localeCompare(String(b.name||""),"fr"))
+  if(!supplyMatchesPrintScope(s,scope))return false;
+  const wanted=kind==="current"?scope.status:kind;
+  if(wanted==="none")return studentSupplyNone(s);
+  if(wanted==="partial")return studentSupplyPartial(s);
+  if(wanted==="missing")return studentSupplyMissing(s);
+  if(wanted==="complete")return studentSupplyRequired(s)&&studentSupplyComplete(s);
+  if(wanted==="exempt")return !studentSupplyRequired(s);
+  return true
+ }).sort((a,b)=>String(a.program||"").localeCompare(String(b.program||""),"fr")||String(studentTrackValue(a)||"").localeCompare(String(studentTrackValue(b)||""),"fr")||String(a.name||"").localeCompare(String(b.name||""),"fr"))
+}
+function supplyPrintTitle(kind,scope){
+ const wanted=kind==="current"?scope.status:kind;
+ if(wanted==="complete")return "LISTE DES ÉTUDIANTS AYANT TOUT REMIS";
+ if(wanted==="partial")return "LISTE DES REMISES PARTIELLES";
+ if(wanted==="none")return "LISTE DES ÉTUDIANTS N'AYANT RIEN REMIS";
+ if(wanted==="missing")return "LISTE DES ÉTUDIANTS DEVANT ENCORE COMPLÉTER";
+ if(wanted==="exempt")return "LISTE DES ÉTUDIANTS NON CONCERNÉS PAR LES FOURNITURES";
+ return "LISTE DE SUIVI RAMES & MARQUEURS"
+}
+function supplyScopeLabel(scope){
+ const parts=[];
+ if(scope.program)parts.push(`Programme : ${scope.program}`);
+ if(scope.track)parts.push(`Filière : ${scope.track}`);
+ if(scope.assignment==="assigned")parts.push("Affectés de l'État");
+ else if(scope.assignment==="unassigned")parts.push("Non affectés");
+ else if(scope.assignment==="unspecified")parts.push("Statut d'affectation à préciser");
+ return parts.length?parts.join(" • "):"Tous programmes et toutes filières"
 }
 function printSupplyList(kind){
- const rows=supplyRowsByStatus(kind);
- const title=kind==="complete"?"LISTE DES ÉTUDIANTS AYANT TOUT REMIS":kind==="partial"?"LISTE DES REMISES PARTIELLES":"LISTE DES ÉTUDIANTS N'AYANT RIEN REMIS";
- if(!rows.length)return alert("Aucun étudiant dans cette liste.");
+ const scope=supplyPrintScope(),rows=supplyRowsByStatus(kind),title=supplyPrintTitle(kind,scope);
+ if(!rows.length)return alert("Aucun étudiant ne correspond aux filtres choisis.");
+ const scopeLabel=supplyScopeLabel(scope);
  const body=`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>EIAFC — ${title}</title><style>
- @page{size:A4 landscape;margin:10mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#17212b;margin:0}h1,h2,p{text-align:center}h1{font-size:18px;color:#123b58;margin:0}h2{font-size:15px;margin:5px 0}.sub{font-size:10px;color:#667085;margin-bottom:14px}table{width:100%;border-collapse:collapse;font-size:9px}th,td{border:1px solid #cfd8df;padding:5px;vertical-align:top}th{background:#edf3f7;color:#123b58}tr{break-inside:avoid}.sign{display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-top:35px;text-align:center}
+ @page{size:A4 landscape;margin:10mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#17212b;margin:0}h1,h2,p{text-align:center}h1{font-size:18px;color:#123b58;margin:0}h2{font-size:15px;margin:5px 0}.scope{font-size:12px;font-weight:800;color:#123b58;margin:5px 0}.sub{font-size:10px;color:#667085;margin-bottom:14px}table{width:100%;border-collapse:collapse;font-size:9px}th,td{border:1px solid #cfd8df;padding:5px;vertical-align:top}th{background:#edf3f7;color:#123b58}tr{break-inside:avoid}.sign{display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-top:35px;text-align:center}
  </style></head><body>
- <h1>GRANDE ÉCOLE PRIVÉE EIAFC</h1><h2>${title}</h2><p class="sub">Année académique ${esc(activeYear())} • ${esc(schoolLabel())}<br>Règle : BTS 1 / Formation qualifiante = 1 rame + 3 marqueurs • BTS 2 = 3 marqueurs • Licence / Master = non concernés</p>
- <table><thead><tr><th>N°</th><th>Matricule</th><th>Nom & Prénoms</th><th>Programme</th><th>Filière</th><th>Rame</th><th>Marqueurs</th><th>Dernière remise</th><th>Observation</th><th>Signature étudiant</th></tr></thead><tbody>
- ${rows.map((s,i)=>`<tr><td>${i+1}</td><td>${esc(s.matricule)}</td><td><b>${esc(s.name)}</b></td><td>${esc(s.program)}</td><td>${esc(s.track||"—")}</td><td>${studentReamRequired(s)?`${Number(s.reamReceived||0)}/${studentReamRequired(s)}`:"Non exigée"}</td><td>${Number(s.markersReceived||0)}/${studentMarkersRequired(s)}</td><td>${esc(s.supplyDate||"—")}</td><td>${esc(s.supplyObs||"")}</td><td></td></tr>`).join("")}
+ <h1>GRANDE ÉCOLE PRIVÉE EIAFC</h1><h2>${title}</h2><p class="scope">${esc(scopeLabel)}</p><p class="sub">Année académique ${esc(activeYear())} • ${esc(schoolLabel())}<br>Règle : BTS 1 / Formation qualifiante = 1 rame + 3 marqueurs • BTS 2 = 3 marqueurs • Licence / Master = non concernés<br><b>Effectif de la liste : ${rows.length} étudiant(s)</b></p>
+ <table><thead><tr><th>N°</th><th>Matricule</th><th>Nom & Prénoms</th><th>Programme</th><th>Filière</th><th>Rame</th><th>Marqueurs</th><th>État</th><th>Dernière remise</th><th>Observation</th><th>Signature étudiant</th></tr></thead><tbody>
+ ${rows.map((s,i)=>{const req=studentSupplyRequired(s),state=!req?"Non concerné":studentSupplyComplete(s)?"Tout remis":studentSupplyPartial(s)?"Partiel":"Rien remis";return`<tr><td>${i+1}</td><td>${esc(s.matricule)}</td><td><b>${esc(s.name)}</b></td><td>${esc(s.program)}</td><td>${esc(s.track||"—")}</td><td>${studentReamRequired(s)?`${Number(s.reamReceived||0)}/${studentReamRequired(s)}`:"Non exigée"}</td><td>${studentMarkersRequired(s)?`${Number(s.markersReceived||0)}/${studentMarkersRequired(s)}`:"Non exigés"}</td><td><b>${state}</b></td><td>${esc(s.supplyDate||"—")}</td><td>${esc(s.supplyObs||"")}</td><td></td></tr>`}).join("")}
  </tbody></table><div class="sign"><div><b>Administration / Secrétariat</b><br><br><br>Signature</div><div><b>Fondateur / Direction</b><br><br><br>Signature / Cachet</div></div>
  </body></html>`;
  const frame=document.createElement("iframe");frame.setAttribute("aria-hidden","true");Object.assign(frame.style,{position:"fixed",right:"0",bottom:"0",width:"1px",height:"1px",border:"0",opacity:"0",pointerEvents:"none"});document.body.appendChild(frame);
