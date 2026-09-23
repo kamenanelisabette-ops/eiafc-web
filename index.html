@@ -1339,6 +1339,10 @@ body[data-role-theme="secretariat"] .production-hero{
 .inventory-simple-actions>.card{background:#fbfdff;border:1px solid #dce6ec;box-shadow:none}
 .inventory-simple-actions h4{margin:0 0 6px;color:var(--navy)}
 @media(max-width:900px){.inventory-simple-actions{grid-template-columns:1fr}}
+</style><style>
+#studentSettlementTable{min-width:1050px}
+#studentSettlementListsCard .toolbar{align-items:center}
+@media(max-width:760px){#studentSettlementTable{min-width:980px}}
 </style></head>
 <body>
 
@@ -1830,6 +1834,49 @@ body[data-role-theme="secretariat"] .production-hero{
         <div class="small" style="margin:6px 0 8px;color:#536473"><b>Astuce :</b> le bouton <b>Modifier / Documents</b> reste maintenant visible à droite du tableau.</div>
         <div class="table-wrap student-table-wrap"><table id="studentsTable"></table></div>
       </div>
+      <div class="card" style="margin-top:16px" id="studentSettlementListsCard">
+        <div class="section-title">
+          <div>
+            <h3>💰 Listes des étudiants soldés / non soldés</h3>
+            <span class="small">Tirez la liste de ceux qui doivent encore payer avec leur reste, ou la liste de ceux qui ont déjà soldé.</span>
+          </div>
+          <div class="toolbar">
+            <button class="btn btn-primary btn-sm" type="button" onclick="printStudentSettlementList('current')">🖨 Imprimer la sélection</button>
+            <button class="btn btn-light btn-sm" type="button" onclick="printStudentSettlementList('unpaid')">🖨 Non soldés</button>
+            <button class="btn btn-light btn-sm" type="button" onclick="printStudentSettlementList('paid')">🖨 Soldés</button>
+            <button class="btn btn-light btn-sm" type="button" onclick="exportStudentSettlementList()">Exporter CSV</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <select id="studentSettlementProgram" onchange="studentSettlementTrack.value='';renderStudentSettlementLists()">
+            <option value="">Tous programmes</option>
+            <option>Formation qualifiante</option><option>BTS 1</option><option>BTS 2</option><option>Licence</option><option>Master</option>
+          </select>
+          <select id="studentSettlementTrack" onchange="renderStudentSettlementLists()"><option value="">Toutes filières</option></select>
+          <select id="studentSettlementAssignment" onchange="renderStudentSettlementLists()">
+            <option value="">Tous statuts d’affectation</option>
+            <option value="assigned">Affectés de l’État</option>
+            <option value="unassigned">Non affectés</option>
+            <option value="unspecified">⚠ À préciser</option>
+          </select>
+          <select id="studentSettlementStatus" onchange="renderStudentSettlementLists()">
+            <option value="unpaid">Non soldés</option>
+            <option value="paid">Déjà soldés</option>
+            <option value="partial">Paiement partiel</option>
+            <option value="none">Aucun versement</option>
+            <option value="check">Montant dû à vérifier</option>
+            <option value="">Tous</option>
+          </select>
+          <input id="studentSettlementSearch" placeholder="Rechercher étudiant..." oninput="renderStudentSettlementLists()">
+        </div>
+        <div class="notice" style="margin-top:10px">
+          <b>Calcul :</b> Montant dû = frais d'inscription + scolarité − remise/bourse.
+          Le <b>reste à payer</b> tient compte uniquement des paiements validés qui réduisent réellement la dette de l'étudiant.
+        </div>
+        <div class="grid kpis" id="studentSettlementKpis" style="margin-top:12px"></div>
+        <div class="table-wrap" style="margin-top:12px"><table id="studentSettlementTable"></table></div>
+      </div>
+
       <div class="card" style="margin-top:16px" id="studentPanelSuppliesSummary">
         <div class="section-title"><h3>📦 Rames & marqueurs remis par les étudiants</h3><div class="toolbar"><select id="supplyProgramFilter" onchange="supplyTrackFilter.value='';renderSupplies()"><option value="">Tous programmes</option><option>Formation qualifiante</option><option>BTS 1</option><option>BTS 2</option><option>Licence</option><option>Master</option></select><select id="supplyTrackFilter" onchange="renderSupplies()"><option value="">Toutes filières</option></select><select id="supplyAssignmentFilter" onchange="renderSupplies()"><option value="">Tous statuts d’affectation</option><option value="assigned">Affectés de l’État</option><option value="unassigned">Non affectés</option><option value="unspecified">⚠ À préciser</option></select><select id="supplyStatusFilter" onchange="renderSupplies()"><option value="">Tous</option><option value="none">Rien remis</option><option value="partial">Remise partielle</option><option value="missing">À compléter (rien + partiel)</option><option value="complete">Tout remis</option><option value="exempt">Non concernés (Licence / Master)</option></select><button class="btn btn-primary btn-sm" onclick="printSupplyList('current')">🖨 Imprimer la sélection</button><button class="btn btn-light btn-sm" onclick="printSupplyList('none')">🖨 Ceux qui n'ont rien remis</button><button class="btn btn-light btn-sm" onclick="printSupplyList('complete')">🖨 Ceux qui ont tout remis</button><button class="btn btn-light btn-sm" onclick="printSupplyList('partial')">🖨 Remises partielles</button><button class="btn btn-light btn-sm" onclick="exportCSV('supplies')">Exporter bilan fournitures</button></div></div>
         <div class="notice"><b>Règle EIAFC :</b> <b>BTS 1 et Formation qualifiante = 1 rame + 3 marqueurs</b> • <b>BTS 2 = 3 marqueurs seulement</b> • <b>Licence et Master = aucune fourniture exigée</b>.<br><span class="small"><b>Impression :</b> choisissez d’abord le programme, la filière, le statut d’affectation et/ou l’état de remise, puis cliquez sur <b>🖨 Imprimer la sélection</b>. Vous pouvez ainsi tirer une liste BTS 1 uniquement ou une filière précise uniquement.</span></div>
@@ -4756,7 +4803,7 @@ function refreshAll(){
  clearRestrictedViews();applyRoleSensitiveVisibility();
  if(can("dashboard")){renderDashboard();renderEnrollmentMonitor();renderDirectionPriorityCenter();}
  if(isOwner()||roleName()==="Comptable")renderManagementCenter();else{if(managementAlerts)managementAlerts.innerHTML="";if(agentActivity)agentActivity.innerHTML="";if(!["Caissier","Secrétariat & Caisse"].includes(roleName())&&topArrearsTable)topArrearsTable.innerHTML=""}
- if(can("students")){renderStudents();renderSupplies();renderUndatedSupplyRepair();renderTodaySupplyReceipts();renderDailySupplyTracking();renderClasses();renderEnrollmentMonitor();updateStudentAdministrativeDocumentCenter();showStudentArea(window.eiafcStudentArea||"overview")}
+ if(can("students")){renderStudents();renderStudentSettlementLists();renderSupplies();renderUndatedSupplyRepair();renderTodaySupplyReceipts();renderDailySupplyTracking();renderClasses();renderEnrollmentMonitor();updateStudentAdministrativeDocumentCenter();showStudentArea(window.eiafcStudentArea||"overview")}
  if(can("attendance"))renderAttendance();if(can("academic"))renderAcademic();if(can("timetable"))renderTimetable();if(can("discipline"))renderDiscipline();if(can("purchases"))renderPurchases();if(can("inventory"))renderInventory();if(can("staff")){renderStaff();renderStaffAttendance();renderStaffLoans();renderPayroll()}
  if(can("payments")){updateStudentSelect();renderPayments()}if(can("schedule")){renderSchedule();renderReminderCenter();}if(can("other"))renderOther();if(can("expenses"))renderExpenses();if(can("cash")){renderCash();renderTransfers()}if(can("closing")){renderClosings();updateClosingPreview();if(isOwner()){renderEndDayDepositControl();renderFounderCashReceipts()}showClosingArea(window.eiafcClosingArea||"close")}if(can("journal"))renderJournal();if(can("accounting")){updateAccountingTrackOptions();renderAccounting()}if(can("reconciliation"))renderReconciliation();if(can("reports")){updateReportAssignmentControls();updateAnnualAssignmentControls();renderReports();renderAnnualBalance()}if(can("direction"))renderDirectionNetwork();if(can("audit"))renderAudit();
  if(isOwner()){renderUsers();renderSchools();loadSettings();loadNotificationSettings();renderTrackCatalog();payrollSettingsLoad();renderDataQuality();populateRemoteKeySchools();populateCopyAppSchools();renderBackupTimeline()}else{if(usersTable)usersTable.innerHTML="";if(schoolsTable)schoolsTable.innerHTML="";if(trackCatalogTable)trackCatalogTable.innerHTML="";if(dataQualityBox)dataQualityBox.innerHTML=""}
@@ -5224,6 +5271,126 @@ function studentDocsCount(s){const d=s?.docs||{},k=new Set(studentDigitalFiles(s
 function studentAttendanceStats(mat){const a=currentRecords(db.attendance).filter(x=>x.student===mat),present=a.filter(x=>x.status==="Présent"||x.status==="Retard").length;return{total:a.length,present,rate:a.length?present/a.length*100:0}}
 function studentAdminComplete(s){return !!String(s?.phone||"").trim()&&!!String(s?.level||"").trim()&&studentDocsCount(s)>=4}
 function founderDeleteStudent(mat){if(!canFounderDelete())return alert("Suppression réservée au Fondateur.");const s=db.students.find(x=>x.matricule===mat);if(!s||s.deleted===true)return;const linked=db.payments.filter(p=>p.deleted!==true&&p.student===mat),att=db.attendance.filter(a=>a.deleted!==true&&a.student===mat);const reason=prompt(`Motif obligatoire pour supprimer le dossier de ${s.name} :`);if(!reason?.trim())return;const msg=`Ce dossier possède ${linked.length} paiement(s) et ${att.length} présence(s). Ces éléments seront eux aussi supprimés logiquement pour ne pas laisser de données orphelines.`;if(!confirm(`CONFIRMATION FONDATEUR : supprimer ${s.name} (${mat}) ?\n\n${msg}\n\nLa trace restera dans l’historique.`))return;const stamp=new Date().toISOString();s.deleted=true;s.deletedAt=stamp;s.deletedBy=currentUserLabel();s.deleteReason=reason.trim();[...linked,...att].forEach(p=>{p.deleted=true;p.deletedAt=stamp;p.deletedBy=currentUserLabel();p.deleteReason=`Suppression dossier étudiant ${mat} — ${reason.trim()}`});logAction("SUPPRESSION FONDATEUR",`Étudiant ${mat} — ${s.name} — ${linked.length} paiement(s) et ${att.length} présence(s) liés — ${reason.trim()}`);saveDB()}
+
+function studentSettlementStatusOf(s){
+ const due=studentDue(s),paid=studentDebtPaid(s.matricule),rest=studentRest(s);
+ if(due<=0)return "check";
+ if(rest<=0.009)return "paid";
+ if(paid<=0.009)return "none";
+ return "partial"
+}
+function studentSettlementStatusLabel(code){
+ return code==="paid"?"Soldé":code==="partial"?"Non soldé — partiel":code==="none"?"Non soldé — aucun versement":"Montant dû à vérifier"
+}
+function studentSettlementRows(forcedStatus=null){
+ if(!canSeeStudentFinance())return [];
+ const program=String(document.getElementById("studentSettlementProgram")?.value||"");
+ const track=String(document.getElementById("studentSettlementTrack")?.value||"");
+ const assignment=String(document.getElementById("studentSettlementAssignment")?.value||"");
+ const selected=forcedStatus===null?String(document.getElementById("studentSettlementStatus")?.value||""):String(forcedStatus||"");
+ const q=String(document.getElementById("studentSettlementSearch")?.value||"").trim().toLowerCase();
+ return currentStudents().filter(s=>{
+  if(s.deleted===true||String(s.status||"")==="Archivé")return false;
+  if(program&&String(s.program||"")!==program)return false;
+  if(track&&studentTrackValue(s)!==track)return false;
+  if(assignment&&!assignmentMatches(s,assignment))return false;
+  const code=studentSettlementStatusOf(s);
+  if(selected==="unpaid"&&!(code==="partial"||code==="none"))return false;
+  if(selected==="paid"&&code!=="paid")return false;
+  if(selected==="partial"&&code!=="partial")return false;
+  if(selected==="none"&&code!=="none")return false;
+  if(selected==="check"&&code!=="check")return false;
+  if(q&&!([s.matricule,s.name,s.phone,s.guardianName,s.guardianPhone,s.program,studentTrackValue(s)].join(" ").toLowerCase().includes(q)))return false;
+  return true
+ }).map(s=>({
+  s,
+  due:studentDue(s),
+  paid:studentDebtPaid(s.matricule),
+  rest:studentRest(s),
+  status:studentSettlementStatusOf(s),
+  contact:String(s.phone||s.guardianPhone||"")
+ })).sort((a,b)=>b.rest-a.rest||String(a.s.program||"").localeCompare(String(b.s.program||""),"fr")||String(a.s.name||"").localeCompare(String(b.s.name||""),"fr"))
+}
+function updateStudentSettlementTrackOptions(){
+ const sel=document.getElementById("studentSettlementTrack");
+ if(!sel)return;
+ fillTrackSelect(sel,document.getElementById("studentSettlementProgram")?.value||"","Toutes filières",false)
+}
+function renderStudentSettlementLists(){
+ const card=document.getElementById("studentSettlementListsCard"),table=document.getElementById("studentSettlementTable"),kpis=document.getElementById("studentSettlementKpis");
+ if(!card||!table||!kpis)return;
+ if(!canSeeStudentFinance()){card.classList.add("hidden");return}
+ card.classList.remove("hidden");
+ updateStudentSettlementTrackOptions();
+ const rows=studentSettlementRows(null),due=rows.reduce((a,x)=>a+x.due,0),paid=rows.reduce((a,x)=>a+x.paid,0),rest=rows.reduce((a,x)=>a+x.rest,0),
+ sold=rows.filter(x=>x.status==="paid").length,unsold=rows.filter(x=>x.status==="partial"||x.status==="none").length;
+ kpis.innerHTML=[
+  ["Étudiants affichés",rows.length],
+  ["Non soldés",unsold],
+  ["Déjà soldés",sold],
+  ["Total dû",fmt(due)],
+  ["Déjà payé",fmt(paid)],
+  ["Reste à recouvrer",fmt(rest)]
+ ].map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");
+ table.innerHTML=`<thead><tr><th>N°</th><th>Matricule</th><th>Nom & Prénoms</th><th>Contact</th><th>Programme</th><th>Filière</th><th class="money">Total dû</th><th class="money">Déjà payé</th><th class="money">Reste</th><th>Situation</th></tr></thead><tbody>${
+  rows.length?rows.map((x,i)=>{
+   const cl=x.status==="paid"?"valid":x.status==="check"?"pending":"rejected";
+   return `<tr><td>${i+1}</td><td>${esc(x.s.matricule)}</td><td><b>${esc(x.s.name)}</b></td><td>${esc(x.contact||"—")}</td><td>${esc(x.s.program||"—")}</td><td>${esc(studentTrackValue(x.s)||"—")}</td><td class="money">${fmt(x.due)}</td><td class="money">${fmt(x.paid)}</td><td class="money"><b>${fmt(x.rest)}</b></td><td><span class="status ${cl}">${studentSettlementStatusLabel(x.status)}</span></td></tr>`
+  }).join(""):`<tr><td colspan="10" class="empty">Aucun étudiant pour ces filtres</td></tr>`
+ }</tbody>`
+}
+function studentSettlementScopeText(forcedStatus=null){
+ const p=String(document.getElementById("studentSettlementProgram")?.value||"");
+ const t=String(document.getElementById("studentSettlementTrack")?.value||"");
+ const a=String(document.getElementById("studentSettlementAssignment")?.value||"");
+ const selected=forcedStatus===null?String(document.getElementById("studentSettlementStatus")?.value||""):String(forcedStatus||"");
+ const parts=[];
+ if(p)parts.push(`Programme : ${p}`);
+ if(t)parts.push(`Filière : ${t}`);
+ if(a==="assigned")parts.push("Affectés de l'État");
+ if(a==="unassigned")parts.push("Non affectés");
+ if(a==="unspecified")parts.push("Affectation à préciser");
+ if(selected==="unpaid")parts.push("Situation : Non soldés");
+ if(selected==="paid")parts.push("Situation : Déjà soldés");
+ if(selected==="partial")parts.push("Situation : Paiement partiel");
+ if(selected==="none")parts.push("Situation : Aucun versement");
+ if(selected==="check")parts.push("Situation : Montant dû à vérifier");
+ return parts.length?parts.join(" • "):"Tous les étudiants"
+}
+function printStudentSettlementList(kind="current"){
+ if(!canSeeStudentFinance())return alert("Vous n'êtes pas autorisé à consulter les informations financières des étudiants.");
+ const forced=kind==="current"?null:(kind==="unpaid"?"unpaid":kind==="paid"?"paid":null);
+ const rows=studentSettlementRows(forced);
+ if(!rows.length)return alert("Aucun étudiant ne correspond à cette liste.");
+ const title=kind==="unpaid"?"LISTE DES ÉTUDIANTS NON SOLDÉS":kind==="paid"?"LISTE DES ÉTUDIANTS AYANT SOLDÉ":"SITUATION DES SOLDES ÉTUDIANTS";
+ const scope=studentSettlementScopeText(forced);
+ const due=rows.reduce((a,x)=>a+x.due,0),paid=rows.reduce((a,x)=>a+x.paid,0),rest=rows.reduce((a,x)=>a+x.rest,0);
+ const body=`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>EIAFC — ${title}</title><style>
+ @page{size:A4 landscape;margin:10mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#17212b;margin:0}h1,h2,p{text-align:center}h1{font-size:18px;color:#123b58;margin:0}h2{font-size:15px;margin:5px 0}.scope{font-size:11px;font-weight:700;color:#123b58;margin:6px 0}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:10px 0 14px}.k{border:1px solid #cfd8df;border-radius:7px;padding:7px;text-align:center}.k b{display:block;font-size:13px;color:#123b58}.small{font-size:9px;color:#667085}table{width:100%;border-collapse:collapse;font-size:9px}th,td{border:1px solid #cfd8df;padding:5px;vertical-align:top}th{background:#edf3f7;color:#123b58}.money{text-align:right}.sign{display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-top:28px;text-align:center}
+ </style></head><body>
+ <h1>GRANDE ÉCOLE PRIVÉE EIAFC</h1><h2>${title}</h2><p class="scope">${esc(scope)}</p><p class="small">Année académique ${esc(activeYear())} • ${esc(schoolLabel())} • Effectif : ${rows.length}</p>
+ <div class="summary"><div class="k"><span>Total dû</span><b>${fmt(due)}</b></div><div class="k"><span>Déjà payé</span><b>${fmt(paid)}</b></div><div class="k"><span>Reste à recouvrer</span><b>${fmt(rest)}</b></div><div class="k"><span>Nombre d'étudiants</span><b>${rows.length}</b></div></div>
+ <table><thead><tr><th>N°</th><th>Matricule</th><th>Nom & Prénoms</th><th>Contact</th><th>Programme</th><th>Filière</th><th class="money">Total dû</th><th class="money">Déjà payé</th><th class="money">Reste</th><th>Situation</th><th>Observation</th></tr></thead><tbody>
+ ${rows.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.s.matricule)}</td><td><b>${esc(x.s.name)}</b></td><td>${esc(x.contact||"—")}</td><td>${esc(x.s.program||"—")}</td><td>${esc(studentTrackValue(x.s)||"—")}</td><td class="money">${fmt(x.due)}</td><td class="money">${fmt(x.paid)}</td><td class="money"><b>${fmt(x.rest)}</b></td><td>${studentSettlementStatusLabel(x.status)}</td><td></td></tr>`).join("")}
+ </tbody></table><div class="sign"><div><b>Comptabilité</b><br><br><br>Signature</div><div><b>Fondateur / Direction</b><br><br><br>Signature / Cachet</div></div>
+ </body></html>`;
+ const frame=document.createElement("iframe");frame.setAttribute("aria-hidden","true");Object.assign(frame.style,{position:"fixed",right:"0",bottom:"0",width:"1px",height:"1px",border:"0",opacity:"0",pointerEvents:"none"});document.body.appendChild(frame);
+ try{const d=frame.contentWindow.document;d.open();d.write(body);d.close();const go=()=>{try{frame.contentWindow.focus();frame.contentWindow.print()}catch(e){alert("Impossible d'ouvrir l'impression.")}};if(d.readyState==="complete")setTimeout(go,250);else frame.onload=()=>setTimeout(go,250);setTimeout(()=>{if(frame.isConnected)frame.remove()},60000)}catch(e){frame.remove();alert("Erreur pendant la préparation de la liste à imprimer.")}
+}
+function exportStudentSettlementList(){
+ if(!canSeeStudentFinance())return alert("Vous n'êtes pas autorisé à consulter les informations financières des étudiants.");
+ const rows=studentSettlementRows(null);
+ if(!rows.length)return alert("Aucune donnée à exporter.");
+ const head=["Matricule","Nom et prenoms","Telephone","Programme","Filiere","Total du","Deja paye","Reste","Situation"];
+ const csv=[head,...rows.map(x=>[x.s.matricule,x.s.name,x.contact,x.s.program,studentTrackValue(x.s),x.due,x.paid,x.rest,studentSettlementStatusLabel(x.status)])]
+  .map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\n");
+ const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);a.download=`soldes_etudiants_${activeYear().replace(/-/g,"_")}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
+}
+window.renderStudentSettlementLists=renderStudentSettlementLists;
+window.printStudentSettlementList=printStudentSettlementList;
+window.exportStudentSettlementList=exportStudentSettlementList;
+
 function renderStudents(){
  const q=(studentSearch?.value||"").toLowerCase(),pf=studentProgramFilter?.value||"",af=studentAssignmentFilter?.value||"";let arr=currentStudents().filter(s=>(!pf||s.program===pf)&&assignmentMatches(s,af)&&([s.matricule,s.name,s.phone,s.guardianName,s.guardianPhone,s.guardianEmail,s.email,s.track,studentAssignmentLabel(s)].join(" ").toLowerCase().includes(q)));
  const hideStudentMoney=!canSeeStudentFinance();
