@@ -1,5 +1,5 @@
 {
-  "version": "11.25.0",
-  "build": "2026-09-29-v11-25-performance",
-  "notes": "Performance: rendu écran actif, synchronisation allégée, navigation et saisies accélérées."
+  "version": "11.25.1",
+  "build": "2026-09-29-v11-25-1-stable-performance",
+  "notes": "Correctif stabilité: restauration du moteur complet de rafraîchissement; synchronisation en arrière-plan allégée sans bloquer la saisie."
 }
