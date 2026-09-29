@@ -1,5 +1,5 @@
 {
-  "version": "11.25.1",
-  "build": "2026-09-29-v11-25-1-stable-performance",
-  "notes": "Correctif stabilité: restauration du moteur complet de rafraîchissement; synchronisation en arrière-plan allégée sans bloquer la saisie."
+  "version": "11.25.3",
+  "build": "2026-09-29-v11-25-3-navigation-rapide",
+  "note": "Navigation rapide par rubrique, impressions corrigées"
 }

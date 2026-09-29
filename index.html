@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-29-v11-25-1-stable-performance">
+<meta name="eiafc-web-build" content="2026-09-29-v11-25-3-navigation-rapide">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -3103,7 +3103,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.25.1";
+const APP_VERSION="11.25.3";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -4655,11 +4655,84 @@ function applyPermissions(){
  scrubOwnerOnlyFields();applyRoleSensitiveVisibility();forceAllowedView();
 }
 
+// V11.25.3 — Navigation rapide : un clic ne recalcule plus tout le logiciel.
+// Les sauvegardes et synchronisations continuent d'utiliser refreshAll() pour la fiabilité.
+let eiafcViewRenderToken=0;
+function eiafcSafeRender(fn,...args){try{if(typeof fn==="function")return fn(...args)}catch(e){console.error("EIAFC rendu rubrique",e)}}
+function eiafcDeferRender(fn,...args){
+ const token=eiafcViewRenderToken;
+ const run=()=>{if(token!==eiafcViewRenderToken)return;eiafcSafeRender(fn,...args)};
+ if("requestIdleCallback" in window)requestIdleCallback(run,{timeout:350});else setTimeout(run,40)
+}
+function refreshActiveViewFast(view){
+ eiafcViewRenderToken++;
+ try{
+  if(yearBadge)yearBadge.textContent="Année "+activeYear();
+  const sch=activeSchool();if(schoolSubtitle)schoolSubtitle.textContent=schoolLabel(sch)+" — accès "+roleName();
+  clearRestrictedViews();applyRoleSensitiveVisibility();
+ }catch(e){console.warn("EIAFC contexte rubrique",e)}
+ switch(String(view||"dashboard")){
+  case "dashboard":
+   eiafcSafeRender(renderRoleDashboardHeader);
+   eiafcSafeRender(renderDashboard);
+   if(isOwner()||roleName()==="Comptable")eiafcDeferRender(renderManagementCenter);
+   eiafcDeferRender(renderEnrollmentMonitor);eiafcDeferRender(renderDirectionPriorityCenter);
+   break;
+  case "students":
+   eiafcSafeRender(renderStudents);
+   eiafcSafeRender(updateStudentAdministrativeDocumentCenter);
+   eiafcSafeRender(showStudentArea,window.eiafcStudentArea||"overview");
+   eiafcDeferRender(renderStudentSettlementLists);eiafcDeferRender(renderSupplies);
+   eiafcDeferRender(renderUndatedSupplyRepair);eiafcDeferRender(renderTodaySupplyReceipts);eiafcDeferRender(renderDailySupplyTracking);
+   break;
+  case "classes": eiafcSafeRender(renderClasses); break;
+  case "attendance": eiafcSafeRender(renderAttendance); break;
+  case "academic": eiafcSafeRender(renderAcademic); break;
+  case "timetable": eiafcSafeRender(renderTimetable); break;
+  case "discipline": eiafcSafeRender(renderDiscipline); break;
+  case "inventory": eiafcSafeRender(renderInventory); break;
+  case "staffpayroll":
+   eiafcSafeRender(renderStaff);eiafcDeferRender(renderStaffAttendance);eiafcDeferRender(renderStaffLoans);eiafcDeferRender(renderPayroll);
+   break;
+  case "purchases": eiafcSafeRender(renderPurchases); break;
+  case "payments": eiafcSafeRender(updateStudentSelect);eiafcSafeRender(renderPayments); break;
+  case "schedule": eiafcSafeRender(renderSchedule);eiafcDeferRender(renderReminderCenter); break;
+  case "other": eiafcSafeRender(renderOther); break;
+  case "expenses": eiafcSafeRender(renderExpenses); break;
+  case "cash": eiafcSafeRender(renderCash);eiafcDeferRender(renderTransfers); break;
+  case "closing":
+   eiafcSafeRender(renderClosings);eiafcSafeRender(updateClosingPreview);
+   if(isOwner()){eiafcDeferRender(renderEndDayDepositControl);eiafcDeferRender(renderFounderCashReceipts)}
+   eiafcSafeRender(showClosingArea,window.eiafcClosingArea||"close");
+   break;
+  case "journal": eiafcSafeRender(renderJournal); break;
+  case "accounting": eiafcSafeRender(updateAccountingTrackOptions);eiafcSafeRender(renderAccounting); break;
+  case "reconciliation": eiafcSafeRender(renderReconciliation); break;
+  case "reports":
+   eiafcSafeRender(updateReportAssignmentControls);eiafcSafeRender(updateAnnualAssignmentControls);
+   eiafcSafeRender(renderReports);eiafcDeferRender(renderAnnualBalance);
+   break;
+  case "direction": eiafcSafeRender(renderDirectionNetwork); break;
+  case "audit": eiafcSafeRender(renderAudit); break;
+  case "users": eiafcSafeRender(renderUsers); break;
+  case "settings":
+   eiafcSafeRender(loadSettings);eiafcSafeRender(loadNotificationSettings);eiafcDeferRender(renderTrackCatalog);
+   eiafcDeferRender(payrollSettingsLoad);eiafcDeferRender(renderDataQuality);eiafcDeferRender(populateRemoteKeySchools);
+   eiafcDeferRender(populateCopyAppSchools);eiafcDeferRender(renderBackupTimeline);
+   break;
+  default: setTimeout(()=>refreshAll(),0);
+ }
+ eiafcSafeRender(updateOfflineQueueUI);
+ if(currentUser){if(payAgent)payAgent.value=currentUserLabel();if(otherAgent)otherAgent.value=currentUserLabel();if(expAgent)expAgent.value=currentUserLabel();if(closingAgent)closingAgent.value=currentUserLabel();if(attendanceAgent)attendanceAgent.value=currentUserLabel()}
+}
+
 document.querySelectorAll(".nav-btn").forEach(b=>b.addEventListener("click",()=>{
  if(!can(b.dataset.perm))return alert("Votre rôle ne permet pas cet accès.");
  document.querySelectorAll(".nav-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");
- document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));document.getElementById(b.dataset.view).classList.add("active");
- pageTitle.textContent=b.textContent.replace(/^[^\s]+\s/,"");refreshAll()
+ document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));const target=document.getElementById(b.dataset.view);if(target)target.classList.add("active");
+ pageTitle.textContent=b.textContent.replace(/^[^\s]+\s/,"");
+ // Laisser d'abord le navigateur afficher la rubrique, puis calculer seulement son contenu.
+ requestAnimationFrame(()=>refreshActiveViewFast(b.dataset.view));
 }));
 
 function studentByMat(mat){return db.students.find(s=>s.matricule===mat)}
@@ -5945,7 +6018,36 @@ function printClassList(){
   }).join("")}`;
   classListModal.classList.add("show");
 }
-function doPrintClassList(){document.body.classList.add("print-class");window.print();setTimeout(()=>document.body.classList.remove("print-class"),300)}
+function doPrintClassList(){
+  const source=document.getElementById("classListPrint");
+  if(!source||!source.innerHTML.trim())return alert("Préparez d’abord la liste à imprimer.");
+  const w=window.open("","_blank","width=1180,height=850");
+  if(!w)return alert("Autorisez les fenêtres contextuelles pour imprimer la liste des étudiants.");
+  const title=`EIAFC — ${classListTitle?classListTitle():"Liste des étudiants"}`;
+  w.document.open();
+  w.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><style>
+    html,body{margin:0!important;padding:0!important;background:#fff!important;font-family:Segoe UI,Arial,sans-serif;color:#17212b;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+    *{box-sizing:border-box}
+    #classListPrint{display:block!important;position:static!important;visibility:visible!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;transform:none!important;overflow:visible!important;background:#fff!important}
+    #classListPrint *{visibility:visible!important}
+    .modal,.modal-box,.modal-body{position:static!important;transform:none!important;overflow:visible!important;max-height:none!important;box-shadow:none!important}
+    @page{size:A4 landscape;margin:8mm}
+    @media print{
+      html,body{width:auto!important;height:auto!important;overflow:visible!important}
+      #classListPrint .print-summary{page-break-after:always!important;break-after:page!important;margin:0!important;box-shadow:none!important}
+      #classListPrint .print-page{display:block!important;position:relative!important;float:none!important;clear:both!important;width:100%!important;min-height:0!important;height:auto!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important;page-break-before:auto!important;page-break-after:always!important;break-after:page!important;page-break-inside:avoid!important;break-inside:avoid-page!important}
+      #classListPrint .print-page:last-child{page-break-after:auto!important;break-after:auto!important}
+      #classListPrint table{page-break-inside:auto!important;break-inside:auto!important}
+      #classListPrint thead{display:table-header-group!important}
+      #classListPrint tbody{display:table-row-group!important}
+      #classListPrint tr{page-break-inside:avoid!important;break-inside:avoid!important}
+      #classListPrint .page-head,#classListPrint .global-total,#classListPrint .group-stats,#classListPrint .page-foot{page-break-inside:avoid!important;break-inside:avoid!important}
+    }
+  </style></head><body><main id="classListPrint">${source.innerHTML}</main><script>
+    window.addEventListener('load',()=>setTimeout(()=>{window.focus();window.print()},350));
+  <\/script></body></html>`);
+  w.document.close();
+}
 function closeClassList(){classListModal.classList.remove("show")}
 
 function updateAttendanceStudentSelect(){if(!attendanceStudent)return;const old=attendanceStudent.value;attendanceStudent.innerHTML='<option value="">Sélectionner...</option>'+currentStudents().filter(s=>s.status==="Actif").sort((a,b)=>a.name.localeCompare(b.name)).map(s=>`<option value="${s.matricule}">${s.matricule} — ${esc(s.name)} — ${esc(s.program)} / ${esc(s.track||"")}</option>`).join("");if([...attendanceStudent.options].some(o=>o.value===old))attendanceStudent.value=old}
