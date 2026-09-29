@@ -1,5 +1,5 @@
 {
-  "version": "11.25.4",
-  "build": "2026-09-29-v11-25-4-niveaux-separes",
-  "notes": "Impression listes : séparation stricte par niveau/classe puis par filière; aucun mélange entre niveaux."
+  "version": "11.25.5",
+  "build": "2026-09-29-v11-25-5-listes-filieres-completes",
+  "notes": "Impression: niveaux separes par programme et listes completes par filiere avec numerotation continue 1 a N."
 }
