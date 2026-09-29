@@ -5780,7 +5780,82 @@ function classFilteredStudents(){const pf=classProgram?.value||"",tf=classTrack?
 function updateClassFilters(){if(!classTrack||!classLevel)return;const p=classProgram.value||"",sts=currentStudents().filter(s=>!p||s.program===p),oldT=classTrack.value,oldL=classLevel.value,tracks=[...new Set(sts.map(s=>normalizeTrackName(s.track)).filter(Boolean))].sort(),levels=[...new Set(sts.map(s=>s.level).filter(Boolean))].sort();classTrack.innerHTML='<option value="">Toutes filières</option>'+tracks.map(x=>`<option>${esc(x)}</option>`).join("");classLevel.innerHTML='<option value="">Tous niveaux / classes</option>'+levels.map(x=>`<option>${esc(x)}</option>`).join("");if(tracks.includes(oldT))classTrack.value=oldT;if(levels.includes(oldL))classLevel.value=oldL}
 function renderClasses(){if(!classesTable)return;updateClassFilters();const arr=classFilteredStudents(),f=arr.filter(s=>s.sex==="F").length,m=arr.filter(s=>s.sex==="M").length,assigned=arr.filter(studentIsAssigned).length,unassigned=arr.filter(studentIsNonAssigned).length,unspecified=arr.filter(s=>studentAdmissionStatus(s)==="À préciser").length;classStats.innerHTML=`<b>${arr.length}</b> étudiant(s) — Affectés de l’État : <b>${assigned}</b> — Non affectés : <b>${unassigned}</b> — À préciser : <b>${unspecified}</b> — Filles : <b>${f}</b> — Garçons : <b>${m}</b> — Année : <b>${activeYear()}</b>`;classesTable.innerHTML=`<thead><tr><th>N°</th><th>Matricule</th><th>Nom & Prénoms</th><th>Sexe</th><th>Téléphone</th><th>Programme</th><th>Statut d’affectation</th><th>Filière</th><th>Niveau / Classe</th><th>Statut</th></tr></thead><tbody>${arr.length?arr.map((s,i)=>`<tr><td>${i+1}</td><td>${s.matricule}</td><td><b>${esc(s.name)}</b></td><td>${s.sex}</td><td>${esc(s.phone)}</td><td>${esc(s.program)}</td><td><span class="status ${studentIsAssigned(s)?"valid":"pending"}">${studentAssignmentLabel(s)}</span></td><td>${esc(s.track||"—")}</td><td>${esc(s.level)}</td><td>${s.status}</td></tr>`).join(""):`<tr><td colspan="10" class="empty">Aucun étudiant pour ces filtres</td></tr>`}</tbody>`}
 function classListTitle(){const parts=[classProgram?.value,classTrack?.value,classAssignment?.value==="assigned"?"Affectés de l’État":classAssignment?.value==="unassigned"?"Non affectés":classAssignment?.value==="unspecified"?"À préciser":"",classLevel?.value].filter(Boolean);return parts.length?parts.join(" — "):"Liste générale des étudiants"}
-function printClassList(){const arr=classFilteredStudents();if(!arr.length)return alert("Aucun étudiant à imprimer.");classListPrint.innerHTML=`<div style="text-align:center"><h2 style="margin:0;color:var(--navy)">${esc(activeSchool().name)}</h2>${activeSchool().city?`<div>${esc(activeSchool().city)}</div>`:""}<h3>LISTE DE CLASSE</h3><p><b>${esc(classListTitle())}</b><br>Année académique ${activeYear()}</p></div><p><b>Effectif :</b> ${arr.length} &nbsp; | &nbsp; <b>Affectés de l’État :</b> ${arr.filter(studentIsAssigned).length} &nbsp; | &nbsp; <b>Non affectés :</b> ${arr.filter(studentIsNonAssigned).length} &nbsp; | &nbsp; <b>À préciser :</b> ${arr.filter(s=>studentAdmissionStatus(s)==="À préciser").length} &nbsp; | &nbsp; <b>Filles :</b> ${arr.filter(s=>s.sex==="F").length} &nbsp; | &nbsp; <b>Garçons :</b> ${arr.filter(s=>s.sex==="M").length}</p><table><thead><tr><th>N°</th><th>Matricule</th><th>Nom & Prénoms</th><th>Sexe</th><th>Téléphone</th><th>Statut d’affectation</th><th>Filière</th><th>Niveau / Classe</th><th>Signature</th></tr></thead><tbody>${arr.map((s,i)=>`<tr><td>${i+1}</td><td>${s.matricule}</td><td>${esc(s.name)}</td><td>${s.sex}</td><td>${esc(s.phone)}</td><td>${studentAssignmentLabel(s)}</td><td>${esc(s.track||"—")}</td><td>${esc(s.level)}</td><td style="height:28px"></td></tr>`).join("")}</tbody></table><div style="margin-top:35px;text-align:right"><b>Administration EIAFC</b><br><br>Signature / Cachet</div>`;classListModal.classList.add("show")}
+function printClassList(){
+  const arr=classFilteredStudents();
+  if(!arr.length)return alert("Aucun étudiant à imprimer.");
+
+  const programOrder={"BTS 1":1,"BTS 2":2,"Formation qualifiante":3,"Licence":4,"Master":5,"BTS à classer":6};
+  const trackName=s=>String(typeof studentTrackValue==="function"?studentTrackValue(s):(s.track||"")).trim()||"Filière à préciser";
+  const levelName=s=>String(s.level||"").trim();
+  const ordered=arr.slice().sort((a,b)=>
+    (programOrder[a.program]||99)-(programOrder[b.program]||99)||
+    String(a.program||"").localeCompare(String(b.program||""),"fr")||
+    trackName(a).localeCompare(trackName(b),"fr")||
+    levelName(a).localeCompare(levelName(b),"fr")||
+    String(a.name||"").localeCompare(String(b.name||""),"fr")
+  );
+
+  const groups=[];
+  const map=new Map();
+  ordered.forEach(s=>{
+    const program=String(s.program||"Programme à préciser").trim()||"Programme à préciser";
+    const track=trackName(s);
+    const level=levelName(s);
+    const key=[program,track,level].join("|||");
+    if(!map.has(key)){
+      const g={program,track,level,students:[]};
+      map.set(key,g);groups.push(g);
+    }
+    map.get(key).students.push(s);
+  });
+
+  const school=activeSchool();
+  classListPrint.innerHTML=`
+  <style>
+    #classListPrint{padding:0!important}
+    #classListPrint .class-print-group{page-break-after:always;break-after:page;padding:2px 0}
+    #classListPrint .class-print-group:last-child{page-break-after:auto;break-after:auto}
+    #classListPrint .class-print-head{text-align:center;margin-bottom:9px}
+    #classListPrint .class-print-head h2{margin:0;color:#12304a;font-size:20px}
+    #classListPrint .class-print-main-title{font-size:16px;font-weight:900;color:#12304a;margin:5px 0 2px}
+    #classListPrint .class-print-subtitle{font-size:13px;font-weight:800;margin:2px 0}
+    #classListPrint .class-print-stats{font-size:10px;border:1px solid #d9e1e8;background:#f8fafc;padding:6px 8px;margin:7px 0 9px}
+    #classListPrint .class-print-group table{width:100%;min-width:0;border-collapse:collapse;table-layout:auto}
+    #classListPrint .class-print-group th,#classListPrint .class-print-group td{border:1px solid #cfd9e2;padding:5px 6px;font-size:10.5px;vertical-align:middle}
+    #classListPrint .class-print-group th{background:#edf3f7;color:#12304a;font-weight:800}
+    #classListPrint .class-print-group thead{display:table-header-group}
+    #classListPrint .class-print-group tr{page-break-inside:avoid;break-inside:avoid}
+    #classListPrint .class-print-sign{margin-top:24px;text-align:right;font-size:10px}
+    @media print{
+      @page{size:A4 landscape;margin:8mm}
+      #classListPrint .class-print-group{width:100%}
+    }
+  </style>
+  ${groups.map(g=>{
+    const a=g.students;
+    const assigned=a.filter(studentIsAssigned).length;
+    const unassigned=a.filter(studentIsNonAssigned).length;
+    const unspecified=a.filter(s=>studentAdmissionStatus(s)==="À préciser").length;
+    const girls=a.filter(s=>s.sex==="F").length;
+    const boys=a.filter(s=>s.sex==="M").length;
+    return `<section class="class-print-group">
+      <div class="class-print-head">
+        <h2>${esc(school.name)}</h2>
+        ${school.city?`<div>${esc(school.city)}</div>`:""}
+        <div class="class-print-main-title">LISTE DES ÉTUDIANTS INSCRITS</div>
+        <div class="class-print-subtitle">${esc(g.program)} — ${esc(g.track)}${g.level?` — ${esc(g.level)}`:""}</div>
+        <div>Année académique <b>${esc(activeYear())}</b></div>
+      </div>
+      <div class="class-print-stats"><b>Effectif : ${a.length}</b> &nbsp; | &nbsp; Affectés : <b>${assigned}</b> &nbsp; | &nbsp; Non affectés : <b>${unassigned}</b> &nbsp; | &nbsp; À préciser : <b>${unspecified}</b> &nbsp; | &nbsp; Filles : <b>${girls}</b> &nbsp; | &nbsp; Garçons : <b>${boys}</b></div>
+      <table>
+        <thead><tr><th>N°</th><th>Matricule</th><th>Nom & Prénoms</th><th>Sexe</th><th>Téléphone</th><th>Affectation</th><th>Niveau / Classe</th><th>Signature</th></tr></thead>
+        <tbody>${a.map((s,i)=>`<tr><td>${i+1}</td><td>${esc(s.matricule||"")}</td><td><b>${esc(s.name||"")}</b></td><td>${esc(s.sex||"")}</td><td>${esc(s.phone||"")}</td><td>${esc(studentAssignmentLabel(s))}</td><td>${esc(s.level||"—")}</td><td style="height:28px"></td></tr>`).join("")}</tbody>
+      </table>
+      <div class="class-print-sign"><b>Administration EIAFC</b><br><br>Signature / Cachet</div>
+    </section>`;
+  }).join("")}`;
+  classListModal.classList.add("show");
+}
 function doPrintClassList(){document.body.classList.add("print-class");window.print();setTimeout(()=>document.body.classList.remove("print-class"),300)}
 function closeClassList(){classListModal.classList.remove("show")}
 
