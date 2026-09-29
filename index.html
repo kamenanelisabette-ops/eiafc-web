@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-14-v11-22-auto-update">
+<meta name="eiafc-web-build" content="2026-09-29-v11-25-performance">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -3103,7 +3103,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.22.0";
+const APP_VERSION="11.25.0";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -3481,7 +3481,7 @@ async function nextUniqueAcademicId(type,label){
  return ""
 }
 function persist(){localStorage.setItem(KEY,JSON.stringify(db))}
-function saveDB(){persist();maybeDailySnapshot();capturePendingPatch();refreshAll();queueNetworkPush()}
+function saveDB(){persist();maybeDailySnapshot();capturePendingPatch();refreshCurrentView();queueNetworkPush()}
 function hashText(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(16)}
 
 function loadOwnerRecovery(){try{return JSON.parse(localStorage.getItem(OWNER_RECOVERY_KEY)||"null")}catch(e){return null}}
@@ -3554,7 +3554,7 @@ async function connectLanCore(c,interactive=false){if(lanConnecting)return false
 async function connectLanFromSettings(){if(!requireOwner("la configuration du réseau local"))return;const c=lanConfigFromFields("settings");await connectLanCore(c,true)}
 async function connectLanFromLogin(){const c=lanConfigFromFields("login");const ok=await connectLanCore(c,true);if(ok)authInit()}
 function startLanPolling(){if(lanTimer)clearInterval(lanTimer);lanTimer=setInterval(()=>lanPull(false),LAN_POLL_MS)}
-async function lanPull(interactive=false){if(!lanConfigured())return false;if(lanConnecting)return false;try{const rev=await lanRequest("/api/revision",{},2500),n=Number(rev?.revision||0),pending=loadPendingPatch();if(n<=lanRevision){lanConnected=true;if(patchHasChanges(pending))await lanPush();else setLanStatus("LAN synchronisé","ok");return true}const data=await lanRequest("/api/state",{},5000),old=deepClone(db),remote=normalizeDB(data?.state||db);lanRevision=Number(data?.revision||n);lanBase=deepClone(remote);db=patchHasChanges(pending)?applyCloudPatchJS(remote,pending):remote;persist();if(currentUser){const fresh=db.users.find(u=>u.username===currentUser.username);if(!fresh||fresh.active===false){alert("Votre compte a été désactivé.");logout();return true}currentUser=fresh}lanConnected=true;setLanStatus(patchHasChanges(pending)?"LAN reçu — envoi local":"LAN synchronisé","ok");const ll=document.getElementById("lanLastSync");if(ll)ll.textContent=`Données LAN reçues : ${new Date().toLocaleString("fr-FR")} — révision ${lanRevision}`;refreshAll();notifyBossChanges(old,db);if(patchHasChanges(pending))await lanPush();else localSessionBase=deepClone(db);return true}catch(e){lanConnected=false;if(interactive)alert("Serveur LAN inaccessible : "+(e?.message||e));setLanStatus("LAN indisponible — recherche Cloud","bad");if(cloudConfigured()&&navigator.onLine!==false){const cok=cloudConnected||await connectCloudCore(loadCloudConfig(),false);if(cok){await cloudPush();await cloudPull(false)}}return false}}
+async function lanPull(interactive=false){if(!lanConfigured())return false;if(lanConnecting)return false;try{const rev=await lanRequest("/api/revision",{},2500),n=Number(rev?.revision||0),pending=loadPendingPatch();if(n<=lanRevision){lanConnected=true;if(patchHasChanges(pending))await lanPush();else setLanStatus("LAN synchronisé","ok");return true}const data=await lanRequest("/api/state",{},5000),old=deepClone(db),remote=normalizeDB(data?.state||db);lanRevision=Number(data?.revision||n);lanBase=deepClone(remote);db=patchHasChanges(pending)?applyCloudPatchJS(remote,pending):remote;persist();if(currentUser){const fresh=db.users.find(u=>u.username===currentUser.username);if(!fresh||fresh.active===false){alert("Votre compte a été désactivé.");logout();return true}currentUser=fresh}lanConnected=true;setLanStatus(patchHasChanges(pending)?"LAN reçu — envoi local":"LAN synchronisé","ok");const ll=document.getElementById("lanLastSync");if(ll)ll.textContent=`Données LAN reçues : ${new Date().toLocaleString("fr-FR")} — révision ${lanRevision}`;refreshCurrentView();notifyBossChanges(old,db);if(patchHasChanges(pending))await lanPush();else localSessionBase=deepClone(db);return true}catch(e){lanConnected=false;if(interactive)alert("Serveur LAN inaccessible : "+(e?.message||e));setLanStatus("LAN indisponible — recherche Cloud","bad");if(cloudConfigured()&&navigator.onLine!==false){const cok=cloudConnected||await connectCloudCore(loadCloudConfig(),false);if(cok){await cloudPush();await cloudPull(false)}}return false}}
 function queueLanPush(){lanPushChain=lanPushChain.then(()=>lanPush()).catch(e=>{console.error(e);lanConnected=false;setLanStatus("LAN indisponible","bad")})}
 async function lanPush(){if(!lanConfigured())return false;try{const snapshot=deepClone(db),base=lanBase;if(!base){const ok=await connectLanCore(loadLanConfig(),false);return ok}const patch=mergeCloudPatches(loadPendingPatch(),buildCloudPatch(base,snapshot));if(!patchHasChanges(patch)){localStorage.removeItem(OFFLINE_PATCH_KEY);lanConnected=true;setLanStatus("LAN synchronisé","ok");updateOfflineQueueUI();return true}const data=await lanRequest("/api/patch",{patch,source:`${currentUserLabel()} — ${deviceName()}`},6500),remote=normalizeDB(data?.state||snapshot),afterPatch=buildCloudPatch(snapshot,db);lanRevision=Number(data?.revision||lanRevision);lanBase=deepClone(remote);db=patchHasChanges(afterPatch)?applyCloudPatchJS(remote,afterPatch):remote;persist();localStorage.removeItem(OFFLINE_PATCH_KEY);localSessionBase=deepClone(db);if(patchHasChanges(afterPatch))savePendingPatch(buildCloudPatch(remote,db));lanConnected=true;setLanStatus(patchHasChanges(afterPatch)?"LAN synchronisation partielle":"LAN synchronisé","ok");const ll=document.getElementById("lanLastSync");if(ll)ll.textContent=`Dernier envoi LAN : ${new Date().toLocaleString("fr-FR")} — révision ${lanRevision}`;refreshAll();if(patchHasChanges(afterPatch))queueLanPush();return true}catch(e){console.error(e);lanConnected=false;capturePendingPatch();setLanStatus("LAN indisponible","bad");return false}}
 async function lanNextId(type,label){const data=await lanRequest("/api/next-id",{academicYear:activeYear(),kind:type,label},4500);if(!data?.id)throw new Error("Numéro LAN non généré");lanConnected=true;return data.id}
@@ -3826,7 +3826,7 @@ async function cloudPull(interactive=false){
  try{
   const c=loadCloudConfig();if(!cloudClient)cloudClient=await makeCloudClientAsync(c);const pending=loadPendingPatch();const rev=await cloudRpc("eiafc_get_revision",{p_id:c.workspace,p_secret:c.secret});const n=Number(rev||0);
   if(n<=cloudRevision){cloudConnected=true;if(patchHasChanges(pending))await cloudPush();else setCloudStatus("Synchronisé","ok");if(interactive)setLastSync(`Vérification effectuée : ${new Date().toLocaleString("fr-FR")} — ${pendingChangesCount()?pendingChangesCount()+" élément(s) en attente.":"aucune nouvelle donnée."}`);return true}
-  const data=await cloudRpc("eiafc_get_state",{p_id:c.workspace,p_secret:c.secret});const old=deepClone(db),remote=normalizeDB(data?.state||db);cloudRevision=Number(data?.revision||n);cloudBase=deepClone(remote);db=patchHasChanges(pending)?applyCloudPatchJS(remote,pending):remote;persist();if(currentUser){const fresh=db.users.find(u=>u.username===currentUser.username);if(!fresh||fresh.active===false){alert("Votre compte a été désactivé sur le poste administrateur.");logout();return true}currentUser=fresh}cloudConnected=true;setCloudStatus(patchHasChanges(pending)?"Données reçues — envoi local":"Synchronisé","ok");setLastSync(`Nouvelle donnée reçue : ${new Date().toLocaleString("fr-FR")} — révision ${cloudRevision}`);refreshAll();notifyBossChanges(old,db);if(patchHasChanges(pending))await cloudPush();else localSessionBase=deepClone(db);return true
+  const data=await cloudRpc("eiafc_get_state",{p_id:c.workspace,p_secret:c.secret});const old=deepClone(db),remote=normalizeDB(data?.state||db);cloudRevision=Number(data?.revision||n);cloudBase=deepClone(remote);db=patchHasChanges(pending)?applyCloudPatchJS(remote,pending):remote;persist();if(currentUser){const fresh=db.users.find(u=>u.username===currentUser.username);if(!fresh||fresh.active===false){alert("Votre compte a été désactivé sur le poste administrateur.");logout();return true}currentUser=fresh}cloudConnected=true;setCloudStatus(patchHasChanges(pending)?"Données reçues — envoi local":"Synchronisé","ok");setLastSync(`Nouvelle donnée reçue : ${new Date().toLocaleString("fr-FR")} — révision ${cloudRevision}`);refreshCurrentView();notifyBossChanges(old,db);if(patchHasChanges(pending))await cloudPush();else localSessionBase=deepClone(db);return true
  }catch(e){console.error(e);cloudConnected=false;setCloudStatus("Hors connexion","bad");if(interactive)alert("Impossible de recevoir les données Cloud. Les saisies locales restent disponibles : "+(e?.message||e));return false}
 }
 function queueCloudPush(){if(!cloudConfigured())return;cloudPushChain=cloudPushChain.then(()=>cloudPush()).catch(e=>{console.error(e);cloudConnected=false;setCloudStatus("Hors connexion","bad")})}
@@ -4289,7 +4289,7 @@ function enterApp(){
  const dashBtn=document.querySelector('.nav-btn[data-view="dashboard"]'),dash=document.getElementById("dashboard");if(dashBtn)dashBtn.classList.add("active");if(dash)dash.classList.add("active");
  pageTitle.textContent=`Tableau de bord — ${isOwner()?"Fondateur":currentUser.role}`;
  if(payAgent)payAgent.value=currentUserLabel();if(otherAgent)otherAgent.value=currentUserLabel();if(expAgent)expAgent.value=currentUserLabel();if(expStatus&&can("validate"))expStatus.value="Validé";updateExpenseLiveSummary();if(closingAgent)closingAgent.value=currentUserLabel();
- applyPermissions();populateLanFields();populateCloudFields();refreshAll();startPrimaryBridge();if(isOwner())flushIdentityQueue(false);
+ applyPermissions();populateLanFields();populateCloudFields();refreshCurrentView();startPrimaryBridge();if(isOwner())flushIdentityQueue(false);
 }
 
 function roleName(){return isOwner()?"Fondateur":String(currentUser?.role||"")}
@@ -4659,7 +4659,7 @@ document.querySelectorAll(".nav-btn").forEach(b=>b.addEventListener("click",()=>
  if(!can(b.dataset.perm))return alert("Votre rôle ne permet pas cet accès.");
  document.querySelectorAll(".nav-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");
  document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));document.getElementById(b.dataset.view).classList.add("active");
- pageTitle.textContent=b.textContent.replace(/^[^\s]+\s/,"");refreshAll()
+ pageTitle.textContent=b.textContent.replace(/^[^\s]+\s/,"");refreshCurrentView()
 }));
 
 function studentByMat(mat){return db.students.find(s=>s.matricule===mat)}
@@ -4809,6 +4809,64 @@ function refreshAll(){
  if(isOwner()){renderUsers();renderSchools();loadSettings();loadNotificationSettings();renderTrackCatalog();payrollSettingsLoad();renderDataQuality();populateRemoteKeySchools();populateCopyAppSchools();renderBackupTimeline()}else{if(usersTable)usersTable.innerHTML="";if(schoolsTable)schoolsTable.innerHTML="";if(trackCatalogTable)trackCatalogTable.innerHTML="";if(dataQualityBox)dataQualityBox.innerHTML=""}
  updateOfflineQueueUI();forceAllowedView();if(currentUser){if(payAgent)payAgent.value=currentUserLabel();if(otherAgent)otherAgent.value=currentUserLabel();if(expAgent)expAgent.value=currentUserLabel();if(closingAgent)closingAgent.value=currentUserLabel();if(attendanceAgent)attendanceAgent.value=currentUserLabel()}
 }
+
+// V11.25 — mode performance : ne recalculer que l'écran réellement affiché.
+function refreshCurrentView(){
+ try{
+  if(typeof enforceFinancialBtsPoleV118==="function")enforceFinancialBtsPoleV118();
+  updatePremiumContext();
+  refreshSchoolSelectors();refreshYearSelector();
+  if(yearBadge)yearBadge.textContent="Année "+activeYear();
+  const sch=activeSchool();if(schoolSubtitle)schoolSubtitle.textContent=schoolLabel(sch)+" — accès "+roleName();
+  clearRestrictedViews();applyRoleSensitiveVisibility();
+  const active=document.querySelector('.nav-btn.active[data-view]');
+  const view=active?.dataset?.view||"dashboard";
+  switch(view){
+   case "dashboard":
+    renderHomeModuleBlocks();renderRoleDashboardHeader();
+    if(can("dashboard")){renderDashboard();renderEnrollmentMonitor();renderDirectionPriorityCenter();}
+    if(isOwner()||roleName()==="Comptable")renderManagementCenter();
+    if(typeof renderDashboardPoleSeparation==="function")renderDashboardPoleSeparation();
+    if(typeof renderAutoFinanceIntegrity==="function")renderAutoFinanceIntegrity();
+    break;
+   case "students":
+    if(can("students")){renderStudents();renderStudentSettlementLists();renderSupplies();renderUndatedSupplyRepair();renderTodaySupplyReceipts();renderDailySupplyTracking();renderEnrollmentMonitor();updateStudentAdministrativeDocumentCenter();showStudentArea(window.eiafcStudentArea||"overview");}
+    break;
+   case "classes": if(can("students"))renderClasses(); break;
+   case "attendance": if(can("attendance"))renderAttendance(); break;
+   case "academic": if(can("academic"))renderAcademic(); break;
+   case "timetable": if(can("timetable"))renderTimetable(); break;
+   case "discipline": if(can("discipline"))renderDiscipline(); break;
+   case "purchases": if(can("purchases"))renderPurchases(); break;
+   case "inventory": if(can("inventory"))renderInventory(); break;
+   case "staffpayroll": if(can("staff")){renderStaff();renderStaffAttendance();renderStaffLoans();renderPayroll();} break;
+   case "payments": if(can("payments")){updateStudentSelect();renderPayments();} break;
+   case "schedule": if(can("schedule")){renderSchedule();renderReminderCenter();} break;
+   case "other": if(can("other"))renderOther(); break;
+   case "expenses": if(can("expenses")){renderExpenses();if(typeof renderAutoFinanceIntegrity==="function")renderAutoFinanceIntegrity();} break;
+   case "cash": if(can("cash")){renderCash();renderTransfers();if(typeof renderDashboardPoleSeparation==="function")renderDashboardPoleSeparation();} break;
+   case "closing": if(can("closing")){renderClosings();updateClosingPreview();if(isOwner()){renderEndDayDepositControl();renderFounderCashReceipts();}showClosingArea(window.eiafcClosingArea||"close");} break;
+   case "journal": if(can("journal"))renderJournal(); break;
+   case "accounting": if(can("accounting")){updateAccountingTrackOptions();renderAccounting();} break;
+   case "reconciliation": if(can("reconciliation"))renderReconciliation(); break;
+   case "reports": if(can("reports")){updateReportAssignmentControls();updateAnnualAssignmentControls();renderReports();renderAnnualBalance();} break;
+   case "direction": if(can("direction"))renderDirectionNetwork(); break;
+   case "audit": if(can("audit"))renderAudit(); break;
+   case "users": if(isOwner())renderUsers(); break;
+   case "settings":
+    if(isOwner()){renderSchools();loadSettings();loadNotificationSettings();renderTrackCatalog();payrollSettingsLoad();renderDataQuality();populateRemoteKeySchools();populateCopyAppSchools();renderBackupTimeline();}
+    break;
+   default:
+    // Les modules ajoutés par extension gèrent leur propre rendu au clic.
+    break;
+  }
+  updateOfflineQueueUI();forceAllowedView();
+  if(currentUser){if(payAgent)payAgent.value=currentUserLabel();if(otherAgent)otherAgent.value=currentUserLabel();if(expAgent)expAgent.value=currentUserLabel();if(closingAgent)closingAgent.value=currentUserLabel();if(attendanceAgent)attendanceAgent.value=currentUserLabel();}
+  requestAnimationFrame(()=>{try{decoratePremiumKpis()}catch(_e){}});
+ }catch(e){console.warn("EIAFC refresh performance",e)}
+}
+window.refreshCurrentView=refreshCurrentView;
+
 function treasuryChannel(mode){if(mode==="Chèque"||mode==="Autre")return "Banque";return mode}
 function balances(){
  const op=openingForYear(),out={"Espèces":Number(op.cash||0),"Caisse Fondateur":Number(op.founderCash||0),"Wave":Number(op.wave||0),"MTN Mobile Money":Number(op.mtn||0),"Banque":Number(op.bank||0),"Orange Money":Number(op.orange||0)};
@@ -8025,7 +8083,7 @@ startApp();enforceExpenseBtsSinglePole();setInterval(()=>checkForAppUpdate(false
       const left=pendingChangesCount();
       setUnifiedStatus(left?`Cloud Web — ${left} en attente`:'Cloud Web synchronisé',left?'warn':'ok');
       setLastSync(`Dernier contrôle Web : ${new Date().toLocaleString('fr-FR')} — révision ${webRevision}`);
-      refreshAll();
+      refreshCurrentView();
 
       if(interactive){
         if(!left)showToast('<b>Synchronisation réparée</b><br>Toutes les données sont confirmées dans le Cloud.');
@@ -8051,7 +8109,7 @@ startApp();enforceExpenseBtsSinglePole();setInterval(()=>checkForAppUpdate(false
     if(!currentUser||!webToken()||navigator.onLine===false)return false;
     try{
       const r=await webApi('get_revision',{},webToken());
-      const localPending=mergeCloudPatches(loadWebPending(),webBase?securePatch(webBase,db):{});
+      const localPending=loadWebPending();
       if(Number(r.revision||0)<=webRevision){
         if(patchHasChanges(localPending)){saveWebPending(localPending);cloudConnected=true;if(interactive)showToast(`<b>EIAFC Web</b><br>${pendingChangesCount()} élément(s) restent à synchroniser.`);return true}
         cloudConnected=true;if(interactive)showToast('<b>EIAFC Web</b><br>Les données sont déjà à jour.');return true
@@ -8067,7 +8125,7 @@ startApp();enforceExpenseBtsSinglePole();setInterval(()=>checkForAppUpdate(false
 
       webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(merged);
       persist();localSessionBase=deepClone(db);saveWebPending(remain);
-      cloudConnected=true;alignWebScopeToLoadedData();refreshAll();notifyBossChanges(old,db);
+      cloudConnected=true;alignWebScopeToLoadedData();refreshCurrentView();notifyBossChanges(old,db);
       if(interactive)showToast(`<b>Données reçues</b><br>${patchHasChanges(remain)?pendingChangesCount()+' élément(s) locaux restent en attente.':'EIAFC Web est à jour.'}`);
       return true;
     }catch(e){
@@ -8076,7 +8134,14 @@ startApp();enforceExpenseBtsSinglePole();setInterval(()=>checkForAppUpdate(false
       return false;
     }
   }
-  function startWebPolling(){if(webTimer)clearInterval(webTimer);webTimer=setInterval(()=>securePull(false),15000)}
+  function startWebPolling(){
+    if(webTimer)clearInterval(webTimer);
+    webTimer=setInterval(()=>{if(!document.hidden)securePull(false)},20000);
+    if(!window.__EIAFC_VISIBILITY_SYNC_BOUND__){
+      window.__EIAFC_VISIBILITY_SYNC_BOUND__=true;
+      document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUser&&webToken())securePull(false)});
+    }
+  }
 
   // Sur le portail Web, une ancienne donnée peut porter un identifiant d'école
   // qui n'existe plus dans la liste actuelle. Pour l'affichage seulement, on la
@@ -8142,7 +8207,7 @@ startApp();enforceExpenseBtsSinglePole();setInterval(()=>checkForAppUpdate(false
       db=patchHasChanges(pendingAtLogin)?applyCloudPatchJS(remote,pendingAtLogin):deepClone(remote);persist();
       loginPassword.value='';lanConnected=false;cloudConnected=true;localSessionBase=deepClone(db);
       const scope=alignWebScopeToLoadedData();
-      setUnifiedStatus('Cloud Web sécurisé','ok');refreshAll();enterApp();startWebPolling();
+      setUnifiedStatus('Cloud Web sécurisé','ok');enterApp();startWebPolling();
       setTimeout(()=>showToast(`<b>EIAFC V11 chargée</b><br>${scope.students} étudiant(s) • Pédagogie, emploi du temps et discipline activés • ${pendingChangesCount()} élément(s) en attente.`),250);
     }catch(e){alert(e?.message||String(e))}
     finally{if(btn){btn.disabled=false;btn.textContent=old||'Se connecter'}}
@@ -8213,7 +8278,7 @@ startApp();enforceExpenseBtsSinglePole();setInterval(()=>checkForAppUpdate(false
     // V11.5.5 : détail des remises reçues dans Caisse Fondateur + correction du solde historique Caisse Fondateur.
     // V11.5.4 : confirmationPatch appartenait à l'ancien moteur et n'existe plus.
     // On utilise le nouveau rapprochement serveur pour compter uniquement les vraies données non confirmées.
-    const raw=mergeCloudPatches(loadWebPending(),securePatch(webBase,db));
+    const raw=loadWebPending();
     const p=reconcilePendingWithRemote(raw,webBase);
     let n=0;for(const k of Object.keys(CLOUD_COLLECTION_KEYS))n+=(p?.[k]||[]).length;if(p.settings)n++;if(p.counters)n++;return n
   };
@@ -8257,7 +8322,7 @@ startApp();enforceExpenseBtsSinglePole();setInterval(()=>checkForAppUpdate(false
     }
     return false
   };
-  window.saveDB=saveDB=function(){persist();capturePendingPatch();refreshAll();queueSecurePush()};
+  window.saveDB=saveDB=function(){persist();capturePendingPatch();refreshCurrentView();queueSecurePush()};
   const originalRenderUsersWeb=window.renderUsers||renderUsers;
   window.renderUsers=renderUsers=function(){originalRenderUsersWeb();populateSessionRevokeUsers()};
   setTimeout(()=>{try{if(webToken()){checkCloudSecurityNow(false);if(isOwner())loadCloudBackups(false)}if(studentToken())refreshStudentPortal()}catch(_e){}},1200);
@@ -8284,7 +8349,7 @@ startApp();enforceExpenseBtsSinglePole();setInterval(()=>checkForAppUpdate(false
   async function restoreWebSession(){
     const t=webToken(),u=webStoredUser();if(!t||!u)return false;
     try{
-      const j=await webApi('get_state',{},t);if(!j?.state)throw new Error('Base centrale EIAFC indisponible');const remote=normalizeDB(sanitizeRemoteStateForRole(deepClone(j.state),u));webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();currentUser={...u,active:true,deleted:false};sessionStorage.setItem(SESSION_KEY,currentUser.username);cloudConnected=true;lanConnected=false;localSessionBase=deepClone(db);alignWebScopeToLoadedData();refreshAll();enterApp();startWebPolling();return true;
+      const j=await webApi('get_state',{},t);if(!j?.state)throw new Error('Base centrale EIAFC indisponible');const remote=normalizeDB(sanitizeRemoteStateForRole(deepClone(j.state),u));webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();currentUser={...u,active:true,deleted:false};sessionStorage.setItem(SESSION_KEY,currentUser.username);cloudConnected=true;lanConnected=false;localSessionBase=deepClone(db);alignWebScopeToLoadedData();enterApp();startWebPolling();return true;
     }catch(e){console.warn('Restauration session Web',e);clearWebSession(true);return false}
   }
   async function initPublicWeb(){
