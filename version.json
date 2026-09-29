@@ -1,5 +1,5 @@
 {
-  "version": "11.25.3",
-  "build": "2026-09-29-v11-25-3-navigation-rapide",
-  "note": "Navigation rapide par rubrique, impressions corrigées"
+  "version": "11.25.4",
+  "build": "2026-09-29-v11-25-4-niveaux-separes",
+  "notes": "Impression listes : séparation stricte par niveau/classe puis par filière; aucun mélange entre niveaux."
 }

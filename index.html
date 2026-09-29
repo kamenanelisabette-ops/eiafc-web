@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-29-v11-25-3-navigation-rapide">
+<meta name="eiafc-web-build" content="2026-09-29-v11-25-4-niveaux-separes">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -3103,7 +3103,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.25.3";
+const APP_VERSION="11.25.4";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -5861,28 +5861,48 @@ function printClassList(){
   const selectedTrack=String(classTrack?.value||"").trim();
   const selectedLevel=String(classLevel?.value||"").trim();
   const programOrder={"BTS 1":1,"BTS 2":2,"Formation qualifiante":3,"Licence":4,"Master":5,"BTS à classer":6};
-  const trackName=s=>String(typeof studentTrackValue==="function"?studentTrackValue(s):(s.track||"")).trim()||"Filière à préciser";
-  const levelName=s=>String(s.level||"").trim();
+  const clean=v=>String(v||"").trim();
+  const trackName=s=>clean(typeof studentTrackValue==="function"?studentTrackValue(s):(s.track||""))||"Filière à préciser";
+  const classLevelName=s=>clean(s.level);
+  const programName=s=>clean(s.program)||"Niveau à préciser";
+  const sameText=(a,b)=>clean(a).toLowerCase()===clean(b).toLowerCase();
+  const levelTitle=s=>{
+    const p=programName(s),l=classLevelName(s);
+    return l&&!sameText(l,p)?`${p} — ${l}`:p;
+  };
+
+  // Priorité absolue au niveau, ensuite seulement à la filière.
   const ordered=arr.slice().sort((a,b)=>
-    (programOrder[a.program]||99)-(programOrder[b.program]||99)||
-    String(a.program||"").localeCompare(String(b.program||""),"fr")||
+    (programOrder[programName(a)]||99)-(programOrder[programName(b)]||99)||
+    programName(a).localeCompare(programName(b),"fr")||
+    classLevelName(a).localeCompare(classLevelName(b),"fr")||
     trackName(a).localeCompare(trackName(b),"fr")||
-    levelName(a).localeCompare(levelName(b),"fr")||
-    String(a.name||"").localeCompare(String(b.name||""),"fr")
+    clean(a.name).localeCompare(clean(b.name),"fr")
   );
 
-  const groups=[];
-  const map=new Map();
+  // 1) Regroupement par niveau. Aucun niveau ne partage une section avec un autre.
+  const levelSections=[];
+  const levelMap=new Map();
   ordered.forEach(s=>{
-    const program=String(s.program||"Programme à préciser").trim()||"Programme à préciser";
-    const track=trackName(s);
-    const level=levelName(s);
-    const key=[program,track,level].join("|||");
-    if(!map.has(key)){
-      const g={program,track,level,students:[]};
-      map.set(key,g);groups.push(g);
+    const program=programName(s),level=classLevelName(s),title=levelTitle(s);
+    const levelKey=[program,level].join("|||");
+    if(!levelMap.has(levelKey)){
+      const section={key:levelKey,program,level,title,students:[],tracks:[]};
+      levelMap.set(levelKey,section);levelSections.push(section);
     }
-    map.get(key).students.push(s);
+    levelMap.get(levelKey).students.push(s);
+  });
+
+  // 2) Dans chaque niveau seulement, séparation par filière.
+  levelSections.forEach(section=>{
+    const tm=new Map();
+    section.students.forEach(s=>{
+      const track=trackName(s);
+      if(!tm.has(track)){const g={track,students:[]};tm.set(track,g);section.tracks.push(g)}
+      tm.get(track).students.push(s);
+    });
+    section.tracks.sort((a,b)=>a.track.localeCompare(b.track,"fr"));
+    section.tracks.forEach(g=>g.students.sort((a,b)=>clean(a.name).localeCompare(clean(b.name),"fr")));
   });
 
   const school=activeSchool();
@@ -5892,16 +5912,25 @@ function printClassList(){
   const totalBoys=ordered.filter(s=>s.sex==="M").length;
   const totalAssigned=ordered.filter(studentIsAssigned).length;
   const totalUnassigned=ordered.filter(studentIsNonAssigned).length;
-  const listLabel=selectedProgram||"Tous programmes";
+  const listLabel=selectedProgram||"Tous niveaux";
 
-  // A4 paysage : on limite volontairement le nombre de lignes par page.
-  // Ainsi aucune filière ne se mélange visuellement avec la suivante.
-  const ROWS_PER_PAGE=14;
+  // Une page d'impression ne contient qu'un seul niveau ET une seule filière.
+  const ROWS_PER_PAGE=13;
   const pages=[];
-  groups.forEach(g=>{
-    for(let i=0;i<g.students.length;i+=ROWS_PER_PAGE){
-      pages.push({...g,students:g.students.slice(i,i+ROWS_PER_PAGE),part:Math.floor(i/ROWS_PER_PAGE)+1,parts:Math.ceil(g.students.length/ROWS_PER_PAGE),groupTotal:g.students.length});
-    }
+  levelSections.forEach((section,levelIndex)=>{
+    section.tracks.forEach((g,trackIndex)=>{
+      const parts=Math.max(1,Math.ceil(g.students.length/ROWS_PER_PAGE));
+      for(let i=0;i<g.students.length;i+=ROWS_PER_PAGE){
+        pages.push({
+          section,track:g.track,
+          students:g.students.slice(i,i+ROWS_PER_PAGE),
+          part:Math.floor(i/ROWS_PER_PAGE)+1,parts,
+          trackTotal:g.students.length,
+          levelIndex,trackIndex,
+          firstPageOfLevel:trackIndex===0&&i===0
+        });
+      }
+    });
   });
 
   classListPrint.innerHTML=`
@@ -5919,47 +5948,55 @@ function printClassList(){
     #classListPrint .summary-stat{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:7px 9px}
     #classListPrint .summary-stat .label{font-size:8.5px;text-transform:uppercase;letter-spacing:.05em;opacity:.75;font-weight:700}
     #classListPrint .summary-stat .value{font-size:15px;font-weight:900;margin-top:3px}
+    #classListPrint .level-recap{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+    #classListPrint .level-recap-card{background:#fff;color:#12304a;border-radius:10px;padding:8px 10px;border:1px solid rgba(255,255,255,.3)}
+    #classListPrint .level-recap-card .name{font-size:10px;font-weight:900;text-transform:uppercase}
+    #classListPrint .level-recap-card .count{font-size:17px;font-weight:900;margin-top:3px}
 
-    #classListPrint .print-page{background:#fff;border:1px solid #d9e3ec;border-radius:15px;padding:14px 16px;margin:0 0 14px;box-shadow:0 4px 14px rgba(15,47,79,.06);page-break-after:always;break-after:page;page-break-inside:avoid;break-inside:avoid}
-    #classListPrint .print-page:last-child{page-break-after:auto;break-after:auto}
-    #classListPrint .page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:10px;border-bottom:2px solid #173f61;margin-bottom:10px}
-    #classListPrint .school-name{font-size:18px;font-weight:900;color:#102f4d;line-height:1.1}
-    #classListPrint .school-city{font-size:10px;color:#667b8c;margin-top:2px}
-    #classListPrint .page-title{font-size:16px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#14324a;margin-top:7px}
-    #classListPrint .page-pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
-    #classListPrint .pill{display:inline-block;border:1px solid #d2dfeb;border-radius:999px;background:#f4f8fb;color:#17324a;padding:4px 8px;font-size:9.5px;font-weight:800}
+    #classListPrint .print-page{background:#fff;border:1px solid #d9e3ec;border-radius:15px;padding:12px 15px;margin:0 0 14px;box-shadow:0 4px 14px rgba(15,47,79,.06);page-break-after:always;break-after:page;page-break-inside:avoid;break-inside:avoid}
+    #classListPrint .print-page.level-start{border-top:6px solid #0f2f4f}
+    #classListPrint .level-banner{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#102f4d;color:#fff;border-radius:11px;padding:8px 12px;margin-bottom:9px}
+    #classListPrint .level-banner .label{font-size:8.5px;text-transform:uppercase;letter-spacing:.12em;opacity:.75;font-weight:800}
+    #classListPrint .level-banner .name{font-size:18px;font-weight:900;margin-top:2px}
+    #classListPrint .level-banner .count{min-width:125px;text-align:center;background:#fff;color:#102f4d;border-radius:9px;padding:6px 10px;font-weight:900;font-size:13px}
+    #classListPrint .page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:9px;border-bottom:2px solid #173f61;margin-bottom:8px}
+    #classListPrint .school-name{font-size:17px;font-weight:900;color:#102f4d;line-height:1.1}
+    #classListPrint .school-city{font-size:9.5px;color:#667b8c;margin-top:2px}
+    #classListPrint .page-title{font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#14324a;margin-top:6px}
+    #classListPrint .page-pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+    #classListPrint .pill{display:inline-block;border:1px solid #d2dfeb;border-radius:999px;background:#f4f8fb;color:#17324a;padding:4px 8px;font-size:9px;font-weight:800}
     #classListPrint .pill.main{background:#e6f0f8;border-color:#c7dceb}
-    #classListPrint .page-info{min-width:180px;background:#f5f8fb;border:1px solid #dce5ed;border-radius:11px;padding:8px 10px;font-size:9.5px;color:#4f6475;line-height:1.45}
+    #classListPrint .page-info{min-width:185px;background:#f5f8fb;border:1px solid #dce5ed;border-radius:11px;padding:7px 9px;font-size:9px;color:#4f6475;line-height:1.45}
     #classListPrint .page-info b{color:#153651}
-
-    #classListPrint .global-total{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#edf5fb;border:1px solid #d1e3f0;border-radius:10px;padding:7px 10px;margin:0 0 9px;font-size:10px;color:#23445e}
-    #classListPrint .global-total strong{font-size:12px;color:#0f2f4f}
-    #classListPrint .group-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:9px}
-    #classListPrint .mini-stat{border:1px solid #dce4ec;border-radius:9px;background:#fafcfe;padding:6px 7px}
-    #classListPrint .mini-stat .label{font-size:7.8px;font-weight:800;text-transform:uppercase;color:#718292;letter-spacing:.04em}
-    #classListPrint .mini-stat .value{font-size:13px;font-weight:900;color:#14324a;margin-top:2px}
+    #classListPrint .level-total{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#eef5fa;border-left:5px solid #143f61;border-radius:8px;padding:6px 9px;margin:0 0 8px;font-size:9.5px;color:#23445e}
+    #classListPrint .level-total strong{font-size:11px;color:#0f2f4f}
+    #classListPrint .group-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:8px}
+    #classListPrint .mini-stat{border:1px solid #dce4ec;border-radius:8px;background:#fafcfe;padding:5px 6px}
+    #classListPrint .mini-stat .label{font-size:7.3px;font-weight:800;text-transform:uppercase;color:#718292;letter-spacing:.04em}
+    #classListPrint .mini-stat .value{font-size:12px;font-weight:900;color:#14324a;margin-top:2px}
 
     #classListPrint table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;border:1px solid #d5e0e9;border-radius:10px;overflow:hidden}
-    #classListPrint th,#classListPrint td{border-right:1px solid #dfe7ee;border-bottom:1px solid #dfe7ee;padding:6px 6px;font-size:9.5px;vertical-align:middle}
+    #classListPrint th,#classListPrint td{border-right:1px solid #dfe7ee;border-bottom:1px solid #dfe7ee;padding:5.5px 6px;font-size:9.2px;vertical-align:middle}
     #classListPrint th:last-child,#classListPrint td:last-child{border-right:none}
     #classListPrint tbody tr:last-child td{border-bottom:none}
-    #classListPrint th{background:#e8f0f6;color:#12304a;font-size:8.7px;text-transform:uppercase;letter-spacing:.03em;font-weight:900}
+    #classListPrint th{background:#e8f0f6;color:#12304a;font-size:8.4px;text-transform:uppercase;letter-spacing:.03em;font-weight:900}
     #classListPrint tbody tr:nth-child(even) td{background:#fbfdff}
     #classListPrint tbody tr{page-break-inside:avoid;break-inside:avoid}
     #classListPrint .c-num{width:38px;text-align:center}.c-mat{width:112px}.c-name{width:auto}.c-sex{width:48px;text-align:center}.c-phone{width:102px}.c-aff{width:105px}.c-sign{width:105px}
     #classListPrint .student-name{font-weight:800;color:#102f4d}
-    #classListPrint .student-level{font-size:8px;color:#788a99;margin-top:2px}
-    #classListPrint .aff-badge{display:inline-block;padding:3px 6px;border:1px solid #d8e1e9;border-radius:999px;background:#f6f9fb;font-size:8.5px;font-weight:800}
-    #classListPrint .sign-space{height:26px}
-    #classListPrint .page-foot{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-top:10px;font-size:8.5px;color:#718292}
+    #classListPrint .student-level{font-size:7.8px;color:#788a99;margin-top:2px}
+    #classListPrint .aff-badge{display:inline-block;padding:3px 6px;border:1px solid #d8e1e9;border-radius:999px;background:#f6f9fb;font-size:8.2px;font-weight:800}
+    #classListPrint .sign-space{height:25px}
+    #classListPrint .page-foot{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-top:8px;font-size:8px;color:#718292}
     #classListPrint .signatures{display:flex;gap:24px;text-align:center;color:#3d5568}
-    #classListPrint .signature-box{min-width:135px;border-top:1px solid #aebdca;padding-top:4px;margin-top:20px}
+    #classListPrint .signature-box{min-width:135px;border-top:1px solid #aebdca;padding-top:4px;margin-top:18px}
 
     @media print{
       @page{size:A4 landscape;margin:8mm}
       #classListPrint{background:#fff}
       #classListPrint .print-summary{box-shadow:none;page-break-after:always;break-after:page}
       #classListPrint .print-page{box-shadow:none;margin:0;border-radius:0;border:none;min-height:185mm;padding:0;overflow:hidden}
+      #classListPrint .print-page.level-start{border-top:0}
       #classListPrint .print-page:last-child{page-break-after:auto;break-after:auto}
     }
   </style>
@@ -5968,41 +6005,50 @@ function printClassList(){
     <div class="summary-top">
       <div>
         <div class="summary-kicker">${esc(school.name)} • Liste officielle</div>
-        <div class="summary-title">${esc(listLabel)} — Tous les étudiants sélectionnés</div>
-        <div class="summary-sub">${selectedTrack?`Filière : ${esc(selectedTrack)} • `:""}${selectedLevel?`Niveau : ${esc(selectedLevel)} • `:""}Année académique ${esc(activeYear())}${school.city?` • ${esc(school.city)}`:""}</div>
+        <div class="summary-title">Étudiants séparés strictement par niveau</div>
+        <div class="summary-sub">${selectedTrack?`Filière : ${esc(selectedTrack)} • `:""}${selectedLevel?`Classe : ${esc(selectedLevel)} • `:""}Année académique ${esc(activeYear())}${school.city?` • ${esc(school.city)}`:""}</div>
       </div>
       <div class="summary-total"><div class="label">Effectif total</div><div class="value">${totalStudents}</div></div>
     </div>
     <div class="summary-stats">
+      <div class="summary-stat"><div class="label">Niveaux distincts</div><div class="value">${levelSections.length}</div></div>
       <div class="summary-stat"><div class="label">Filles</div><div class="value">${totalGirls}</div></div>
       <div class="summary-stat"><div class="label">Garçons</div><div class="value">${totalBoys}</div></div>
       <div class="summary-stat"><div class="label">Affectés</div><div class="value">${totalAssigned}</div></div>
       <div class="summary-stat"><div class="label">Non affectés</div><div class="value">${totalUnassigned}</div></div>
-      <div class="summary-stat"><div class="label">Filières / groupes</div><div class="value">${groups.length}</div></div>
+    </div>
+    <div class="level-recap">
+      ${levelSections.map(section=>`<div class="level-recap-card"><div class="name">${esc(section.title)}</div><div class="count">${section.students.length} étudiant(s)</div></div>`).join("")}
     </div>
   </section>
 
   ${pages.map((p,pageIndex)=>{
-    const fullGroup=groups.find(g=>g.program===p.program&&g.track===p.track&&g.level===p.level)?.students||p.students;
-    const assigned=fullGroup.filter(studentIsAssigned).length;
-    const unassigned=fullGroup.filter(studentIsNonAssigned).length;
-    const unspecified=fullGroup.filter(s=>studentAdmissionStatus(s)==="À préciser").length;
-    const girls=fullGroup.filter(s=>s.sex==="F").length;
-    const boys=fullGroup.filter(s=>s.sex==="M").length;
+    const section=p.section;
+    const levelStudents=section.students;
+    const trackStudents=section.tracks.find(g=>g.track===p.track)?.students||p.students;
+    const assigned=trackStudents.filter(studentIsAssigned).length;
+    const unassigned=trackStudents.filter(studentIsNonAssigned).length;
+    const unspecified=trackStudents.filter(s=>studentAdmissionStatus(s)==="À préciser").length;
+    const girls=trackStudents.filter(s=>s.sex==="F").length;
+    const boys=trackStudents.filter(s=>s.sex==="M").length;
     const startIndex=(p.part-1)*ROWS_PER_PAGE;
-    return `<section class="print-page">
+    return `<section class="print-page ${p.firstPageOfLevel?"level-start":""}">
+      <div class="level-banner">
+        <div><div class="label">Niveau / Classe</div><div class="name">${esc(section.title)}</div></div>
+        <div class="count">Effectif niveau : ${levelStudents.length}</div>
+      </div>
       <div class="page-head">
         <div>
           <div class="school-name">${esc(school.name)}</div>
           ${school.city?`<div class="school-city">${esc(school.city)}</div>`:""}
-          <div class="page-title">Liste des étudiants inscrits</div>
-          <div class="page-pills"><span class="pill main">${esc(p.program)}</span><span class="pill">${esc(p.track)}</span>${p.level?`<span class="pill">${esc(p.level)}</span>`:""}</div>
+          <div class="page-title">Liste des étudiants — ${esc(p.track)}</div>
+          <div class="page-pills"><span class="pill main">${esc(section.program)}</span>${section.level?`<span class="pill">${esc(section.level)}</span>`:""}<span class="pill">${esc(p.track)}</span></div>
         </div>
-        <div class="page-info"><b>Année :</b> ${esc(activeYear())}<br><b>Effectif de la filière :</b> ${p.groupTotal}<br><b>Page filière :</b> ${p.part}/${p.parts}<br><b>Page document :</b> ${pageIndex+1}/${pages.length}</div>
+        <div class="page-info"><b>Année :</b> ${esc(activeYear())}<br><b>Effectif niveau :</b> ${levelStudents.length}<br><b>Effectif filière :</b> ${p.trackTotal}<br><b>Page filière :</b> ${p.part}/${p.parts}<br><b>Page document :</b> ${pageIndex+1}/${pages.length}</div>
       </div>
-      <div class="global-total"><span><strong>${esc(listLabel)}</strong> — impression complète organisée par filière</span><span><strong>Effectif total : ${totalStudents}</strong></span></div>
+      <div class="level-total"><span><strong>${esc(section.title)}</strong> — aucun étudiant d’un autre niveau sur cette page</span><span><strong>${levelStudents.length} étudiant(s) dans ce niveau</strong></span></div>
       <div class="group-stats">
-        <div class="mini-stat"><div class="label">Effectif filière</div><div class="value">${p.groupTotal}</div></div>
+        <div class="mini-stat"><div class="label">Effectif filière</div><div class="value">${p.trackTotal}</div></div>
         <div class="mini-stat"><div class="label">Filles</div><div class="value">${girls}</div></div>
         <div class="mini-stat"><div class="label">Garçons</div><div class="value">${boys}</div></div>
         <div class="mini-stat"><div class="label">Affectés</div><div class="value">${assigned}</div></div>
@@ -6011,9 +6057,9 @@ function printClassList(){
       </div>
       <table>
         <thead><tr><th class="c-num">N°</th><th class="c-mat">Matricule</th><th class="c-name">Nom & Prénoms</th><th class="c-sex">Sexe</th><th class="c-phone">Téléphone</th><th class="c-aff">Affectation</th><th class="c-sign">Signature</th></tr></thead>
-        <tbody>${p.students.map((s,i)=>`<tr><td class="c-num">${startIndex+i+1}</td><td class="c-mat">${esc(s.matricule||"")}</td><td class="c-name"><div class="student-name">${esc(s.name||"")}</div><div class="student-level">${esc(s.level||p.level||"Niveau à préciser")}</div></td><td class="c-sex">${esc(s.sex||"")}</td><td class="c-phone">${esc(s.phone||"—")}</td><td class="c-aff"><span class="aff-badge">${esc(studentAssignmentLabel(s))}</span></td><td class="c-sign sign-space"></td></tr>`).join("")}</tbody>
+        <tbody>${p.students.map((s,i)=>`<tr><td class="c-num">${startIndex+i+1}</td><td class="c-mat">${esc(s.matricule||"")}</td><td class="c-name"><div class="student-name">${esc(s.name||"")}</div><div class="student-level">${esc(levelTitle(s))}</div></td><td class="c-sex">${esc(s.sex||"")}</td><td class="c-phone">${esc(s.phone||"—")}</td><td class="c-aff"><span class="aff-badge">${esc(studentAssignmentLabel(s))}</span></td><td class="c-sign sign-space"></td></tr>`).join("")}</tbody>
       </table>
-      <div class="page-foot"><div>Généré le ${esc(generatedAt)} • Les filières sont séparées page par page pour éviter tout mélange à l’impression.</div><div class="signatures"><div class="signature-box">Responsable pédagogique</div><div class="signature-box">Administration / Cachet</div></div></div>
+      <div class="page-foot"><div>Généré le ${esc(generatedAt)} • Niveau séparé : ${esc(section.title)} • Filière : ${esc(p.track)}</div><div class="signatures"><div class="signature-box">Responsable pédagogique</div><div class="signature-box">Administration / Cachet</div></div></div>
     </section>`;
   }).join("")}`;
   classListModal.classList.add("show");
