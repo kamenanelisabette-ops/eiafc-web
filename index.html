@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-09-29-v11-25-5-listes-filieres-completes">
+<meta name="eiafc-web-build" content="2026-10-19-v11-26-1-student-save-fix">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -3103,7 +3103,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.25.5";
+const APP_VERSION="11.26.1";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -3470,14 +3470,17 @@ async function nextUniqueAcademicId(type,label){
  for(let attempt=0;attempt<5;attempt++){
   let id="";
   try{id=await nextAcademicId(type,label)}catch(e){
-   console.error("EIAFC: génération numéro Cloud refusée",e);
-   alert(`Numéro EIAFC non généré : ${e?.message||e}\n\nAucune nouvelle fiche n'a été validée. Vérifiez la connexion et la synchronisation avant de continuer.`);
-   return ""
+   console.error("EIAFC: génération serveur refusée, bascule locale",e);
+   id=nextOfflineId(type,label);
+   setUnifiedStatus("Numérotation serveur indisponible — saisie conservée", "bad");
+   showToast(`<b>Numérotation serveur indisponible</b><br>La fiche sera conservée et synchronisée automatiquement.`);
   }
   if(id&&!academicIdExists(type,id))return id;
   console.warn("EIAFC: collision de numéro détectée, nouvelle génération",type,id);
  }
- alert("Impossible de générer un numéro EIAFC unique. Vérifiez la synchronisation avant de continuer.");
+ const fallback=nextOfflineId(type,label);
+ if(fallback&&!academicIdExists(type,fallback))return fallback;
+ alert("Impossible de générer un identifiant unique. Réessayez l'enregistrement.");
  return ""
 }
 function persist(){localStorage.setItem(KEY,JSON.stringify(db))}
@@ -5313,10 +5316,10 @@ studentForm.addEventListener("submit",async e=>{
  if(typeof window.eiafcConfirmStudentCloud==="function"){
   const confirmed=await window.eiafcConfirmStudentCloud(expectedStudent);
   if(!confirmed){
-   alert(`⚠️ ${edit?"MODIFICATION":"INSCRIPTION"} NON CONFIRMÉE DANS LE CLOUD.\n\nLa fiche reste sauvegardée sur ce poste et dans la file d'attente. Ne créez pas un autre dossier pour cet étudiant et ne fermez pas cette page. Utilisez « Réessayer maintenant » jusqu'à confirmation.`);
-   return
+   showToast(`<b>${edit?"Modification":"Étudiant enregistré"}</b><br>Le Cloud est momentanément indisponible. La synchronisation sera réessayée automatiquement.`);
+  }else{
+   showToast(`<b>${edit?"Modification":"Inscription"} confirmée dans le Cloud</b><br>${esc(expectedStudent?.name||"")} — ${esc(expectedStudent?.matricule||"")}`)
   }
-  showToast(`<b>${edit?"Modification":"Inscription"} confirmée dans le Cloud</b><br>${esc(expectedStudent?.name||"")} — ${esc(expectedStudent?.matricule||"")}`)
  }
  clearStudentForm()
 });
@@ -7652,7 +7655,7 @@ startApp();enforceExpenseBtsSinglePole();setInterval(()=>checkForAppUpdate(false
   const WEB_APIKEY='sb_publishable_gAPfLd6okuu42hvOwQp35Q_L87JA22Q';
   const WEB_WORKSPACE='EIAFC_V7';
   const WEB_TOKEN_KEY='eiafc_web_secure_session_v4';
-  const WEB_BUILD='2026-09-14-v11-20-bts2-markers-only';
+  const WEB_BUILD='2026-10-19-v11-26-1-student-save-fix';
 
   const WEB_PUBLIC_HOST=String(location.hostname||'').endsWith('.vercel.app');
   if(WEB_PUBLIC_HOST){
@@ -8379,11 +8382,30 @@ startApp();enforceExpenseBtsSinglePole();setInterval(()=>checkForAppUpdate(false
   window.cloudPush=cloudPush=securePush;
   window.cloudPull=cloudPull=securePull;
   window.syncNow=syncNow=async function(){const pushed=await securePush(),pulled=await securePull(false);if(pushed||pulled)showToast(`<b>Synchronisation Web terminée</b><br>${pendingChangesCount()?pendingChangesCount()+' élément(s) restent en attente.':'Toutes les données sont à jour.'}`)};
-  window.cloudNextId=cloudNextId=async function(type,label){const j=await webApi('next_id',{year:activeYear(),kind:type,label},webToken());return j.id};
+  window.cloudNextId=cloudNextId=async function(type,label){
+    const j=await webApi('next_id',{year:activeYear(),kind:type,label},webToken());
+    if(!j?.id)throw new Error('Le serveur EIAFC n’a pas renvoyé de numéro.');
+    return j.id
+  };
   window.nextAcademicId=nextAcademicId=async function(type,label){
     if(webToken()){
-      if(navigator.onLine===false)throw new Error('Connexion Internet requise pour créer un nouveau numéro EIAFC. La saisie reste sur le formulaire.');
-      return await cloudNextId(type,label)
+      if(navigator.onLine===false){
+        const id=nextOfflineId(type,label);
+        setUnifiedStatus("Hors réseau — numéro local temporaire","bad");
+        return id;
+      }
+      try{
+        return await cloudNextId(type,label)
+      }catch(err){
+        // Le serveur de génération du numéro peut être momentanément indisponible.
+        // Ne bloque plus l'inscription : on crée un identifiant local unique,
+        // qui sera envoyé au Cloud avec la fiche et pourra être régularisé ensuite.
+        console.error('Génération du numéro EIAFC Cloud échouée, bascule locale',err);
+        const id=nextOfflineId(type,label);
+        setUnifiedStatus("Serveur numéro indisponible — saisie locale","bad");
+        showToast(`<b>Serveur de numérotation indisponible</b><br>L’étudiant sera enregistré avec un numéro temporaire et resynchronisé automatiquement.`);
+        return id;
+      }
     }
     return nextOfflineId(type,label)
   };

@@ -1,5 +1,5 @@
 {
-  "version": "11.25.5",
-  "build": "2026-09-29-v11-25-5-listes-filieres-completes",
-  "notes": "Impression: niveaux separes par programme et listes completes par filiere avec numerotation continue 1 a N."
+  "version": "11.26.1",
+  "build": "2026-10-19-v11-26-1-student-save-fix",
+  "notes": "Correction : une panne du service de génération du numéro EIAFC ne bloque plus l'enregistrement d'un étudiant. Un identifiant local unique est créé si le serveur est indisponible, puis la fiche reste en attente de synchronisation."
 }
