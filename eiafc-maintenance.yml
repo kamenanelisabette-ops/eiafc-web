@@ -1,0 +1,92 @@
+name: EIAFC — Maintenance automatique
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: eiafc-maintenance
+  cancel-in-progress: true
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Vérifier production
+        id: monitor
+        run: node maintenance/monitor.mjs
+        env:
+          EIAFC_BASE_URL: https://eiafc-web.vercel.app
+
+      - name: Conserver le rapport
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eiafc-maintenance-report
+          path: maintenance/last-report.json
+          retention-days: 14
+
+      - name: Ouvrir/actualiser une alerte GitHub
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '🚨 EIAFC — incident de production détecté';
+            const body = [
+              'Le système de maintenance automatique a détecté un échec.',
+              '',
+              `Date : ${new Date().toISOString()}`,
+              'Voir le rapport dans les artefacts du workflow `EIAFC — Maintenance automatique`.',
+              '',
+              '⚠️ Aucune donnée étudiante n’est supprimée automatiquement et aucune correction de code n’est déployée automatiquement.'
+            ].join('\n');
+
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'maintenance'
+            });
+            const existing = issues.find(i => i.title === title);
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body
+              });
+            } else {
+              try {
+                await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title,
+                  body,
+                  labels: ['maintenance']
+                });
+              } catch (e) {
+                await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title,
+                  body
+                });
+              }
+            }
+
+      - name: Résumé
+        if: always()
+        run: |
+          echo "## 🛡️ EIAFC Maintenance" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Surveillance : toutes les 15 minutes" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Site + endpoint de santé vérifiés" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Rapport conservé pendant 14 jours" >> "$GITHUB_STEP_SUMMARY"
