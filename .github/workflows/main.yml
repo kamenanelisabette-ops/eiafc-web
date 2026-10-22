@@ -1,0 +1,27 @@
+
+name: EIAFC - Maintenance automatique
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  surveillance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Vérifier le site EIAFC
+        env:
+          EIAFC_URL: https://eiafc-web.vercel.app
+        run: |
+          CODE=$(curl -L -s -o /dev/null -w "%{http_code}" --max-time 20 "$EIAFC_URL")
+          echo "Code HTTP reçu : $CODE"
+          if [ "$CODE" -lt 200 ] || [ "$CODE" -ge 400 ]; then
+            echo "ERREUR : le site EIAFC ne répond pas correctement."
+            exit 1
+          fi
+          echo "Le site EIAFC répond."
