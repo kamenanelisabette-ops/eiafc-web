@@ -3803,6 +3803,7 @@ async function cloudRpc(name,args){
  const c=loadCloudConfig();if(!c)throw new Error("Cloud non configuré");
  const token=(()=>{try{return sessionStorage.getItem("eiafc_web_secure_session_v4")||""}catch(_e){return""}})();
  const secureActions={
+  eiafc_init_workspace:["init_workspace",{workspace:c.workspace}],
   eiafc_get_revision:["get_revision",{}],
   eiafc_get_state:["get_state",{}],
   eiafc_apply_patch:["apply_patch",{patch:args.p_patch||{},source:args.p_source||""}],
