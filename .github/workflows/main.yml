@@ -1,27 +1,57 @@
-
-name: EIAFC - Maintenance automatique
+name: EIAFC - Surveillance et contrôles de santé
 
 on:
   workflow_dispatch:
   schedule:
     - cron: "*/15 * * * *"
 
+# Least privilege: this workflow only reads the repository and checks services.
 permissions:
   contents: read
-  issues: write
 
 jobs:
   surveillance:
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     steps:
-      - name: Vérifier le site EIAFC
-        env:
-          EIAFC_URL: https://eiafc-web.vercel.app
+      - name: Vérifier les pages publiques
+        shell: bash
         run: |
-          CODE=$(curl -L -s -o /dev/null -w "%{http_code}" --max-time 20 "$EIAFC_URL")
-          echo "Code HTTP reçu : $CODE"
-          if [ "$CODE" -lt 200 ] || [ "$CODE" -ge 400 ]; then
-            echo "ERREUR : le site EIAFC ne répond pas correctement."
+          set -euo pipefail
+          for URL in "https://eiafc-web.vercel.app/" "https://eiafc-web.vercel.app/bilan"; do
+            echo "Vérification de $URL"
+            CODE="$(curl --location --silent --show-error --output /dev/null --write-out "%{http_code}" --max-time 20 --retry 2 --retry-delay 3 "$URL")"
+            echo "Code HTTP : $CODE"
+            if [[ ! "$CODE" =~ ^2[0-9][0-9]$ ]]; then
+              echo "::error::La page $URL a renvoyé HTTP $CODE"
+              exit 1
+            fi
+          done
+
+      - name: Vérifier la santé de l'API sécurisée
+        shell: bash
+        run: |
+          set -euo pipefail
+          RESPONSE="$(curl --silent --show-error --fail --max-time 20 --retry 2 --retry-delay 3 \
+            -X POST "https://opypgilifxnrwqmpsnzp.supabase.co/functions/v1/eiafc-secure-api" \
+            -H "Content-Type: application/json" \
+            --data '{"action":"health"}')"
+          echo "$RESPONSE" | grep -q '"ok":true' || {
+            echo "::error::L'API sécurisée n'a pas confirmé son état de santé."
             exit 1
-          fi
-          echo "Le site EIAFC répond."
+          }
+          echo "API sécurisée : OK"
+
+      - name: Vérifier le service de notifications
+        shell: bash
+        run: |
+          set -euo pipefail
+          RESPONSE="$(curl --silent --show-error --fail --max-time 20 --retry 2 --retry-delay 3 \
+            -X POST "https://opypgilifxnrwqmpsnzp.supabase.co/functions/v1/eiafc-notify" \
+            -H "Content-Type: application/json" \
+            --data '{"action":"health"}')"
+          echo "$RESPONSE" | grep -q '"ok":true' || {
+            echo "::error::Le service de notifications n'a pas confirmé son état de santé."
+            exit 1
+          }
+          echo "Notifications : OK"
