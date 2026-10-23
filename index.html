@@ -3799,7 +3799,34 @@ async function ensureSupabaseLoaded(){
 }
 async function makeCloudClientAsync(c){await ensureSupabaseLoaded();return window.supabase.createClient(c.url,c.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}
 function makeCloudClient(c){if(!window.supabase?.createClient)throw new Error("Module Cloud non chargé");return window.supabase.createClient(c.url,c.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}
-async function cloudRpc(name,args){if(!cloudClient){const c=loadCloudConfig();if(!c)throw new Error("Cloud non configuré");cloudClient=await makeCloudClientAsync(c)}const {data,error}=await cloudClient.rpc(name,args);if(error)throw error;return data}
+async function cloudRpc(name,args){
+ const c=loadCloudConfig();if(!c)throw new Error("Cloud non configuré");
+ const token=(()=>{try{return sessionStorage.getItem("eiafc_web_secure_session_v4")||""}catch(_e){return""}})();
+ const secureActions={
+  eiafc_get_revision:["get_revision",{}],
+  eiafc_get_state:["get_state",{}],
+  eiafc_apply_patch:["apply_patch",{patch:args.p_patch||{},source:args.p_source||""}],
+  eiafc_next_id:["next_id",{year:args.p_year||"",kind:args.p_kind||"",label:args.p_label||"EIAFC"}],
+  eiafc_heartbeat:["heartbeat",{deviceId:args.p_device_id||"",deviceName:args.p_device_name||"",schoolId:args.p_school_id||"",appVersion:args.p_app_version||"",mode:args.p_mode||"",userAgent:args.p_user_agent||""}],
+  eiafc_list_devices:["list_devices",{}],
+  eiafc_list_backups:["list_backups",{}],
+  eiafc_restore_backup:["restore_backup",{backupId:Number(args.p_backup_id),source:args.p_source||"Restauration Fondateur"}],
+  eiafc_replace_state:["replace_state",{state:args.p_state,source:args.p_source||"Remplacement Fondateur"}]
+ };
+ if(token&&secureActions[name]){
+  const [action,payload]=secureActions[name];
+  const r=await fetch("https://opypgilifxnrwqmpsnzp.supabase.co/functions/v1/eiafc-secure-api",{method:"POST",headers:{"Content-Type":"application/json","apikey":c.key||"","x-eiafc-session":token},body:JSON.stringify({action,...payload}),cache:"no-store"});
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok||data?.ok===false)throw new Error(data?.error||("API EIAFC sécurisée indisponible ("+r.status+")"));
+  if(name==="eiafc_get_revision")return data.revision;
+  if(name==="eiafc_next_id")return data.id;
+  if(name==="eiafc_list_devices"||name==="eiafc_list_backups")return data.rows||[];
+  if(name==="eiafc_heartbeat")return true;
+  return data;
+ }
+ if(!cloudClient)cloudClient=await makeCloudClientAsync(c);
+ const {data,error}=await cloudClient.rpc(name,args);if(error)throw error;return data
+}
 const EIAFC_DOCUMENTS_URL="https://opypgilifxnrwqmpsnzp.supabase.co/functions/v1/eiafc-documents";
 const STUDENT_DOC_KINDS={birth:"Extrait / acte de naissance",id:"Pièce d’identité",diploma:"Diplôme / relevé",photos:"Photos d’identité",other:"Autre document"};
 function studentDigitalFiles(s){return Array.isArray(s?.digitalDocs)?s.digitalDocs.filter(x=>x&&x.path&&x.deleted!==true):[]}
