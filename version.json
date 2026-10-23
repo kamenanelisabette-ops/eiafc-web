@@ -1,5 +1,5 @@
 {
-  "version": "11.26.2",
-  "build": "2026-10-23-v11-26-2-security-maintenance",
-  "notes": "Renforcement des actions d’administration, correction du chargement de la version publique, et surveillance automatique des services EIAFC."
+  "version": "11.26.3",
+  "build": "2026-10-23-v11-26-3-premium-ui-performance",
+  "notes": "Refonte visuelle appliquée à l’interface principale, tableau de bord responsive, graphiques stylisés et ajustements d’affichage pour mobile et écrans larges."
 }
