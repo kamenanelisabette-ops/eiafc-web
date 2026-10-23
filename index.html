@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-10-23-v11-26-4-polling-performance-audit">
+<meta name="eiafc-web-build" content="2026-10-23-v11-26-5-maintenance-monitor">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -3175,7 +3175,7 @@ tbody tr:hover{background:#f8fbff}
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.26.4";
+const APP_VERSION="11.26.5";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -4974,6 +4974,15 @@ function maintenanceHealthChecks(){
  const low=inventoryAllItems().filter(x=>x.active!==false&&!x.autoStudentSupply&&inventoryStock(x.id)<=Number(x.minStock||0)).length;if(low)issues.push(`${low} article(s) à réapprovisionner`);
  return issues
 }
+let eiafcMaintenanceLastRun=0;
+function runEiafcMaintenanceMonitor(){
+ if(!currentUser||!isOwner()||document.hidden||Date.now()-eiafcMaintenanceLastRun<15*60*1000)return;
+ eiafcMaintenanceLastRun=Date.now();
+ try{
+  const issues=maintenanceHealthChecks();
+  if(issues.length&&typeof showToast==="function")showToast("<b>Contrôle automatique de maintenance</b><br>"+issues.map(x=>String(x)).join("<br>"));
+ }catch(e){console.warn("Contrôle automatique de maintenance",e)}
+}
 function refreshAll(){
  try{updatePremiumContext();renderHomeModuleBlocks();setTimeout(decoratePremiumKpis,0)}catch(_e){}
  refreshSchoolSelectors();refreshYearSelector();yearBadge.textContent="Année "+activeYear();renderRoleDashboardHeader();const sch=activeSchool();schoolSubtitle.textContent=schoolLabel(sch)+" — accès "+roleName();
@@ -4984,7 +4993,7 @@ function refreshAll(){
  if(can("attendance"))renderAttendance();if(can("academic"))renderAcademic();if(can("timetable"))renderTimetable();if(can("discipline"))renderDiscipline();if(can("purchases"))renderPurchases();if(can("inventory"))renderInventory();if(can("staff")){renderStaff();renderStaffAttendance();renderStaffLoans();renderPayroll()}
  if(can("payments")){updateStudentSelect();renderPayments()}if(can("schedule")){renderSchedule();renderReminderCenter();}if(can("other"))renderOther();if(can("expenses"))renderExpenses();if(can("cash")){renderCash();renderTransfers()}if(can("closing")){renderClosings();updateClosingPreview();if(isOwner()){renderEndDayDepositControl();renderFounderCashReceipts()}showClosingArea(window.eiafcClosingArea||"close")}if(can("journal"))renderJournal();if(can("accounting")){updateAccountingTrackOptions();renderAccounting()}if(can("reconciliation"))renderReconciliation();if(can("reports")){updateReportAssignmentControls();updateAnnualAssignmentControls();renderReports();renderAnnualBalance()}if(can("direction"))renderDirectionNetwork();if(can("audit"))renderAudit();
  if(isOwner()){renderUsers();renderSchools();loadSettings();loadNotificationSettings();renderTrackCatalog();payrollSettingsLoad();renderDataQuality();populateRemoteKeySchools();populateCopyAppSchools();renderBackupTimeline()}else{if(usersTable)usersTable.innerHTML="";if(schoolsTable)schoolsTable.innerHTML="";if(trackCatalogTable)trackCatalogTable.innerHTML="";if(dataQualityBox)dataQualityBox.innerHTML=""}
- updateOfflineQueueUI();forceAllowedView();if(currentUser){if(payAgent)payAgent.value=currentUserLabel();if(otherAgent)otherAgent.value=currentUserLabel();if(expAgent)expAgent.value=currentUserLabel();if(closingAgent)closingAgent.value=currentUserLabel();if(attendanceAgent)attendanceAgent.value=currentUserLabel()}
+ updateOfflineQueueUI();if(isOwner())runEiafcMaintenanceMonitor();forceAllowedView();if(currentUser){if(payAgent)payAgent.value=currentUserLabel();if(otherAgent)otherAgent.value=currentUserLabel();if(expAgent)expAgent.value=currentUserLabel();if(closingAgent)closingAgent.value=currentUserLabel();if(attendanceAgent)attendanceAgent.value=currentUserLabel()}
 }
 function treasuryChannel(mode){if(mode==="Chèque"||mode==="Autre")return "Banque";return mode}
 function balances(){
@@ -7746,7 +7755,8 @@ function enforceExpenseBtsSinglePole(){
  const f=document.getElementById("expProgramFilter");
  if(f){const cur=String(f.value||"");f.innerHTML='<option value="">Tous les pôles</option><option value="BTS">BTS (1 + 2) — pôle unique</option><option>Formation qualifiante</option><option>Licence</option><option>Master</option><option>Administration générale</option>';f.value=(cur==="BTS 1"||cur==="BTS 2"||cur==="BTS à classer"||cur==="BTS")?"BTS":cur;}
 }
-startApp();enforceExpenseBtsSinglePole();setInterval(()=>checkForAppUpdate(false),5*60*1000);window.addEventListener("focus",()=>{enforceExpenseBtsSinglePole();checkForAppUpdate(true)});window.addEventListener("online",()=>checkForAppUpdate(true));
+startApp();enforceExpenseBtsSinglePole();setInterval(()=>checkForAppUpdate(false),5*60*1000);
+setInterval(()=>runEiafcMaintenanceMonitor(),15*60*1000);window.addEventListener("focus",()=>{enforceExpenseBtsSinglePole();checkForAppUpdate(true)});window.addEventListener("online",()=>checkForAppUpdate(true));
 </script>
 
 <script id="eiafc-web-secure-patch">
