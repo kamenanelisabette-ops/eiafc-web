@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-10-23-v11-26-3-premium-ui-performance">
+<meta name="eiafc-web-build" content="2026-10-23-v11-26-4-polling-performance-audit">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -3175,7 +3175,7 @@ tbody tr:hover{background:#f8fbff}
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.26.3";
+const APP_VERSION="11.26.4";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
@@ -3213,8 +3213,8 @@ const TRANSFER_KIND="EIAFC_V7_POSTE_TRANSFER_V1";
 const V72_KEY="eiafc_v720_reseau_simple";
 const OFFLINE_COUNTER_KEY="eiafc_v810_offline_counters";
 const INSTALL_MARKER_KEY="eiafc_v810_install_marker";
-const CLOUD_POLL_MS=15000;
-const LAN_POLL_MS=5000;
+const CLOUD_POLL_MS=30000;
+const LAN_POLL_MS=10000;
 const moneyFmt=new Intl.NumberFormat('fr-FR',{maximumFractionDigits:0});
 const fmt=n=>moneyFmt.format(Number(n||0))+" FCFA";
 const today=()=>new Date().toISOString().slice(0,10);
@@ -3628,7 +3628,7 @@ async function lanRequest(path,payload={},timeout=4500){const c=loadLanConfig();
 async function connectLanCore(c,interactive=false){if(lanConnecting)return false;if(!c?.url||!c?.workspace||!c?.secret)return interactive&&alert("Renseignez l'adresse du serveur local, l'espace EIAFC et le mot de passe LAN."),false;if(c.secret.length<8)return interactive&&alert("Le mot de passe LAN doit contenir au moins 8 caractères."),false;lanConnecting=true;saveLanConfig(c);setLanStatus("Connexion LAN…","warn");try{const pending=loadPendingPatch(),oldLocal=deepClone(db),data=await lanRequest("/api/init",{state:db,source:`${currentUserLabel()} — ${c.device}`},6000),rawRemote=data?.state||db;if(data?.created!==true&&!isV7Database(rawRemote))throw new Error("Cet espace LAN contient une ancienne base non-V7. Utilisez l’espace EIAFC_V7.");const remote=normalizeDB(rawRemote);lanRevision=Number(data?.revision||0);lanBase=deepClone(remote);db=patchHasChanges(pending)?applyCloudPatchJS(remote,pending):remote;persist();lanConnected=true;cloudConnected=false;localSessionBase=deepClone(db);setLanStatus(patchHasChanges(pending)?"LAN connecté — envoi local":"LAN synchronisé","ok");const ll=document.getElementById("lanLastSync");if(ll)ll.textContent=`Dernière connexion LAN : ${new Date().toLocaleString("fr-FR")} — révision ${lanRevision}`;startLanPolling();refreshAll();notifyBossChanges(oldLocal,db);if(patchHasChanges(pending))await lanPush();if(interactive)alert("Poste connecté au réseau local EIAFC. Vous pouvez travailler même sans Internet.");return true}catch(e){console.error(e);lanConnected=false;setLanStatus("Serveur LAN inaccessible","bad");if(interactive)alert("Connexion au serveur local impossible. Vérifiez que le serveur EIAFC est démarré et que ce poste est sur le même réseau.\n\n"+(e?.message||e));return false}finally{lanConnecting=false}}
 async function connectLanFromSettings(){if(!requireOwner("la configuration du réseau local"))return;const c=lanConfigFromFields("settings");await connectLanCore(c,true)}
 async function connectLanFromLogin(){const c=lanConfigFromFields("login");const ok=await connectLanCore(c,true);if(ok)authInit()}
-function startLanPolling(){if(lanTimer)clearInterval(lanTimer);lanTimer=setInterval(()=>lanPull(false),LAN_POLL_MS)}
+function startLanPolling(){if(lanTimer)clearInterval(lanTimer);lanTimer=setInterval(()=>{if(!document.hidden)lanPull(false)},LAN_POLL_MS)}
 async function lanPull(interactive=false){if(!lanConfigured())return false;if(lanConnecting)return false;try{const rev=await lanRequest("/api/revision",{},2500),n=Number(rev?.revision||0),pending=loadPendingPatch();if(n<=lanRevision){lanConnected=true;if(patchHasChanges(pending))await lanPush();else setLanStatus("LAN synchronisé","ok");return true}const data=await lanRequest("/api/state",{},5000),old=deepClone(db),remote=normalizeDB(data?.state||db);lanRevision=Number(data?.revision||n);lanBase=deepClone(remote);db=patchHasChanges(pending)?applyCloudPatchJS(remote,pending):remote;persist();if(currentUser){const fresh=db.users.find(u=>u.username===currentUser.username);if(!fresh||fresh.active===false){alert("Votre compte a été désactivé.");logout();return true}currentUser=fresh}lanConnected=true;setLanStatus(patchHasChanges(pending)?"LAN reçu — envoi local":"LAN synchronisé","ok");const ll=document.getElementById("lanLastSync");if(ll)ll.textContent=`Données LAN reçues : ${new Date().toLocaleString("fr-FR")} — révision ${lanRevision}`;refreshAll();notifyBossChanges(old,db);if(patchHasChanges(pending))await lanPush();else localSessionBase=deepClone(db);return true}catch(e){lanConnected=false;if(interactive)alert("Serveur LAN inaccessible : "+(e?.message||e));setLanStatus("LAN indisponible — recherche Cloud","bad");if(cloudConfigured()&&navigator.onLine!==false){const cok=cloudConnected||await connectCloudCore(loadCloudConfig(),false);if(cok){await cloudPush();await cloudPull(false)}}return false}}
 function queueLanPush(){lanPushChain=lanPushChain.then(()=>lanPush()).catch(e=>{console.error(e);lanConnected=false;setLanStatus("LAN indisponible","bad")})}
 async function lanPush(){if(!lanConfigured())return false;try{const snapshot=deepClone(db),base=lanBase;if(!base){const ok=await connectLanCore(loadLanConfig(),false);return ok}const patch=mergeCloudPatches(loadPendingPatch(),buildCloudPatch(base,snapshot));if(!patchHasChanges(patch)){localStorage.removeItem(OFFLINE_PATCH_KEY);lanConnected=true;setLanStatus("LAN synchronisé","ok");updateOfflineQueueUI();return true}const data=await lanRequest("/api/patch",{patch,source:`${currentUserLabel()} — ${deviceName()}`},6500),remote=normalizeDB(data?.state||snapshot),afterPatch=buildCloudPatch(snapshot,db);lanRevision=Number(data?.revision||lanRevision);lanBase=deepClone(remote);db=patchHasChanges(afterPatch)?applyCloudPatchJS(remote,afterPatch):remote;persist();localStorage.removeItem(OFFLINE_PATCH_KEY);localSessionBase=deepClone(db);if(patchHasChanges(afterPatch))savePendingPatch(buildCloudPatch(remote,db));lanConnected=true;setLanStatus(patchHasChanges(afterPatch)?"LAN synchronisation partielle":"LAN synchronisé","ok");const ll=document.getElementById("lanLastSync");if(ll)ll.textContent=`Dernier envoi LAN : ${new Date().toLocaleString("fr-FR")} — révision ${lanRevision}`;refreshAll();if(patchHasChanges(afterPatch))queueLanPush();return true}catch(e){console.error(e);lanConnected=false;capturePendingPatch();setLanStatus("LAN indisponible","bad");return false}}
@@ -3782,7 +3782,7 @@ async function primaryLanCloudBridge(){
 function startPrimaryBridge(){
  if(primaryBridgeTimer)clearInterval(primaryBridgeTimer);
  if(isBridgePrincipal()&&cloudConfigured()){
-  primaryBridgeTimer=setInterval(()=>primaryLanCloudBridge(),30000);
+  primaryBridgeTimer=setInterval(()=>{if(!document.hidden)primaryLanCloudBridge()},60000);
   setTimeout(()=>primaryLanCloudBridge(),1500)
  }
 }
@@ -3923,7 +3923,7 @@ async function connectCloudCore(c,interactive=false){
 async function connectCloudFromSettings(){if(!requireOwner("la configuration Cloud"))return;const c=cloudConfigFromFields("settings");saveCloudConfig(c);const ok=await connectCloudCore(c,true);if(ok)startPrimaryBridge()}
 async function connectCloudFromLogin(){const c=cloudConfigFromFields("login");saveCloudConfig(c);const ok=await connectCloudCore(c,true);if(ok)authInit()}
 async function cloudBoot(){populateCloudFields();const c=loadCloudConfig();if(c)await connectCloudCore(c,false);else updateOfflineQueueUI()}
-function startCloudPolling(){if(cloudTimer)clearInterval(cloudTimer);cloudTimer=setInterval(()=>{if(navigator.onLine!==false)cloudPull(false)},CLOUD_POLL_MS)}
+function startCloudPolling(){if(cloudTimer)clearInterval(cloudTimer);cloudTimer=setInterval(()=>{if(!document.hidden&&navigator.onLine!==false)cloudPull(false)},CLOUD_POLL_MS)}
 async function cloudPull(interactive=false){
  if(!cloudConfigured())return interactive&&alert("EIAFC Cloud n'est pas configuré."),false;if(cloudConnecting)return false;if(navigator.onLine===false){cloudConnected=false;setCloudStatus("Hors connexion","bad");return false}
  try{
@@ -8332,7 +8332,7 @@ startApp();enforceExpenseBtsSinglePole();setInterval(()=>checkForAppUpdate(false
   }
   function startWebPolling(){
     if(webTimer)clearInterval(webTimer);
-    webTimer=setInterval(()=>{if(!document.hidden)securePull(false)},30000);
+    webTimer=setInterval(()=>{if(!document.hidden)securePull(false)},45000);
     if(!window.__EIAFC_VISIBILITY_SYNC_BOUND__){
       window.__EIAFC_VISIBILITY_SYNC_BOUND__=true;
       document.addEventListener("visibilitychange",()=>{if(!document.hidden&&currentUser&&webToken())securePull(false)});
@@ -9377,7 +9377,7 @@ table{border-color:#e4eaf1}th{background:#f4f7fb;color:#4b5d72;font-size:11px;le
   }
   function updateAccess(){const nav=document.getElementById(NAV_ID);if(nav)nav.style.display=canSee()?'':'none'}
 
-  injectStyle();injectUI();setInterval(()=>{if(!document.hidden)updateAccess()},15000);
+  injectStyle();injectUI();setInterval(()=>{if(!document.hidden)updateAccess()},60000);
   window.eiafcRenderDetailedReports=render;window.eiafcPrintDetailedReports=printReport;window.eiafcExportDetailedReportsCSV=exportCSV;
 })();
 
