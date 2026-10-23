@@ -6,16 +6,15 @@ on:
   schedule:
     - cron: "*/15 * * * *"
 
-# Least privilege: this workflow only reads the repository and checks services.
 permissions:
   contents: read
 
 jobs:
   surveillance:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
     steps:
-      - name: Vérifier les pages publiques
+      - name: Vérifier les pages publiques et la version
         shell: bash
         run: |
           set -euo pipefail
@@ -28,31 +27,36 @@ jobs:
               exit 1
             fi
           done
+          curl --silent --show-error --fail --max-time 20 "https://eiafc-web.vercel.app/version.json" -o /tmp/eiafc-version.json
+          EXPECTED="$(jq -r '.version // empty' /tmp/eiafc-version.json)"
+          [[ -n "$EXPECTED" ]] || { echo "::error::version.json invalide"; exit 1; }
+          echo "Version publique attendue : $EXPECTED"
+          curl --silent --show-error --fail --max-time 30 "https://opypgilifxnrwqmpsnzp.supabase.co/functions/v1/eiafc-app" -o /tmp/eiafc-release.json
+          RELEASE="$(jq -r '.version // empty' /tmp/eiafc-release.json)"
+          [[ "$RELEASE" == "$EXPECTED" ]] || {
+            echo "::error::Version d'installation ($RELEASE) différente de version.json ($EXPECTED)"
+            exit 1
+          }
+          echo "Version d'installation : $RELEASE"
 
-      - name: Vérifier la santé de l'API sécurisée
+      - name: Vérifier l'API sécurisée
         shell: bash
         run: |
           set -euo pipefail
-          RESPONSE="$(curl --silent --show-error --fail --max-time 20 --retry 2 --retry-delay 3 \
+          curl --silent --show-error --fail --max-time 20 \
             -X POST "https://opypgilifxnrwqmpsnzp.supabase.co/functions/v1/eiafc-secure-api" \
-            -H "Content-Type: application/json" \
-            --data '{"action":"health"}')"
-          echo "$RESPONSE" | grep -q '"ok":true' || {
-            echo "::error::L'API sécurisée n'a pas confirmé son état de santé."
-            exit 1
-          }
+            -H "Content-Type: application/json" --data '{"action":"health"}' \
+            -o /tmp/eiafc-secure-health.json
+          jq -e '.ok == true and .service == "EIAFC Secure API"' /tmp/eiafc-secure-health.json >/dev/null
           echo "API sécurisée : OK"
 
       - name: Vérifier le service de notifications
         shell: bash
         run: |
           set -euo pipefail
-          RESPONSE="$(curl --silent --show-error --fail --max-time 20 --retry 2 --retry-delay 3 \
+          curl --silent --show-error --fail --max-time 20 \
             -X POST "https://opypgilifxnrwqmpsnzp.supabase.co/functions/v1/eiafc-notify" \
-            -H "Content-Type: application/json" \
-            --data '{"action":"health"}')"
-          echo "$RESPONSE" | grep -q '"ok":true' || {
-            echo "::error::Le service de notifications n'a pas confirmé son état de santé."
-            exit 1
-          }
-          echo "Notifications : OK"
+            -H "Content-Type: application/json" --data '{"action":"health"}' \
+            -o /tmp/eiafc-notify-health.json
+          jq -e '.ok == true' /tmp/eiafc-notify-health.json >/dev/null
+          echo "Service de notifications : OK"
