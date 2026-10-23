@@ -1,5 +1,5 @@
 {
-  "version": "11.26.1",
-  "build": "2026-10-19-v11-26-1-student-save-fix",
-  "notes": "Correction : une panne du service de génération du numéro EIAFC ne bloque plus l'enregistrement d'un étudiant. Un identifiant local unique est créé si le serveur est indisponible, puis la fiche reste en attente de synchronisation."
+  "version": "11.26.2",
+  "build": "2026-10-23-v11-26-2-security-maintenance",
+  "notes": "Renforcement des actions d’administration, correction du chargement de la version publique, et surveillance automatique des services EIAFC."
 }
