@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="EIAFC Gestion Cloud — plateforme sécurisée de gestion scolaire, comptable, financière, RH, caisse, stock, inventaire, paiements et rapports de la Grande école privée EIAFC.">
 <meta name="application-name" content="EIAFC Gestion Cloud">
-<meta name="eiafc-web-build" content="2026-10-23-v11-26-2-security-maintenance">
+<meta name="eiafc-web-build" content="2026-10-23-v11-26-3-premium-ui-performance">
 <meta name="author" content="Grande école privée EIAFC">
 <meta property="og:title" content="EIAFC Gestion Cloud">
 <meta property="og:description" content="Pilotage scolaire, comptable, financier, RH, caisse, stock et inventaire — multi-postes Cloud.">
@@ -991,6 +991,75 @@ body[data-role-theme="secretariat"] .production-hero{
 .production-hero{box-shadow:0 12px 32px rgba(18,48,74,.10)}
 @media(max-width:900px){.enrollment-split{grid-template-columns:1fr}.enrollment-kpis{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.enrollment-kpis{grid-template-columns:1fr}.login-card>h1{font-size:32px}.topbar{align-items:flex-start}}
+
+
+/* EIAFC Gestion Cloud — refonte réellement appliquée à l’interface principale */
+:root{--navy:#102b43;--navy2:#081b2b;--gold:#e2b342;--bg:#f2f5fa;--card:#fff;--muted:#65758b;--line:#dfe7f0;--green:#13815d;--red:#c43d3d;--amber:#a66b00;--blue:#3478f6;--shadow:0 7px 24px rgba(16,43,67,.065)}
+html{scroll-behavior:auto}
+body{background:linear-gradient(180deg,#f7f9fc 0,#f1f5fa 360px,#f3f6fa 100%);color:#182b40;letter-spacing:-.012em}
+button,input,select,textarea{font:inherit}
+.app{grid-template-columns:258px minmax(0,1fr)}
+.sidebar{background:linear-gradient(160deg,#091d30 0%,#103653 62%,#164766 100%);padding:18px 13px;box-shadow:5px 0 24px rgba(10,31,51,.08)}
+.brand{padding:12px 12px 20px}
+.brand h1{font-size:22px;letter-spacing:.035em}
+.nav-btn{border-radius:11px;margin:3px 0;padding:10px 12px;transition:background-color .14s ease,color .14s ease}
+.nav-btn:hover{background:rgba(255,255,255,.09)}
+.nav-btn.active{background:linear-gradient(100deg,rgba(226,179,66,.2),rgba(255,255,255,.075));box-shadow:inset 3px 0 0 var(--gold)}
+.main{padding:clamp(15px,2.1vw,30px);min-width:0}
+.topbar{gap:14px;flex-wrap:wrap;margin-bottom:22px}
+.topbar h2{font-size:clamp(22px,2vw,30px);font-weight:800;letter-spacing:-.035em;color:#102e49}
+.card{border:1px solid #e0e8f1;border-radius:17px;box-shadow:var(--shadow);padding:clamp(14px,1.5vw,21px)}
+.kpis{gap:13px}
+.kpi{position:relative;overflow:hidden;min-height:108px;padding:17px;border-radius:15px;background:linear-gradient(145deg,#fff,#fbfdff);border:1px solid #e3eaf2}
+.kpi:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#3478f6,#8ab9ff)}
+.kpi:nth-child(4n+2):before{background:linear-gradient(90deg,#d7a32d,#f1d58c)}
+.kpi:nth-child(4n+3):before{background:linear-gradient(90deg,#13815d,#83d9b8)}
+.kpi:nth-child(4n+4):before{background:linear-gradient(90deg,#8668d8,#c5b5fa)}
+.kpi .label{font-size:10px;letter-spacing:.075em;color:#718198;line-height:1.5}
+.kpi .value{font-size:clamp(22px,2vw,30px);letter-spacing:-.04em;margin-top:8px;color:#132f49}
+.kpi .sub{font-size:11px;margin-top:6px;color:#77869a}
+.section-title{margin:8px 0 14px}
+.section-title h3{font-size:16px;font-weight:800;letter-spacing:-.02em}
+.dashboard-section-label{margin:25px 2px 12px;color:#63758b;font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.dashboard-section-label:after{content:"";height:1px;background:linear-gradient(90deg,#dce5ee,transparent);flex:1}
+input,select,textarea{border-radius:10px!important;border-color:#d7e1ec!important}
+input:focus,select:focus,textarea:focus{border-color:#7ca9f5!important;box-shadow:0 0 0 3px rgba(52,120,246,.12)!important;outline:none}
+.btn{border-radius:10px;transition:background-color .14s ease,box-shadow .14s ease}
+.btn:hover{box-shadow:0 3px 10px rgba(18,48,74,.1)}
+.btn-primary{background:linear-gradient(135deg,#183e60,#102b44)}
+table{border-color:#e4eaf1}
+th{background:#f4f7fb;color:#4b5d72;font-size:10px;letter-spacing:.045em;text-transform:uppercase}
+td,th{padding:10px 11px;border-bottom:1px solid #edf1f5}
+tbody tr:hover{background:#f8fbff}
+.table-wrap{border-radius:12px;border-color:#e1e8f0}
+.production-hero{position:relative;overflow:hidden;border-radius:22px;padding:clamp(21px,3vw,34px);margin-bottom:18px;background:radial-gradient(circle at 90% 15%,rgba(226,179,66,.22),transparent 25%),linear-gradient(120deg,#0b2034,#123b5b 65%,#1a5271);box-shadow:0 14px 34px rgba(10,34,55,.13);color:#fff}
+.production-hero h2{font-size:clamp(25px,3vw,38px);line-height:1.15;letter-spacing:-.04em;max-width:760px}
+.production-hero p{color:#d3e0eb;max-width:750px;line-height:1.65}
+.prod-eyebrow{font-size:10px;letter-spacing:.16em;color:#f1cf79;font-weight:900}
+.prod-hero-badge{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:12px 15px}
+.premium-context-strip{gap:11px;margin:15px 0 19px}
+.premium-context-card{border-radius:14px;border:1px solid #e0e8f1;background:#fff;box-shadow:0 4px 14px rgba(19,42,68,.035);padding:14px}
+.context-icon{border-radius:12px;background:#eef4fb}
+.home-command-strip{border:1px solid #dce6f0;border-radius:16px;padding:13px;background:linear-gradient(135deg,#fff,#f7faff);gap:9px}
+.home-command-btn{border:1px solid #e0e8f1!important;border-radius:12px!important;background:#fff!important;padding:13px!important;box-shadow:0 2px 9px rgba(18,48,74,.035)}
+.home-command-btn:hover{border-color:#c7d8ed!important;background:#f7faff!important}
+.dashboard-fold{border:1px solid #e1e8f0;border-radius:15px;background:#fff;box-shadow:var(--shadow);overflow:hidden}
+.dashboard-fold>summary{padding:16px 18px;font-weight:800;color:#24425f;cursor:pointer;background:linear-gradient(90deg,#fff,#f7faff)}
+.dashboard-fold[open]>summary{border-bottom:1px solid #e5ebf2}
+.dashboard-fold-body{padding:15px}
+#eiafcVisualAnalytics{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,1fr);gap:15px;margin:0 0 22px}
+.eiafc-chart-card{min-width:0;background:linear-gradient(145deg,#fff,#fbfdff);border:1px solid #e0e8f1;border-radius:17px;padding:19px;box-shadow:0 6px 20px rgba(19,42,68,.045)}
+.eiafc-chart-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:13px}
+.eiafc-chart-head h3{font-size:15px;margin:0;color:#16334f;font-weight:850}
+.eiafc-chart-head p{font-size:12px;line-height:1.5;color:#7b8ba0;margin:5px 0 0}
+.eiafc-chart-chip{white-space:nowrap;border-radius:999px;padding:6px 9px;background:#edf5ff;color:#2d65ae;font-size:10px;font-weight:850}
+.eiafc-chart-svg{display:block;width:100%;height:auto;overflow:visible}
+.eiafc-chart-legend{display:flex;flex-wrap:wrap;gap:8px 12px;margin-top:10px;color:#607187;font-size:11px}
+.eiafc-chart-empty{display:grid;place-items:center;min-height:130px;color:#8290a2;font-size:12px;text-align:center;border:1px dashed #dbe4ee;border-radius:11px;padding:16px}
+.eiafc-chart-foot{margin-top:10px;color:#8794a5;font-size:10px;line-height:1.5}
+@media(max-width:1180px){.app{grid-template-columns:225px minmax(0,1fr)}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}#eiafcVisualAnalytics{grid-template-columns:1fr}}
+@media(max-width:760px){.app{display:block}.sidebar{position:relative;height:auto;max-height:none;padding:11px}.main{padding:13px}.topbar{align-items:flex-start}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.kpi{padding:13px;min-height:96px}.kpi .value{font-size:21px}.production-hero{border-radius:17px;padding:20px}.premium-context-strip{grid-template-columns:1fr!important}.home-command-strip{grid-template-columns:1fr!important}.eiafc-chart-card{padding:14px}.table-wrap{max-width:100%;overflow:auto}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
 </style>
 
@@ -3106,7 +3175,7 @@ body[data-role-theme="secretariat"] .production-hero{
 
 <div class="toast-stack" id="toastStack"></div>
 <script>
-const APP_VERSION="11.26.2";
+const APP_VERSION="11.26.3";
 const APP_SCHEMA_LABEL="EIAFC_DATA_V7";
 const KEY="eiafc_v810_code_unique";
 
