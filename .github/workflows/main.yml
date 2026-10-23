@@ -1,27 +1,62 @@
-
-name: EIAFC - Maintenance automatique
+name: EIAFC - Surveillance et contrôles de santé
 
 on:
+  push:
   workflow_dispatch:
   schedule:
     - cron: "*/15 * * * *"
 
 permissions:
   contents: read
-  issues: write
 
 jobs:
   surveillance:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: Vérifier le site EIAFC
-        env:
-          EIAFC_URL: https://eiafc-web.vercel.app
+      - name: Vérifier les pages publiques et la version
+        shell: bash
         run: |
-          CODE=$(curl -L -s -o /dev/null -w "%{http_code}" --max-time 20 "$EIAFC_URL")
-          echo "Code HTTP reçu : $CODE"
-          if [ "$CODE" -lt 200 ] || [ "$CODE" -ge 400 ]; then
-            echo "ERREUR : le site EIAFC ne répond pas correctement."
+          set -euo pipefail
+          for URL in "https://eiafc-web.vercel.app/" "https://eiafc-web.vercel.app/bilan"; do
+            echo "Vérification de $URL"
+            CODE="$(curl --location --silent --show-error --output /dev/null --write-out "%{http_code}" --max-time 20 --retry 2 --retry-delay 3 "$URL")"
+            echo "Code HTTP : $CODE"
+            if [[ ! "$CODE" =~ ^2[0-9][0-9]$ ]]; then
+              echo "::error::La page $URL a renvoyé HTTP $CODE"
+              exit 1
+            fi
+          done
+          curl --silent --show-error --fail --max-time 20 "https://eiafc-web.vercel.app/version.json" -o /tmp/eiafc-version.json
+          EXPECTED="$(jq -r '.version // empty' /tmp/eiafc-version.json)"
+          [[ -n "$EXPECTED" ]] || { echo "::error::version.json invalide"; exit 1; }
+          echo "Version publique attendue : $EXPECTED"
+          curl --silent --show-error --fail --max-time 30 "https://opypgilifxnrwqmpsnzp.supabase.co/functions/v1/eiafc-app" -o /tmp/eiafc-release.json
+          RELEASE="$(jq -r '.version // empty' /tmp/eiafc-release.json)"
+          [[ "$RELEASE" == "$EXPECTED" ]] || {
+            echo "::error::Version d'installation ($RELEASE) différente de version.json ($EXPECTED)"
             exit 1
-          fi
-          echo "Le site EIAFC répond."
+          }
+          echo "Version d'installation : $RELEASE"
+
+      - name: Vérifier l'API sécurisée
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --silent --show-error --fail --max-time 20 \
+            -X POST "https://opypgilifxnrwqmpsnzp.supabase.co/functions/v1/eiafc-secure-api" \
+            -H "Content-Type: application/json" --data '{"action":"health"}' \
+            -o /tmp/eiafc-secure-health.json
+          jq -e '.ok == true and .service == "EIAFC Secure API"' /tmp/eiafc-secure-health.json >/dev/null
+          echo "API sécurisée : OK"
+
+      - name: Vérifier le service de notifications
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --silent --show-error --fail --max-time 20 \
+            -X POST "https://opypgilifxnrwqmpsnzp.supabase.co/functions/v1/eiafc-notify" \
+            -H "Content-Type: application/json" --data '{"action":"health"}' \
+            -o /tmp/eiafc-notify-health.json
+          jq -e '.ok == true' /tmp/eiafc-notify-health.json >/dev/null
+          echo "Service de notifications : OK"
