@@ -1,5 +1,5 @@
 {
-  "version": "11.26.5",
-  "build": "2026-10-23-v11-26-5-maintenance-monitor",
-  "notes": "Background sync throttled and read-only automatic maintenance checks added for active founder sessions."
+  "version": "11.26.6",
+  "build": "2026-10-23-v11-26-6-global-redesign",
+  "notes": "Global page redesign, improved responsive layout, updated version labels, and refined navigation, dashboard cards, forms, and tables."
 }
