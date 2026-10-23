@@ -4164,6 +4164,44 @@ async function createCopyableEiafcApp(){
  const endpoint=`${EIAFC_CLOUD_BOOTSTRAP.url}/functions/v1/eiafc-app-profile?profile=${encodeURIComponent(pack)}`;
  const loader=`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EIAFC — Installation</title><style>body{font-family:Segoe UI,Arial;background:#f3f6f9;color:#12304a;display:grid;place-items:center;min-height:100vh;margin:0}.box{max-width:560px;background:#fff;border:1px solid #d9e1e8;border-radius:16px;padding:28px;text-align:center}b{color:#12304a}</style></head><body><div class="box"><h2>EIAFC</h2><p id="m">Chargement de la dernière version sécurisée…</p><p><b>Connexion Internet requise à la première ouverture.</b></p></div><script>(async()=>{try{const r=await fetch(${JSON.stringify(endpoint)},{cache:"no-store"}),j=await r.json();if(!r.ok||!j.ok||!j.b64)throw new Error(j.error||("Cloud "+r.status));const raw=Uint8Array.from(atob(j.b64),c=>c.charCodeAt(0));const html=await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream("gzip"))).text();document.open();document.write(html);document.close()}catch(e){document.getElementById("m").textContent="Impossible d’ouvrir EIAFC : "+(e?.message||e)}})();<\/script>
 
+
+<style id="eiafc-chart-visibility-fix">
+/* Correctif visibilité des graphiques du tableau de bord */
+#eiafcVisualAnalytics{display:grid!important;grid-template-columns:minmax(0,1.4fr) minmax(280px,1fr);gap:16px;width:100%;visibility:visible!important;opacity:1!important;position:relative;z-index:1;margin:16px 0 24px}
+#eiafcVisualAnalytics .eiafc-chart-card{display:block!important;visibility:visible!important;opacity:1!important;min-height:260px}
+#eiafcVisualAnalytics .eiafc-chart-svg{display:block!important;width:100%!important;height:auto!important;min-height:180px;overflow:visible}
+#eiafcVisualAnalytics .eiafc-chart-empty{display:block;padding:24px 14px;border:1px dashed #cbd7e5;border-radius:12px;background:#f8fafc;color:#52657b;text-align:center}
+@media(max-width:900px){#eiafcVisualAnalytics{grid-template-columns:minmax(0,1fr)!important}}
+</style>
+<script id="eiafc-chart-refresh-fix">
+(function(){
+  function refreshCharts(){
+    try{
+      if(typeof window.eiafcRefreshDashboardCharts==="function"){window.eiafcRefreshDashboardCharts();return;}
+      const section=document.getElementById("eiafcVisualAnalytics");
+      if(!section)return;
+      const kpi=document.getElementById("kpiGrid");
+      if(kpi && kpi.children.length && !section.dataset.chartRefreshRequested){
+        section.dataset.chartRefreshRequested="1";
+        section.style.display="grid";
+      }
+    }catch(_e){}
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",refreshCharts,{once:true});
+  else refreshCharts();
+  document.addEventListener("click",function(e){
+    if(e.target&&e.target.closest&&e.target.closest('[onclick*="renderDashboard"],[onclick*="goToView"],[data-view="dashboard"]')){
+      const section=document.getElementById("eiafcVisualAnalytics");
+      if(section)section.style.display="grid";
+      refreshCharts();
+    }
+  });
+  if(typeof MutationObserver!=="undefined"){
+    const root=document.getElementById("dashboard");
+    if(root)new MutationObserver(function(){refreshCharts()}).observe(root,{attributes:true,attributeFilter:["class","style"]});
+  }
+})();
+</script>
 </body></html>`;
  const blob=new Blob([loader],{type:"text/html;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`EIAFC_INSTALL_${cleanFileLabel(profile.label)}.html`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);logAction("Fichier installation généré",`${profile.label} — version Cloud ${APP_VERSION}`);persist();copyAppCode.value="";copyAppCodeConfirm.value="";alert("Fichier d’installation créé. Copiez ce petit fichier sur le nouveau PC. Il chargera automatiquement la dernière version EIAFC, puis demandera votre code EIAFC.")
 }
