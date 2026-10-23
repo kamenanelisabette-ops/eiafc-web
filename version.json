@@ -1,5 +1,5 @@
 {
-  "version": "11.26.4",
-  "build": "2026-10-23-v11-26-4-polling-performance-audit",
-  "notes": "Reduced background sync polling and paused hidden-tab checks."
+  "version": "11.26.5",
+  "build": "2026-10-23-v11-26-5-maintenance-monitor",
+  "notes": "Background sync throttled and read-only automatic maintenance checks added for active founder sessions."
 }
