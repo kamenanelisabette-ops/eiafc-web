@@ -3141,8 +3141,8 @@ const TRANSFER_KIND="EIAFC_V7_POSTE_TRANSFER_V1";
 const V72_KEY="eiafc_v720_reseau_simple";
 const OFFLINE_COUNTER_KEY="eiafc_v810_offline_counters";
 const INSTALL_MARKER_KEY="eiafc_v810_install_marker";
-const CLOUD_POLL_MS=3000;
-const LAN_POLL_MS=1500;
+const CLOUD_POLL_MS=15000;
+const LAN_POLL_MS=5000;
 const moneyFmt=new Intl.NumberFormat('fr-FR',{maximumFractionDigits:0});
 const fmt=n=>moneyFmt.format(Number(n||0))+" FCFA";
 const today=()=>new Date().toISOString().slice(0,10);
@@ -7674,7 +7674,7 @@ function enforceExpenseBtsSinglePole(){
  const f=document.getElementById("expProgramFilter");
  if(f){const cur=String(f.value||"");f.innerHTML='<option value="">Tous les pôles</option><option value="BTS">BTS (1 + 2) — pôle unique</option><option>Formation qualifiante</option><option>Licence</option><option>Master</option><option>Administration générale</option>';f.value=(cur==="BTS 1"||cur==="BTS 2"||cur==="BTS à classer"||cur==="BTS")?"BTS":cur;}
 }
-startApp();enforceExpenseBtsSinglePole();setInterval(()=>checkForAppUpdate(false),60*1000);window.addEventListener("focus",()=>{enforceExpenseBtsSinglePole();checkForAppUpdate(true)});window.addEventListener("online",()=>checkForAppUpdate(true));
+startApp();enforceExpenseBtsSinglePole();setInterval(()=>checkForAppUpdate(false),5*60*1000);window.addEventListener("focus",()=>{enforceExpenseBtsSinglePole();checkForAppUpdate(true)});window.addEventListener("online",()=>checkForAppUpdate(true));
 </script>
 
 <script id="eiafc-web-secure-patch">
@@ -8260,7 +8260,7 @@ startApp();enforceExpenseBtsSinglePole();setInterval(()=>checkForAppUpdate(false
   }
   function startWebPolling(){
     if(webTimer)clearInterval(webTimer);
-    webTimer=setInterval(()=>{if(!document.hidden)securePull(false)},20000);
+    webTimer=setInterval(()=>{if(!document.hidden)securePull(false)},30000);
     if(!window.__EIAFC_VISIBILITY_SYNC_BOUND__){
       window.__EIAFC_VISIBILITY_SYNC_BOUND__=true;
       document.addEventListener("visibilitychange",()=>{if(!document.hidden&&currentUser&&webToken())securePull(false)});
@@ -9292,7 +9292,7 @@ setTimeout(()=>{try{sepRenderClosingPreview();if(typeof renderDashboardPoleSepar
   }
   function updateAccess(){const nav=document.getElementById(NAV_ID);if(nav)nav.style.display=canSee()?'':'none'}
 
-  injectStyle();injectUI();setInterval(updateAccess,2500);
+  injectStyle();injectUI();setInterval(()=>{if(!document.hidden)updateAccess()},15000);
   window.eiafcRenderDetailedReports=render;window.eiafcPrintDetailedReports=printReport;window.eiafcExportDetailedReportsCSV=exportCSV;
 })();
 
