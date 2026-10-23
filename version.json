@@ -1,5 +1,5 @@
 {
-  "version": "11.26.3",
-  "build": "2026-10-23-v11-26-3-premium-ui-performance",
-  "notes": "Refonte visuelle appliquée à l’interface principale, tableau de bord responsive, graphiques stylisés et ajustements d’affichage pour mobile et écrans larges."
+  "version": "11.26.4",
+  "build": "2026-10-23-v11-26-4-polling-performance-audit",
+  "notes": "Reduced background sync polling and paused hidden-tab checks."
 }
