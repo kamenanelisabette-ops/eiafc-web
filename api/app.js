@@ -61,8 +61,8 @@ module.exports = function handler(req, res) {
 
     if (!html.includes('id="eiafc-login-click-repair"')) {
       html = html.includes('</body>')
-        ? html.replace('</body>', loginRepair + '\\n</body>')
-        : html + '\\n' + loginRepair;
+        ? html.replace('</body>', loginRepair + '\n</body>')
+        : html + '\n' + loginRepair;
     }
 
     // On the hosted Vercel site, a fresh browser must join the existing Cloud
@@ -84,16 +84,16 @@ module.exports = function handler(req, res) {
 </script>`;
     if (!html.includes('id="eiafc-cloud-entry-repair"')) {
       html = html.includes('</body>')
-        ? html.replace('</body>', cloudEntryRepair + '\\n</body>')
-        : html + '\\n' + cloudEntryRepair;
+        ? html.replace('</body>', cloudEntryRepair + '\n</body>')
+        : html + '\n' + cloudEntryRepair;
     }
 
     // Keep the report script available.
     const marker = '<script src="/daily-report.js?v=11.23.0"></script>';
     if (!html.includes(marker)) {
       html = html.includes('</body>')
-        ? html.replace('</body>', marker + '\\n</body>')
-        : html + '\\n' + marker;
+        ? html.replace('</body>', marker + '\n</body>')
+        : html + '\n' + marker;
     }
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
