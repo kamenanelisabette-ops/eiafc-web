@@ -8639,7 +8639,7 @@ setInterval(()=>runEiafcMaintenanceMonitor(),15*60*1000);window.addEventListener
   async function restoreWebSession(){
     const t=webToken(),u=webStoredUser();if(!t||!u)return false;
     try{
-      const j=await webApi('get_state',{},t);if(!j?.state)throw new Error('Base centrale EIAFC indisponible');const remote=normalizeDB(sanitizeRemoteStateForRole(deepClone(j.state),u));webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();currentUser={...u,active:true,deleted:false};sessionStorage.setItem(SESSION_KEY,currentUser.username);cloudConnected=true;lanConnected=false;localSessionBase=deepClone(db);alignWebScopeToLoadedData();refreshAll();enterApp();startWebPolling();return true;
+      const j=await Promise.race([webApi('get_state',{},t),new Promise((_,reject)=>setTimeout(()=>reject(new Error('Délai de connexion dépassé — veuillez vous reconnecter.')),6000))]);if(!j?.state)throw new Error('Base centrale EIAFC indisponible');const remote=normalizeDB(sanitizeRemoteStateForRole(deepClone(j.state),u));webRevision=Number(j.revision||0);webBase=deepClone(remote);db=deepClone(remote);persist();currentUser={...u,active:true,deleted:false};sessionStorage.setItem(SESSION_KEY,currentUser.username);cloudConnected=true;lanConnected=false;localSessionBase=deepClone(db);alignWebScopeToLoadedData();refreshAll();enterApp();startWebPolling();return true;
     }catch(e){console.warn('Restauration session Web',e);clearWebSession(true);return false}
   }
   async function initPublicWeb(){
