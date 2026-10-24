@@ -8645,7 +8645,7 @@ setInterval(()=>runEiafcMaintenanceMonitor(),15*60*1000);window.addEventListener
   async function initPublicWeb(){
     hideLegacyPortal();
     if(await restoreWebSession())return;
-    clearWebSession(true);currentUser=null;if(signupOwnerUsername)signupOwnerUsername.value='fondateur';webShowAuthChoice();
+    clearWebSession(true);currentUser=null;if(signupOwnerUsername)signupOwnerUsername.value='fondateur';showLoginForm();
     if(bootStatus)setTimeout(()=>bootStatus.classList.add('hidden'),2500);
   }
   setTimeout(initPublicWeb,80);
