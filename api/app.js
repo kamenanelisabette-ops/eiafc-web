@@ -13,6 +13,16 @@ module.exports = function handler(req, res) {
     // Preserve the production auth guard from index.html. It must not reopen
     // a hidden login overlay after the user has entered the application.
 
+    // Deterministic hosted entry: do not depend on click handlers to reveal credentials.
+    // The original page starts loginBox with class="hidden"; expose the form in hosted HTML
+    // and override the hidden utility only inside the login overlay.
+    if (String(req.headers.host || '').endsWith('.vercel.app')) {
+      html = html.replace(/(<div\\s+id=["']loginBox["'])\\s+class=["']hidden["']/, '$1');
+      const hostedLoginCss = '<style id="eiafc-hosted-login-css">#loginOverlay{display:flex!important}#loginOverlay #loginBox{display:block!important}#loginOverlay #loginBox.hidden{display:block!important}#loginOverlay #authChoiceBox.hidden,#loginOverlay #signupBox.hidden,#loginOverlay #studentPortalLoginBox.hidden{display:none!important}</style>';
+      if (!html.includes('id="eiafc-hosted-login-css"')) html = html.includes('</head>') ? html.replace('</head>', hostedLoginCss + '\\n</head>') : hostedLoginCss + html;
+    }
+
+
     // Make the existing sign-in button call the repair function directly.
     html = html.replace(/onclick=["']showLoginForm\(\)["']/g, 'onclick="window.eiafcForceLogin()"');
 
