@@ -1439,6 +1439,32 @@ table{border-collapse:separate;border-spacing:0;width:100%}th{background:#f4f7fb
 @media(max-width:760px){.app{display:flex;flex-direction:column}.sidebar{position:relative;top:auto;width:100%;height:auto;max-height:42vh;overflow:auto;padding:12px 12px 14px}.brand{padding:3px 8px 10px;margin-bottom:8px}.brand h1{font-size:22px}.brand p{display:none}.version{margin-top:4px}.user-mini{margin:8px 2px;padding:8px 10px}.nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}.nav-group-title{grid-column:1/-1;margin:8px 5px 2px!important}.nav-btn{min-height:38px;padding:8px;font-size:11px}.main{padding:15px 12px 28px}.topbar{gap:10px;margin-bottom:16px;padding-bottom:14px}.toolbar{gap:6px}.toolbar select{flex:1;min-width:130px}.production-hero{padding:21px 18px;border-radius:15px}.production-hero h2{font-size:25px}.prod-hero-badge{max-width:none}.premium-context-strip{grid-template-columns:1fr!important}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.kpi{padding:13px!important}.kpi .value{font-size:23px}.grid{gap:12px}.card{padding:14px;border-radius:12px}.section-title h3{font-size:14px}table{min-width:620px}}
 @media(max-width:390px){.nav{grid-template-columns:1fr}.kpis{grid-template-columns:1fr}.production-hero h2{font-size:22px}}@media(prefers-reduced-motion:reduce){.view{animation:none}.nav-btn,.btn{transition:none}}
 </style>
+<style id="eiafc-real-login-page">
+#loginOverlay{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse at 18% 10%,rgba(224,178,63,.22),transparent 30%),radial-gradient(ellipse at 90% 90%,rgba(42,117,157,.28),transparent 34%),linear-gradient(135deg,#071827 0%,#0c2a43 55%,#16415b 100%)}
+#loginOverlay.hidden{display:none!important}
+#loginOverlay .login-card{width:min(460px,100%);max-height:calc(100dvh - 40px);overflow:auto;padding:clamp(24px,5vw,38px);border:1px solid rgba(255,255,255,.24);border-radius:24px;background:#fff;box-shadow:0 28px 90px rgba(0,0,0,.34);color:#18324a}
+#loginOverlay .login-card:before{height:5px;background:linear-gradient(90deg,#bd8c22,#f2d783,#bd8c22)}
+#loginOverlay .prod-mark{font-size:10px;letter-spacing:.16em;font-weight:900;color:#98701b}
+#loginOverlay .login-card>h1{font-size:42px;line-height:1.05;font-weight:900;letter-spacing:-.05em;color:#102a43;margin:8px 0 4px}
+#loginOverlay .prod-subtitle{font-size:11px;line-height:1.6;color:#62758a;font-weight:750}
+#loginOverlay #loginIntro{font-size:13px;line-height:1.65;color:#52677c;margin:14px 0 18px}
+#loginOverlay .prod-chips{display:none}
+#loginOverlay #loginBox{display:block}
+#loginOverlay #loginBox.hidden{display:none!important}
+#loginOverlay #loginBox .section-title{border:0;padding:0;margin:0 0 18px}
+#loginOverlay #loginBox .section-title h3{font-size:20px;color:#102a43;margin:0 0 5px}
+#loginOverlay #loginBox .field{margin:14px 0}
+#loginOverlay #loginBox .field label{display:block;font-size:12px;font-weight:800;color:#314b63;margin-bottom:7px}
+#loginOverlay #loginBox input{width:100%;min-height:48px;padding:12px 14px;border:1px solid #d5e0ea!important;border-radius:11px!important;background:#fbfdff;color:#142d43;font-size:15px;box-sizing:border-box}
+#loginOverlay #loginBox input:focus{outline:3px solid rgba(36,99,235,.14);border-color:#6d9be8!important}
+#loginOverlay #loginBox .btn-primary{border:0;border-radius:11px;color:#fff;background:linear-gradient(135deg,#123b5a,#185477);font-size:14px;font-weight:800;cursor:pointer}
+#loginOverlay #loginBox .btn-primary:disabled{opacity:.65;cursor:wait}
+#loginOverlay .login-secondary-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+#loginOverlay .login-secondary-actions .btn{min-height:40px;padding:9px 10px;border:1px solid #dce5ed;border-radius:10px;background:#f7f9fc;color:#29445d;font-size:11px;font-weight:750;cursor:pointer}
+#loginOverlay .login-security-note{margin:17px 0 0;text-align:center;font-size:11px;line-height:1.6;color:#718196}
+#loginOverlay #bootStatus{display:none!important}
+@media(max-width:520px){#loginOverlay{padding:12px}#loginOverlay .login-card{max-height:calc(100dvh - 24px);border-radius:18px;padding:24px 20px}#loginOverlay .login-card>h1{font-size:36px}#loginOverlay .login-secondary-actions{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 
@@ -1545,12 +1571,17 @@ table{border-collapse:separate;border-spacing:0;width:100%}th{background:#f4f7fb
       <p class="small">Chaque compte est associé à un rôle et à une école. Après connexion, le logiciel ouvre automatiquement le tableau de bord correspondant au poste.</p>
     </div>
     <div id="loginBox" class="hidden">
-      <div class="section-title"><h3>🔐 Connexion</h3></div>
-      <div class="field"><label>Utilisateur</label><input id="loginUsername" autocomplete="username"></div>
-      <div class="field"><label>Mot de passe</label><input id="loginPassword" type="password" autocomplete="current-password"></div>
-      <button class="btn btn-primary" style="width:100%" onclick="login()">Se connecter</button>
-      <button class="btn btn-light auth-back" type="button" onclick="showAuthChoice()">← Retour au choix</button>
-      <p class="small">Votre tableau de bord et vos menus seront chargés selon votre rôle.</p>
+      <div class="section-title"><h3>🔐 Connexion à votre espace</h3><p class="small">Utilisez les identifiants de votre compte professionnel EIAFC.</p></div>
+      <form id="eiafcLoginForm" onsubmit="event.preventDefault();login()" autocomplete="on">
+        <div class="field"><label for="loginUsername">Nom d’utilisateur</label><input id="loginUsername" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="Votre nom d’utilisateur"></div>
+        <div class="field"><label for="loginPassword">Mot de passe</label><input id="loginPassword" name="password" type="password" autocomplete="current-password" required placeholder="Votre mot de passe"></div>
+        <button class="btn btn-primary" style="width:100%;min-height:48px;margin-top:8px" type="submit">Se connecter à EIAFC <span aria-hidden="true">→</span></button>
+      </form>
+      <div class="login-secondary-actions">
+        <button class="btn btn-light" type="button" onclick="showSignupForm()">Créer un compte autorisé</button>
+        <button class="btn btn-light" type="button" onclick="showStudentPortalLogin()">Espace étudiant</button>
+      </div>
+      <p class="small login-security-note">🔒 Connexion sécurisée. Votre tableau de bord et vos droits sont chargés selon votre rôle.</p>
     </div>
     <div id="studentPortalLoginBox" class="hidden">
       <div class="section-title"><h3>🎓 Espace étudiant</h3></div>
@@ -8130,11 +8161,16 @@ setInterval(()=>runEiafcMaintenanceMonitor(),15*60*1000);window.addEventListener
     if(loginIntro)loginIntro.textContent='EIAFC — Accès Cloud sécurisé par rôle';
   }
   function webShowAuthChoice(){
+    // Sur le portail public, ouvrir directement le vrai formulaire de connexion.
     hideLegacyPortal();
     loginOverlay?.classList.remove('hidden');
-    authChoiceBox?.classList.remove('hidden');loginBox?.classList.add('hidden');signupBox?.classList.add('hidden');studentPortalLoginBox?.classList.add('hidden');
-    if(bootStatus){bootStatus.textContent='Connexion Cloud sécurisée — données sensibles non conservées durablement dans ce navigateur.';bootStatus.classList.remove('hidden')}
-    loginPassword.value='';if(signupOwnerPassword)signupOwnerPassword.value='';
+    authChoiceBox?.classList.add('hidden');loginBox?.classList.remove('hidden');signupBox?.classList.add('hidden');studentPortalLoginBox?.classList.add('hidden');
+    if(bootStatus)bootStatus.classList.add('hidden');
+    if(loginIntro)loginIntro.textContent='Connectez-vous avec votre compte EIAFC pour accéder à votre espace de travail.';
+    if(signupOwnerUsername&&!signupOwnerUsername.value)signupOwnerUsername.value='fondateur';
+    if(loginPassword)loginPassword.value='';
+    resetLoginCardScroll();
+    setTimeout(()=>{resetLoginCardScroll();loginUsername?.focus()},0);
   }
   function resetLoginCardScroll(){
     try{
