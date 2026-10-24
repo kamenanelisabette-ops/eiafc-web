@@ -10,6 +10,13 @@ module.exports = function handler(req, res) {
       throw new Error('Index EIAFC invalide ou version absente');
     }
 
+    // Fix the production login guard: it must be allowed to unhide the login overlay.
+    // The old condition returned early whenever the overlay was hidden, preventing the fix.
+    html = html.replace(
+      "if(!overlay || !choice || overlay.classList.contains('hidden')) return;",
+      "if(!overlay || !choice) return;"
+    );
+
     // Keep the optional report script available without forcing an obsolete version.
     const marker = '<script src="/daily-report.js?v=11.23.0"></script>';
     if (!html.includes(marker)) {
