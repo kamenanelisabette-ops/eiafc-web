@@ -3,6 +3,10 @@
     {
       "source": "/bilan",
       "destination": "/api/app"
+    },
+    {
+      "source": "/",
+      "destination": "/api/app"
     }
   ],
   "headers": [
