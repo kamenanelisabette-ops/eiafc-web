@@ -8169,16 +8169,18 @@ setInterval(()=>runEiafcMaintenanceMonitor(),15*60*1000);window.addEventListener
     if(loginIntro)loginIntro.textContent='EIAFC — Accès Cloud sécurisé par rôle';
   }
   function webShowAuthChoice(){
-    // Sur le portail public, ouvrir directement le vrai formulaire de connexion.
+    // Écran d'accueil du portail Web : connexion ou création de compte.
+    // Les écrans d'installation et de serveur local restent masqués en production.
     hideLegacyPortal();
     loginOverlay?.classList.remove('hidden');
-    authChoiceBox?.classList.add('hidden');loginBox?.classList.remove('hidden');signupBox?.classList.add('hidden');studentPortalLoginBox?.classList.add('hidden');
+    [emptyInstallBox,firstAdminBox,existingInstallBox,founderAccessBox,activationKeyBox,autoInstallBox].forEach(x=>x?.classList.add('hidden'));
+    authChoiceBox?.classList.remove('hidden');
+    loginBox?.classList.add('hidden');signupBox?.classList.add('hidden');studentPortalLoginBox?.classList.add('hidden');
     if(bootStatus)bootStatus.classList.add('hidden');
-    if(loginIntro)loginIntro.textContent='Connectez-vous avec votre compte EIAFC pour accéder à votre espace de travail.';
+    if(loginIntro)loginIntro.textContent='Accédez à votre espace EIAFC ou créez un compte autorisé.';
     if(signupOwnerUsername&&!signupOwnerUsername.value)signupOwnerUsername.value='fondateur';
     if(loginPassword)loginPassword.value='';
     resetLoginCardScroll();
-    setTimeout(()=>{resetLoginCardScroll();loginUsername?.focus()},0);
   }
   function resetLoginCardScroll(){
     try{
@@ -8687,10 +8689,14 @@ setInterval(()=>runEiafcMaintenanceMonitor(),15*60*1000);window.addEventListener
     }catch(e){console.warn('Restauration session Web',e);clearWebSession(true);return false}
   }
   async function initPublicWeb(){
+    // Le portail public doit afficher le choix Connexion / Création de compte,
+    // jamais l'assistant d'installation du serveur local.
     hideLegacyPortal();
     if(await restoreWebSession())return;
-    clearWebSession(true);currentUser=null;if(signupOwnerUsername)signupOwnerUsername.value='fondateur';showLoginForm();
-    if(bootStatus)setTimeout(()=>bootStatus.classList.add('hidden'),2500);
+    clearWebSession(false);currentUser=null;
+    if(signupOwnerUsername)signupOwnerUsername.value='fondateur';
+    webShowAuthChoice();
+    if(bootStatus)bootStatus.classList.add('hidden');
   }
   setTimeout(initPublicWeb,80);
 })();
