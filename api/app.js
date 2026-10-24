@@ -78,7 +78,24 @@ module.exports = function handler(req, res) {
       if (!String(location.hostname || "").endsWith(".vercel.app")) return;
       if (typeof db === "undefined" || !db || (db.users && db.users.length)) return;
       if (typeof loadCloudConfig === "function" && loadCloudConfig()) return;
-      if (typeof showActivationKey === "function") showActivationKey();
+      // The hosted web portal authenticates through the secure API directly;
+      // a new browser must not be routed to the local-server / activation-key setup.
+      var overlay=document.getElementById('loginOverlay');
+      var login=document.getElementById('loginBox');
+      var choice=document.getElementById('authChoiceBox');
+      var signup=document.getElementById('signupBox');
+      var student=document.getElementById('studentPortalLoginBox');
+      if(overlay && login){
+        overlay.classList.remove('hidden');
+        overlay.style.setProperty('display','flex','important');
+        if(choice){choice.classList.add('hidden');choice.style.setProperty('display','none','important');}
+        if(signup){signup.classList.add('hidden');signup.style.setProperty('display','none','important');}
+        if(student){student.classList.add('hidden');student.style.setProperty('display','none','important');}
+        login.classList.remove('hidden');
+        login.style.setProperty('display','block','important');
+        var intro=document.getElementById('loginIntro');
+        if(intro)intro.textContent='Connectez-vous avec votre compte EIAFC pour accéder à votre espace de travail.';
+      }
     } catch (e) { console.warn("EIAFC Cloud entry", e); }
   }
   routeFreshHostedPost();
