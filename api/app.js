@@ -43,12 +43,17 @@ module.exports = function handler(req, res) {
     var username=document.getElementById('loginUsername');
     if(username) setTimeout(function(){try{username.focus()}catch(e){}},50);
   }
-  // Override the original handler with the defensive implementation.
   window.showLoginForm=openLogin;
+  // Capture the actual sign-in choice by its visible label, not only by
+  // an inline onclick attribute that may be missing in the hosted page.
   document.addEventListener('click',function(event){
-    var button=event.target && event.target.closest ? event.target.closest('#authChoiceBox button[onclick*="showLoginForm"]') : null;
-    if(!button) return;
+    var target=event.target;
+    var choice=target && target.closest ? target.closest('#authChoiceBox') : null;
+    if(!choice) return;
+    var button=target.closest('button, [role="button"], [onclick]');
+    if(!button || !/se connecter/i.test((button.innerText || button.textContent || '').replace(/\\s+/g,' '))) return;
     event.preventDefault();
+    event.stopPropagation();
     openLogin();
   },true);
 })();
@@ -56,8 +61,8 @@ module.exports = function handler(req, res) {
 
     if (!html.includes('id="eiafc-login-click-repair"')) {
       html = html.includes('</body>')
-        ? html.replace('</body>', loginRepair + '\n</body>')
-        : html + '\n' + loginRepair;
+        ? html.replace('</body>', loginRepair + '\\n</body>')
+        : html + '\\n' + loginRepair;
     }
 
     // On the hosted Vercel site, a fresh browser must join the existing Cloud
@@ -79,16 +84,16 @@ module.exports = function handler(req, res) {
 </script>`;
     if (!html.includes('id="eiafc-cloud-entry-repair"')) {
       html = html.includes('</body>')
-        ? html.replace('</body>', cloudEntryRepair + '\n</body>')
-        : html + '\n' + cloudEntryRepair;
+        ? html.replace('</body>', cloudEntryRepair + '\\n</body>')
+        : html + '\\n' + cloudEntryRepair;
     }
 
     // Keep the report script available.
     const marker = '<script src="/daily-report.js?v=11.23.0"></script>';
     if (!html.includes(marker)) {
       html = html.includes('</body>')
-        ? html.replace('</body>', marker + '\n</body>')
-        : html + '\n' + marker;
+        ? html.replace('</body>', marker + '\\n</body>')
+        : html + '\\n' + marker;
     }
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
