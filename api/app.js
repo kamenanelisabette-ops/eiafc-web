@@ -17,6 +17,9 @@ module.exports = function handler(req, res) {
     // The original page starts loginBox with class="hidden"; expose the form in hosted HTML
     // and override the hidden utility only inside the login overlay.
     if (String(req.headers.host || '').endsWith('.vercel.app')) {
+      // The source page has a competing production guard that reopens the choice screen after 1.5s.
+      // Remove it on hosted deployments so it cannot hide the secure login or trap all app controls behind the overlay.
+      html = html.replace(/<script\\b[^>]*id=[\"']eiafc-production-auth-screen-guard[\"'][^>]*>[\\s\\S]*?<\\/script>/i, '');
       html = html.replace(/(<div\s+id=["']loginBox["'])\s+class=["']hidden["']/, '$1');
       const hostedLoginCss = '<style id="eiafc-hosted-login-css">#loginOverlay{display:flex!important}#loginOverlay #loginBox{display:block!important}#loginOverlay #loginBox.hidden{display:block!important}#loginOverlay #authChoiceBox.hidden,#loginOverlay #signupBox.hidden,#loginOverlay #studentPortalLoginBox.hidden{display:none!important}</style>';
       if (!html.includes('id="eiafc-hosted-login-css"')) html = html.includes('</head>') ? html.replace('</head>', hostedLoginCss + '\\n</head>') : hostedLoginCss + html;
