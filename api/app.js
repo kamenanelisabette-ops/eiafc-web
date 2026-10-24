@@ -28,7 +28,7 @@ module.exports = function handler(req, res) {
     var student=document.getElementById('studentPortalLoginBox');
     var intro=document.getElementById('loginIntro');
     var boot=document.getElementById('bootStatus');
-    if(!overlay || !box) return;
+    if(!overlay || !box) return false;
     overlay.classList.remove('hidden');
     overlay.style.display='flex';
     if(choice) choice.classList.add('hidden');
@@ -42,19 +42,22 @@ module.exports = function handler(req, res) {
     if(card) card.scrollTop=0;
     var username=document.getElementById('loginUsername');
     if(username) setTimeout(function(){try{username.focus()}catch(e){}},50);
+    return true;
   }
   window.showLoginForm=openLogin;
   // Capture the actual sign-in choice by its visible label, not only by
   // an inline onclick attribute that may be missing in the hosted page.
   document.addEventListener('click',function(event){
     var target=event.target;
-    var choice=target && target.closest ? target.closest('#authChoiceBox') : null;
-    if(!choice) return;
-    var button=target.closest('button, [role="button"], [onclick]');
+    if(!target || !target.closest) return;
+    var button=target.closest('button, [role="button"], [onclick], a');
     if(!button || !/se connecter/i.test((button.innerText || button.textContent || '').replace(/\\s+/g,' '))) return;
-    event.preventDefault();
-    event.stopPropagation();
-    openLogin();
+    // Only intercept when the expected login panel really exists and was opened.
+    // Otherwise let the app's original click handler run instead of swallowing it.
+    if(openLogin()){
+      event.preventDefault();
+      event.stopPropagation();
+    }
   },true);
 })();
 </script>`;
