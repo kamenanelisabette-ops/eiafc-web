@@ -108,6 +108,65 @@ module.exports = function handler(req, res) {
         : html + '\n' + cloudEntryRepair;
     }
 
+    // Final hosted-login guard: some startup scripts re-hide the login panel after
+    // the earlier repair runs. Reveal the secure web-account form on initial load,
+    // and only intercept "Se connecter" when the credential form is not visible.
+    const hostedLoginGuard = `<script id="eiafc-hosted-login-guard">
+(function(){
+  function visible(el){
+    if(!el) return false;
+    var cs=window.getComputedStyle ? getComputedStyle(el) : null;
+    return !el.classList.contains('hidden') && (!cs || (cs.display!=='none' && cs.visibility!=='hidden'));
+  }
+  function reveal(){
+    try{
+      if(!String(location.hostname||'').endsWith('.vercel.app')) return;
+      var overlay=document.getElementById('loginOverlay');
+      var login=document.getElementById('loginBox');
+      if(!overlay || !login) return;
+      var user=document.getElementById('loginUsername');
+      var pass=document.getElementById('loginPassword');
+      if(!user || !pass) return;
+      overlay.classList.remove('hidden');
+      overlay.style.setProperty('display','flex','important');
+      login.classList.remove('hidden');
+      login.style.setProperty('display','block','important');
+      ['authChoiceBox','signupBox','studentPortalLoginBox'].forEach(function(id){
+        var el=document.getElementById(id);
+        if(el){el.classList.add('hidden');el.style.setProperty('display','none','important');}
+      });
+      var intro=document.getElementById('loginIntro');
+      if(intro) intro.textContent='Connectez-vous avec votre compte EIAFC pour accéder à votre espace de travail.';
+    }catch(e){console.warn('EIAFC hosted login guard',e);}
+  }
+  window.eiafcForceLogin=reveal;
+  document.addEventListener('click',function(event){
+    var target=event.target;
+    if(!target || !target.closest) return;
+    var button=target.closest('button, [role="button"], a, input[type="button"], input[type="submit"]');
+    if(!button) return;
+    var label=(button.innerText||button.textContent||button.value||'').replace(/\\s+/g,' ').trim();
+    if(!/se connecter/i.test(label)) return;
+    var login=document.getElementById('loginBox');
+    if(visible(login)) return; // Let the real login submission run when fields are already open.
+    event.preventDefault();
+    event.stopPropagation();
+    if(event.stopImmediatePropagation) event.stopImmediatePropagation();
+    reveal();
+  },true);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',reveal,{once:true});
+  else reveal();
+  setTimeout(reveal,100);
+  setTimeout(reveal,500);
+  setTimeout(reveal,1200);
+})();
+</script>`;
+    if (!html.includes('id="eiafc-hosted-login-guard"')) {
+      html = html.includes('</body>')
+        ? html.replace('</body>', hostedLoginGuard + '\\n</body>')
+        : html + '\\n' + hostedLoginGuard;
+    }
+
     // Keep the report script available.
     const marker = '<script src="/daily-report.js?v=11.23.0"></script>';
     if (!html.includes(marker)) {
