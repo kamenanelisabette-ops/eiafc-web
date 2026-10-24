@@ -4391,8 +4391,16 @@ function showAuthChoice(){
  loginIntro.textContent="EIAFC — Accès sécurisé par rôle"
 }
 function showLoginForm(){
- authChoiceBox.classList.add("hidden");signupBox.classList.add("hidden");loginBox.classList.remove("hidden");
- setTimeout(()=>loginUsername?.focus(),0)
+ // Toujours rendre visible la page de connexion, pas seulement son contenu interne.
+ if(loginOverlay)loginOverlay.classList.remove("hidden");
+ authChoiceBox?.classList.add("hidden");
+ signupBox?.classList.add("hidden");
+ studentPortalLoginBox?.classList.add("hidden");
+ loginBox?.classList.remove("hidden");
+ if(loginIntro)loginIntro.textContent="Connectez-vous avec votre compte EIAFC pour accéder à votre espace de travail.";
+ if(bootStatus)bootStatus.classList.add("hidden");
+ try{const card=document.querySelector(".login-card");if(card)card.scrollTop=0;if(loginOverlay)loginOverlay.scrollTop=0}catch(_e){}
+ setTimeout(()=>{try{const card=document.querySelector(".login-card");if(card)card.scrollTop=0}catch(_e){}loginUsername?.focus()},0)
 }
 function showSignupForm(){
  authChoiceBox.classList.add("hidden");loginBox.classList.add("hidden");signupBox.classList.remove("hidden");
