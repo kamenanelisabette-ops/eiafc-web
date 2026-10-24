@@ -10,11 +10,8 @@ module.exports = function handler(req, res) {
       throw new Error('Index EIAFC invalide ou version absente');
     }
 
-    // Correct the production guard so a hidden overlay can be shown again.
-    html = html.replace(
-      "if(!overlay || !choice || overlay.classList.contains('hidden')) return;",
-      "if(!overlay || !choice) return;"
-    );
+    // Preserve the production auth guard from index.html. It must not reopen
+    // a hidden login overlay after the user has entered the application.
 
     // Make the sign-in choice reliable even if the original global-ID bindings
     // are unavailable in a browser. Use explicit DOM lookups only.
@@ -45,20 +42,22 @@ module.exports = function handler(req, res) {
     return true;
   }
   window.showLoginForm=openLogin;
-  // Capture the actual sign-in choice by its visible label, not only by
-  // an inline onclick attribute that may be missing in the hosted page.
+  window.eiafcForceLogin=openLogin;
+  // Repair the exact existing account-login button and keep a delegated fallback.
   document.addEventListener('click',function(event){
     var target=event.target;
     if(!target || !target.closest) return;
-    var button=target.closest('button, [role="button"], [onclick], a');
-    if(!button || !/se connecter/i.test((button.innerText || button.textContent || '').replace(/\\s+/g,' '))) return;
-    // Only intercept when the expected login panel really exists and was opened.
-    // Otherwise let the app's original click handler run instead of swallowing it.
+    var button=target.closest('#authChoiceBox button[onclick*="showLoginForm"], #authChoiceBox button');
+    if(!button) return;
+    var label=(button.innerText || button.textContent || '').replace(/\\s+/g,' ').trim();
+    if(!/se connecter/i.test(label) && !/showLoginForm/.test(button.getAttribute('onclick') || '')) return;
     if(openLogin()){
       event.preventDefault();
       event.stopPropagation();
     }
   },true);
+  // Make the inline entry independent of browser global-name resolution.
+  html = html.replace(/onclick=["']showLoginForm\\(\\)["']/g, 'onclick="window.eiafcForceLogin()"');
 })();
 </script>`;
 
