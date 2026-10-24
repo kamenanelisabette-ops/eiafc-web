@@ -10,19 +10,62 @@ module.exports = function handler(req, res) {
       throw new Error('Index EIAFC invalide ou version absente');
     }
 
-    // Fix the production login guard: it must be allowed to unhide the login overlay.
-    // The old condition returned early whenever the overlay was hidden, preventing the fix.
+    // Correct the production guard so a hidden overlay can be shown again.
     html = html.replace(
       "if(!overlay || !choice || overlay.classList.contains('hidden')) return;",
       "if(!overlay || !choice) return;"
     );
 
-    // Keep the optional report script available without forcing an obsolete version.
+    // Make the sign-in choice reliable even if the original global-ID bindings
+    // are unavailable in a browser. Use explicit DOM lookups only.
+    const loginRepair = `<script id="eiafc-login-click-repair">
+(function(){
+  function openLogin(){
+    var overlay=document.getElementById('loginOverlay');
+    var choice=document.getElementById('authChoiceBox');
+    var box=document.getElementById('loginBox');
+    var signup=document.getElementById('signupBox');
+    var student=document.getElementById('studentPortalLoginBox');
+    var intro=document.getElementById('loginIntro');
+    var boot=document.getElementById('bootStatus');
+    if(!overlay || !box) return;
+    overlay.classList.remove('hidden');
+    overlay.style.display='flex';
+    if(choice) choice.classList.add('hidden');
+    if(signup) signup.classList.add('hidden');
+    if(student) student.classList.add('hidden');
+    box.classList.remove('hidden');
+    box.style.display='block';
+    if(intro) intro.textContent='Connectez-vous avec votre compte EIAFC pour accéder à votre espace de travail.';
+    if(boot) boot.classList.add('hidden');
+    var card=overlay.querySelector('.login-card');
+    if(card) card.scrollTop=0;
+    var username=document.getElementById('loginUsername');
+    if(username) setTimeout(function(){try{username.focus()}catch(e){}},50);
+  }
+  // Override the original handler with the defensive implementation.
+  window.showLoginForm=openLogin;
+  document.addEventListener('click',function(event){
+    var button=event.target && event.target.closest ? event.target.closest('#authChoiceBox button[onclick*="showLoginForm"]') : null;
+    if(!button) return;
+    event.preventDefault();
+    openLogin();
+  },true);
+})();
+</script>`;
+
+    if (!html.includes('id="eiafc-login-click-repair"')) {
+      html = html.includes('</body>')
+        ? html.replace('</body>', loginRepair + '\\n</body>')
+        : html + '\\n' + loginRepair;
+    }
+
+    // Keep the report script available.
     const marker = '<script src="/daily-report.js?v=11.23.0"></script>';
     if (!html.includes(marker)) {
       html = html.includes('</body>')
-        ? html.replace('</body>', marker + '\n</body>')
-        : html + '\n' + marker;
+        ? html.replace('</body>', marker + '\\n</body>')
+        : html + '\\n' + marker;
     }
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
