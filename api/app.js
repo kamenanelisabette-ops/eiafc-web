@@ -13,6 +13,9 @@ module.exports = function handler(req, res) {
     // Preserve the production auth guard from index.html. It must not reopen
     // a hidden login overlay after the user has entered the application.
 
+    // Make the existing sign-in button call the repair function directly.
+    html = html.replace(/onclick=["']showLoginForm\(\)["']/g, 'onclick="window.eiafcForceLogin()"');
+
     // Make the sign-in choice reliable even if the original global-ID bindings
     // are unavailable in a browser. Use explicit DOM lookups only.
     const loginRepair = `<script id="eiafc-login-click-repair">
@@ -56,8 +59,6 @@ module.exports = function handler(req, res) {
       event.stopPropagation();
     }
   },true);
-  // Make the inline entry independent of browser global-name resolution.
-  html = html.replace(/onclick=["']showLoginForm\\(\\)["']/g, 'onclick="window.eiafcForceLogin()"');
 })();
 </script>`;
 
