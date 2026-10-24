@@ -9509,5 +9509,32 @@ table{border-color:#e4eaf1}th{background:#f4f7fb;color:#4b5d72;font-size:11px;le
 </script>
 
 <script id="eiafc-visual-analytics">(function(){"use strict";const money=new Intl.NumberFormat("fr-FR",{maximumFractionDigits:0}),colors=["#3478f6","#16a178","#e0ac35","#8768d8","#e27752","#37a8b8","#8b9bb0"];const safe=v=>String(v==null?"":v).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));function allowed(){try{return(typeof canSeeGlobalMoney==="function"&&canSeeGlobalMoney())||(typeof canSeeCashMoney==="function"&&canSeeCashMoney())}catch(_e){return false}}function monthList(){const a=[],n=new Date();for(let i=5;i>=0;i--){const d=new Date(n.getFullYear(),n.getMonth()-i,1);a.push({key:d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"),label:d.toLocaleDateString("fr-FR",{month:"short"}).replace(".","")})}return a}function collections(){const el=document.getElementById("eiafcCollectionsChart");if(!el)return;if(!allowed()){el.innerHTML='<div class="eiafc-chart-empty">Données financières masquées pour ce profil.</div>';return}try{const ms=monthList(),tot=Object.fromEntries(ms.map(m=>[m.key,0])),ps=typeof validPayments==="function"?validPayments():[];ps.forEach(p=>{const d=String(p.date||p.paidAt||p.createdAt||"").slice(0,7);if(d in tot)tot[d]+=Math.max(0,Number(p.amount||p.paidAmount||0))});const vals=ms.map(m=>tot[m.key]),max=Math.max(...vals,1),w=540,h=220,L=48,R=10,T=14,B=34,ph=h-T-B,pw=w-L-R,step=pw/ms.length,bw=Math.min(42,step*.56);let svg='<svg class="eiafc-chart-svg" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Encaissements sur six mois">';for(let i=0;i<4;i++){const y=T+ph*i/3;svg+='<line x1="'+L+'" y1="'+y+'" x2="'+(w-R)+'" y2="'+y+'" stroke="#e8eef5" stroke-dasharray="3 4"/><text x="'+(L-8)+'" y="'+(y+4)+'" text-anchor="end" font-size="10" fill="#8a98aa">'+(max===1?"0":money.format(max*(1-i/3)/1000)+"k")+"</text>"}ms.forEach((m,i)=>{const v=vals[i],bh=v/max*ph,x=L+i*step+(step-bw)/2,y=T+ph-bh;svg+='<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+Math.max(2,bh)+'" rx="6" fill="'+colors[0]+'" opacity="'+(i===5?"1":".72")+'"><title>'+safe(m.label)+": "+money.format(v)+" FCFA</title></rect><text x="'+(L+i*step+step/2)+'" y="'+(h-10)+'" text-anchor="middle" font-size="11" fill="#687b91">'+safe(m.label)+"</text>"});el.innerHTML=svg+"</svg>"+'<div class="eiafc-chart-legend">Total période : <b>'+money.format(vals.reduce((a,v)=>a+v,0))+' FCFA</b> · Dernier mois : <b>'+money.format(vals[5])+" FCFA</b></div>"}catch(_e){el.innerHTML='<div class="eiafc-chart-empty">Encaissements indisponibles.</div>'}}function programs(){const el=document.getElementById("eiafcProgramsChart");if(!el)return;try{const sts=typeof currentStudents==="function"?currentStudents():[];if(!sts.length){el.innerHTML='<div class="eiafc-chart-empty">Aucun étudiant à représenter pour le moment.</div>';return}const g={};sts.forEach(s=>{const p=String(s.program||s.filiere||s.formation||"Non renseigné").trim()||"Non renseigné";g[p]=(g[p]||0)+1});const rows=Object.entries(g).sort((a,b)=>b[1]-a[1]).slice(0,7),max=Math.max(...rows.map(x=>x[1]),1),w=460,rh=31,h=Math.max(125,rows.length*rh+18);let svg='<svg class="eiafc-chart-svg" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Effectifs par formation">';rows.forEach(([name,n],i)=>{const y=8+i*rh,bw=235*n/max;svg+='<text x="0" y="'+(y+15)+'" font-size="11" fill="#52657b">'+safe(name.length>22?name.slice(0,21)+"…":name)+'</text><rect x="155" y="'+y+'" width="235" height="17" rx="7" fill="#edf2f8"/><rect x="155" y="'+y+'" width="'+Math.max(3,bw)+'" height="17" rx="7" fill="'+colors[i%colors.length]+'"/><text x="448" y="'+(y+13)+'" text-anchor="end" font-size="11" font-weight="700" fill="#263e58">'+n+"</text>"});el.innerHTML=svg+"</svg>"+'<div class="eiafc-chart-legend">Effectif total : <b>'+sts.length+"</b> · Formations affichées : <b>"+rows.length+"</b></div>"}catch(_e){el.innerHTML='<div class="eiafc-chart-empty">Effectifs indisponibles.</div>'}}let pending=false;function draw(){pending=false;collections();programs()}function schedule(){if(pending)return;pending=true;if(typeof requestAnimationFrame==="function")requestAnimationFrame(draw);else draw()}function init(){draw();const k=document.getElementById("kpiGrid");if(k&&typeof MutationObserver!=="undefined")new MutationObserver(schedule).observe(k,{childList:true,subtree:true,characterData:true});document.addEventListener("visibilitychange",()=>{if(!document.hidden)schedule()});document.addEventListener("click",e=>{if(e.target&&e.target.closest&&e.target.closest('[onclick*="syncNow"],[onclick*="renderDashboard"],[onclick*="goToView"]'))schedule()})}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init()})();</script>
+
+<script id="eiafc-production-auth-screen-guard">
+(function(){
+  'use strict';
+  if(!/\.vercel\.app$/i.test(location.hostname) && location.hostname!=='eiafc-web.vercel.app') return;
+  let userInteracted=false;
+  ['pointerdown','keydown','touchstart'].forEach(function(evt){
+    window.addEventListener(evt,function(){userInteracted=true},{once:true,passive:true});
+  });
+  function showWebEntry(){
+    if(userInteracted) return;
+    const overlay=document.getElementById('loginOverlay');
+    const choice=document.getElementById('authChoiceBox');
+    if(!overlay || !choice || overlay.classList.contains('hidden')) return;
+    overlay.classList.remove('hidden');
+    ['emptyInstallBox','firstAdminBox','existingInstallBox','founderAccessBox','activationKeyBox','autoInstallBox'].forEach(function(id){const el=document.getElementById(id);if(el)el.classList.add('hidden')});
+    document.querySelectorAll('#loginOverlay .cloud-box').forEach(function(el){el.style.display='none'});
+    choice.classList.remove('hidden');
+    ['loginBox','signupBox','studentPortalLoginBox'].forEach(function(id){const el=document.getElementById(id);if(el)el.classList.add('hidden')});
+    const intro=document.getElementById('loginIntro');if(intro)intro.textContent='Accédez à votre espace EIAFC ou créez un compte autorisé.';
+    const boot=document.getElementById('bootStatus');if(boot)boot.classList.add('hidden');
+  }
+  function schedule(){[0,250,800,1500].forEach(function(ms){setTimeout(showWebEntry,ms)})}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
+})();
+</script>
+
 </body>
 </html>
