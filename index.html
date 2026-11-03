@@ -9093,6 +9093,9 @@ function sepPoleDayParts(date,pole){
  const opening=Number(sepDirectCashPoleMap(addDays(date,-1))[pole]||0),available=opening+cashIn+transferIn-cashOut-transferOut;
  return{opening,cashIn,cashOut,transferIn,transferOut,available,paymentRows,otherRows,expenseRows,payroll,loans,unifiedOutflows:unified}
 }
+// Exposer le calcul par pôle au module du bilan journalier détaillé.
+window.SEP_POLES=SEP_POLES;
+window.sepPoleDayParts=sepPoleDayParts;
 
 function sepClosingPoleOf(c){
  const p=String(c?.pole||"").trim();if(SEP_POLES.includes(p))return p;
