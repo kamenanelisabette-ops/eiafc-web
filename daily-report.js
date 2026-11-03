@@ -87,6 +87,37 @@
     return{date,students,payments,validPays,others,validOthers,expenses,payroll,loans,transfers,closings,supplies,studentIn,otherIn,totalIn,supplierOut,salaryOut,loanOut,operatingOut,net};
   }
 
+  function cashCarryForwardTable(date,d){
+    // Le solde reporté est calculé séparément pour chaque pôle, à partir du reliquat réel de la clôture précédente.
+    if(typeof sepPoleDayParts==='function' && typeof SEP_POLES!=='undefined' && Array.isArray(SEP_POLES)){
+      const rows=SEP_POLES.map(pole=>{
+        const part=safe(()=>sepPoleDayParts(date,pole),null);
+        if(!part)return null;
+        const close=(d.closings||[]).filter(c=>String(c.pole||'')===String(pole))
+          .sort((a,b)=>String(b.time||'').localeCompare(String(a.time||'')))[0]||null;
+        const opening=money(part.opening),cashIn=money(part.cashIn),cashOut=money(part.cashOut);
+        const transferIn=money(part.transferIn),transferOut=money(part.transferOut);
+        const available=money(part.available);
+        const remaining=close?money(close.actual):available;
+        return {pole,opening,cashIn,cashOut,transferIn,transferOut,available,remaining,status:close?'Clôturé':'À clôturer'};
+      }).filter(Boolean);
+      if(rows.length){
+        const sum=k=>rows.reduce((z,x)=>z+money(x[k]),0);
+        return `<table><thead><tr><th>Pôle</th><th class="money">Report veille</th><th class="money">Entrées espèces</th><th class="money">Sorties espèces</th><th class="money">Transferts reçus</th><th class="money">Transferts sortis</th><th class="money">Disponible avant clôture</th><th class="money">Reste caisse reportable</th><th>État</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${escD(x.pole)}</b></td><td class="money">${fmtD(x.opening)}</td><td class="money">${fmtD(x.cashIn)}</td><td class="money">${fmtD(x.cashOut)}</td><td class="money">${fmtD(x.transferIn)}</td><td class="money">${fmtD(x.transferOut)}</td><td class="money">${fmtD(x.available)}</td><td class="money"><b>${fmtD(x.remaining)}</b></td><td>${escD(x.status)}</td></tr>`).join('')}<tr><th>TOTAL CAISSE</th><th class="money">${fmtD(sum('opening'))}</th><th class="money">${fmtD(sum('cashIn'))}</th><th class="money">${fmtD(sum('cashOut'))}</th><th class="money">${fmtD(sum('transferIn'))}</th><th class="money">${fmtD(sum('transferOut'))}</th><th class="money">${fmtD(sum('available'))}</th><th class="money">${fmtD(sum('remaining'))}</th><th>—</th></tr></tbody></table>`;
+      }
+    }
+    // Compatibilité avec les anciennes clôtures globales non ventilées par pôle.
+    if(typeof cashClosingComputation==='function'){
+      const calc=safe(()=>cashClosingComputation(date),null);
+      if(calc){
+        const close=(d.closings||[]).filter(c=>!c.pole).sort((a,b)=>String(b.time||'').localeCompare(String(a.time||'')))[0]||null;
+        const remaining=close?money(close.actual):money(calc.available);
+        return `<table><thead><tr><th>Solde reporté de la veille</th><th>Entrées espèces</th><th>Sorties espèces</th><th>Transferts reçus</th><th>Transferts sortis</th><th>Disponible avant clôture</th><th>Reste caisse reportable</th></tr></thead><tbody><tr><td class="money">${fmtD(calc.opening)}</td><td class="money">${fmtD(calc.cashIn)}</td><td class="money">${fmtD(calc.cashOut)}</td><td class="money">${fmtD(calc.transferIn)}</td><td class="money">${fmtD(calc.transferOut)}</td><td class="money">${fmtD(calc.available)}</td><td class="money"><b>${fmtD(remaining)}</b></td></tr></tbody></table>`;
+      }
+    }
+    return '<p class="small">Le détail du report de caisse est indisponible pour cette date.</p>';
+  }
+
   function modeBreakdown(d){
     const channels=['Espèces','Caisse Fondateur','Wave','MTN Mobile Money','Orange Money','Banque'];
     const map=new Map(channels.map(c=>[c,{channel:c,inflow:0,outflow:0,transferIn:0,transferOut:0}]));
@@ -144,6 +175,7 @@
     const host=document.getElementById('dailyDetailedReportBody');if(!host||!hasCore())return;
     const date=document.getElementById('dailyDetailedReportDate')?.value||todayD(),d=dayData(date),paidMap=dayPaymentsByStudent(date),full=fullFinanceAccess();
     const modeRows=modeBreakdown(d),poleRows=poleBreakdown(d),checks=integrityChecks(d);
+    const cashCarryTable=cashCarryForwardTable(date,d);
     const regOfficial=d.students.filter(s=>normalizeDate(s.date)===date).length;
     const pendingAmt=d.payments.filter(p=>p.status==='En attente').reduce((z,p)=>z+money(p.amount),0);
     const closingDiff=d.closings.reduce((z,c)=>z+money(c.difference),0);
@@ -188,6 +220,7 @@
     host.innerHTML=`<div id="dailyDetailedReportPrintArea">
       <div class="card djr-head"><div><div class="djr-eyebrow">EIAFC • Bilan journalier détaillé</div><h2>${escD(activeSchoolLabel())}</h2><div class="small">Journée du <b>${escD(date)}</b> • Année ${escD(activeYearLabel())} • Généré le ${new Date().toLocaleString('fr-FR')}</div></div><div class="djr-state ${d.closings.length?'closed':'open'}">${d.closings.length?'Journée clôturée':'Journée ouverte'}</div></div>
       <div class="grid kpis djr-kpis">${kpis.map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join('')}</div>
+      ${tableSection('💵 Report du solde en caisse','Le reste réel de la veille est repris en ouverture. Les entrées, sorties et transferts du jour restent calculés séparément.',cashCarryTable)}
       <div class="card djr-checks"><div class="section-title"><h3>🔎 Contrôle de cohérence</h3></div>${checks.map(x=>`<div class="djr-check ${x.level}">${x.level==='ok'?'✅':x.level==='bad'?'⛔':x.level==='warn'?'⚠️':'ℹ️'} ${escD(x.text)}</div>`).join('')}</div>
       <div class="djr-two">${tableSection('Répartition par canal','Entrées, sorties et transferts de la journée',modeTable)}${tableSection('Répartition par pôle','BTS, Formation qualifiante, Licence, Master…',poleTable)}</div>
       ${tableSection('🎓 Étudiants saisis pendant la journée',`${d.students.length} nouveau(x) dossier(s) • la colonne “Versé ce jour” reprend uniquement les paiements validés du ${date}`,studentTable)}
