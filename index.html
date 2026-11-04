@@ -2623,7 +2623,7 @@ table{border-collapse:separate;border-spacing:0;width:100%}th{background:#f4f7fb
           <div class="field"><label>Pôle de dépense</label><select id="expService" required><option value="BTS" selected>BTS (1 + 2) — PÔLE UNIQUE</option><option>Formation qualifiante</option><option>Licence</option><option>Master</option><option>Administration générale</option></select><div class="small"><b>Règle Dépenses :</b> BTS 1 et BTS 2 sont toujours enregistrés ensemble dans le pôle <b>BTS (1 + 2)</b>.</div></div>
           <div class="field"><label>Filière / centre de coût</label><input id="expTrack" list="operationTrackList" placeholder="Ex. RHCOM / Finance / Commun"></div>
           <div class="field"><label>Agent</label><input id="expAgent" readonly></div>
-          <div class="field"><label>Statut d’approbation</label><select id="expStatus"><option>En attente</option><option selected>Validé</option><option>Rejeté</option></select></div><div class="field span-4"><div id="expenseLiveSummary" class="info"><b>Calcul automatique :</b> saisissez le montant total et l’avance pour voir le reste fournisseur.</div></div>
+          <div class="field"><label>Statut d’approbation</label><select id="expStatus"><option selected>En attente</option><option>Validé</option><option>Rejeté</option></select></div><div class="field span-4"><div id="expenseLiveSummary" class="info"><b>Calcul automatique :</b> saisissez le montant total et l’avance pour voir le reste fournisseur.</div></div>
           <div class="field span-4"><button class="btn btn-primary" type="submit">Enregistrer la dépense</button></div>
         </form>
       </div>
@@ -4080,9 +4080,9 @@ function permissions(role){
   "Éducateur":["dashboard","students","attendance","timetable","discipline"],
   "Enseignant":["dashboard","students","attendance","academic","timetable"],
   "RH":["dashboard","staff","payroll","purchases"],
-  "Caissier":["dashboard","students","payments","schedule","studentFinance","cash","closing"],
+  "Caissier":["dashboard","students","payments","schedule","studentFinance","expenses","cash","closing"],
   "Secrétariat":["dashboard","students","attendance"],
-  "Secrétariat & Caisse":["dashboard","students","attendance","payments","schedule","studentFinance","cash","closing"]
+  "Secrétariat & Caisse":["dashboard","students","attendance","payments","schedule","studentFinance","expenses","cash","closing"]
  };
  return map[role]||[];
 }
@@ -6844,6 +6844,7 @@ function suspectedAutomaticExpenseDuplicates(from="",to=""){
 
 expenseForm.addEventListener("submit",async e=>{
  e.preventDefault();if(!can("expenses"))return;
+ if(!can("validate")&&Number(expInitialPaid.value||0)>0)return alert("La dépense doit d’abord être enregistrée puis validée par la comptabilité. L’avance ou le règlement sera saisi après validation.");
  if(!requireManagementDate(expDate.value,"La date de la dépense")||!requireOpenPeriod(expDate.value,"La dépense"))return;
  const total=Math.max(0,Number(expAmount.value||0)),initial=Math.max(0,Number(expInitialPaid.value||0));
  if(total<=0)return alert("Le montant total de la dépense doit être supérieur à zéro.");
@@ -6874,7 +6875,7 @@ expenseForm.addEventListener("submit",async e=>{
 });
 function updateExpensePaymentSelect(){if(!expensePaymentExpense)return;const old=expensePaymentExpense.value,rows=validExpenses().filter(x=>expenseRest(x)>0).sort((a,b)=>String(a.dueDate||a.date).localeCompare(String(b.dueDate||b.date)));expensePaymentExpense.innerHTML='<option value="">Choisir une dépense non soldée</option>'+rows.map(x=>`<option value="${esc(x.id)}">${esc(x.id)} — ${esc(x.beneficiary||x.label)} — reste ${fmt(expenseRest(x))}</option>`).join("");if(rows.some(x=>x.id===old))expensePaymentExpense.value=old}
 expensePaymentForm?.addEventListener("submit",e=>{
- e.preventDefault();if(!can("expenses"))return;
+ e.preventDefault();if(!can("expenses"))return;if(!can("validate"))return alert("Les règlements fournisseurs sont réservés à la comptabilité après validation de la dépense.");
  const x=db.expenses.find(v=>v.id===expensePaymentExpense.value&&v.deleted!==true);if(!x||x.status!=="Validé")return alert("Sélectionnez une dépense validée.");
  const date=expensePaymentDate.value,amount=Math.max(0,Number(expensePaymentAmount.value||0)),rest=expenseRest(x),mode=expensePaymentMode.value;
  if(!requireManagementDate(date,"La date du règlement fournisseur")||!requireOpenPeriod(date,"Le règlement fournisseur"))return;
