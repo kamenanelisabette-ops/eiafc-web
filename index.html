@@ -2149,7 +2149,7 @@ table{border-collapse:separate;border-spacing:0;width:100%}th{background:#f4f7fb
             <div class="field"><label>Note</label><input id="gradeScore" type="number" min="0" step="0.25" required></div>
             <div class="field"><label>Barème</label><input id="gradeMax" type="number" min="1" value="20" required></div>
             <div class="field"><label>Coefficient</label><input id="gradeCoefficient" type="number" min="0.1" step="0.1" value="1"></div>
-            <div class="field span-4"><button class="btn btn-primary" type="submit">Enregistrer la note</button></div>
+            <div class="field span-4"><div class="toolbar"><button class="btn btn-primary" type="submit">Enregistrer la note</button><button class="btn btn-light" type="button" onclick="printGradeSheet()">🖨 Imprimer la liste de notes</button></div></div>
           </form>
         </div>
 
@@ -6389,6 +6389,37 @@ function updateAcademicSelects(){
  updateGradeStudents()
 }
 function updateGradeStudents(){if(!gradeStudent)return;const s=subjectById(gradeSubject?.value),rows=academicStudentsForSubject(s);gradeStudent.innerHTML='<option value="">— Choisir étudiant —</option>'+rows.map(st=>`<option value="${esc(st.matricule)}">${esc(st.name)} — ${esc(st.matricule)}</option>`).join("")}
+function printGradeSheet(){
+ const subject=subjectById(gradeSubject?.value);
+ if(!subject)return alert("Choisissez d'abord une matière.");
+ if(!academicTeacherCanUse(subject))return alert("Vous n'êtes pas autorisé à imprimer cette liste.");
+ const students=academicStudentsForSubject(subject).slice().sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"fr"));
+ if(!students.length)return alert("Aucun étudiant actif n'est inscrit dans cette classe.");
+ const rows=students.map((st,i)=>`<tr><td class="num">${i+1}</td><td>${esc(st.name||"")}</td><td>${esc(st.matricule||"")}</td><td></td><td></td><td></td><td></td></tr>`).join("");
+ const w=window.open("","_blank","width=1100,height=800");
+ if(!w)return alert("Autorisez les fenêtres contextuelles pour imprimer.");
+ w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>EIAFC — Liste de notes</title><style>
+ @page{size:A4 landscape;margin:12mm}
+ *{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#17212b;margin:0;font-size:11px}
+ .head{text-align:center;border-bottom:2px solid #c99a24;padding-bottom:9px;margin-bottom:12px}
+ h1{font-size:18px;margin:0 0 5px;color:#12304a}.meta{display:grid;grid-template-columns:2fr 1fr 1fr;gap:18px;margin:12px 0 14px}
+ .meta div{border-bottom:1px solid #667085;padding:5px 2px}.meta b{color:#344054}
+ table{width:100%;border-collapse:collapse;table-layout:fixed}
+ thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}
+ th,td{border:1px solid #7b8794;padding:7px 6px;height:28px}
+ th{background:#edf2f6;text-align:center;font-size:10px}
+ td.num{text-align:center;width:5%}th:nth-child(1){width:5%}th:nth-child(2){width:34%}th:nth-child(3){width:16%}
+ th:nth-child(n+4){width:11.25%}
+ .sign{display:flex;justify-content:space-between;margin-top:20px;font-size:11px}
+ @media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+ </style></head><body>
+ <div class="head"><h1>GRANDE ÉCOLE PRIVÉE EIAFC</h1><b>LISTE DE NOTES — REGISTRE DE CLASSE</b><div>${esc(schoolLabel())} • Année académique : ${esc(activeYear())}</div></div>
+ <div class="meta"><div><b>Matière :</b> ${esc(subject.name)}</div><div><b>Classe :</b> ${esc(subject.program)} — ${esc(subject.track)}</div><div><b>Enseignant :</b> ${esc(teacherLabel(subject.teacherUsername))}</div></div>
+ <table><thead><tr><th>N°</th><th>Nom et prénoms</th><th>Matricule</th><th>Interrogation 1</th><th>Interrogation 2</th><th>Devoir</th><th>Examen</th></tr></thead><tbody>${rows}</tbody></table>
+ <div class="sign"><div>Signature de l'enseignant : ____________________</div><div>Visa de la Direction des études : ____________________</div></div>
+ <script>setTimeout(()=>window.print(),300)<\/script></body></html>`);
+ w.document.close();
+}
 function gradeNormalized(g){return Number(g.maxScore||20)>0?(Number(g.score||0)/Number(g.maxScore||20))*20:0}
 function studentSubjectAverage(student,subjectId,term=""){const rows=currentRecords(db.grades).filter(g=>g.student===student&&g.subjectId===subjectId&&(!term||g.term===term)),den=rows.reduce((a,g)=>a+Number(g.coefficient||1),0);return den?rows.reduce((a,g)=>a+gradeNormalized(g)*Number(g.coefficient||1),0)/den:null}
 function renderAcademic(){
