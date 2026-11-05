@@ -6176,29 +6176,28 @@ function printClassList(){
   const generatedAt=new Date().toLocaleString('fr-FR');
   const totalStudents=ordered.length;
   // Numérotation unique et continue dans toute la liste imprimée, même entre filières et pages.
-  const studentNumbers=new Map(ordered.map((student,index)=>[student,index+1]));
+  // Numérotation calée sur l'ordre exact d'affichage des filières et des étudiants.
+  const printOrder=levelSections.flatMap(section=>section.tracks.flatMap(group=>group.students));
+  const studentNumbers=new Map(printOrder.map((student,index)=>[student,index+1]));
   const totalGirls=ordered.filter(s=>s.sex==="F").length;
   const totalBoys=ordered.filter(s=>s.sex==="M").length;
   const totalAssigned=ordered.filter(studentIsAssigned).length;
   const totalUnassigned=ordered.filter(studentIsNonAssigned).length;
   const listLabel=selectedProgram||"Tous niveaux";
 
-  // Une page d'impression ne contient qu'un seul niveau ET une seule filière. La numérotation continue sur toutes les pages de la filière.
-  const ROWS_PER_PAGE=13;
+  // Une seule liste complète par filière : le navigateur répartit le tableau sur autant de pages A4 que nécessaire.
+  // L'en-tête du tableau se répète à chaque page et les numéros restent continus.
   const pages=[];
   levelSections.forEach((section,levelIndex)=>{
     section.tracks.forEach((g,trackIndex)=>{
-      const parts=Math.max(1,Math.ceil(g.students.length/ROWS_PER_PAGE));
-      for(let i=0;i<g.students.length;i+=ROWS_PER_PAGE){
-        pages.push({
-          section,track:g.track,
-          students:g.students.slice(i,i+ROWS_PER_PAGE),
-          part:Math.floor(i/ROWS_PER_PAGE)+1,parts,
-          trackTotal:g.students.length,
-          levelIndex,trackIndex,
-          firstPageOfLevel:trackIndex===0&&i===0
-        });
-      }
+      pages.push({
+        section,track:g.track,
+        students:g.students,
+        part:1,parts:1,
+        trackTotal:g.students.length,
+        levelIndex,trackIndex,
+        firstPageOfLevel:trackIndex===0
+      });
     });
   });
 
@@ -6350,7 +6349,7 @@ function doPrintClassList(){
     @media print{
       html,body{width:auto!important;height:auto!important;overflow:visible!important}
       #classListPrint .print-summary{page-break-after:always!important;break-after:page!important;margin:0!important;box-shadow:none!important}
-      #classListPrint .print-page{display:block!important;position:relative!important;float:none!important;clear:both!important;width:100%!important;min-height:0!important;height:auto!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important;page-break-before:auto!important;page-break-after:always!important;break-after:page!important;page-break-inside:avoid!important;break-inside:avoid-page!important}
+      #classListPrint .print-page{display:block!important;position:relative!important;float:none!important;clear:both!important;width:100%!important;min-height:0!important;height:auto!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important;page-break-before:auto!important;page-break-after:always!important;break-after:page!important;page-break-inside:auto!important;break-inside:auto!important}
       #classListPrint .print-page:last-child{page-break-after:auto!important;break-after:auto!important}
       #classListPrint table{page-break-inside:auto!important;break-inside:auto!important}
       #classListPrint thead{display:table-header-group!important}
