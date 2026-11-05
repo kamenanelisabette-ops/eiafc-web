@@ -6175,6 +6175,8 @@ function printClassList(){
   const school=activeSchool();
   const generatedAt=new Date().toLocaleString('fr-FR');
   const totalStudents=ordered.length;
+  // Numérotation unique et continue dans toute la liste imprimée, même entre filières et pages.
+  const studentNumbers=new Map(ordered.map((student,index)=>[student,index+1]));
   const totalGirls=ordered.filter(s=>s.sex==="F").length;
   const totalBoys=ordered.filter(s=>s.sex==="M").length;
   const totalAssigned=ordered.filter(studentIsAssigned).length;
@@ -6324,7 +6326,7 @@ function printClassList(){
       </div>
       <table>
         <thead><tr><th class="c-num">N°</th><th class="c-mat">Matricule</th><th class="c-name">Nom & Prénoms</th><th class="c-sex">Sexe</th><th class="c-phone">Téléphone</th><th class="c-aff">Affectation</th><th class="c-sign">Signature</th></tr></thead>
-        <tbody>${p.students.map((s,i)=>`<tr><td class="c-num">${startIndex+i+1}</td><td class="c-mat">${esc(s.matricule||"")}</td><td class="c-name"><div class="student-name">${esc(s.name||"")}</div><div class="student-level">${esc(classLevelName(s)&&!sameText(classLevelName(s),section.program)?classLevelName(s):section.program)}</div></td><td class="c-sex">${esc(s.sex||"")}</td><td class="c-phone">${esc(s.phone||"—")}</td><td class="c-aff"><span class="aff-badge">${esc(studentAssignmentLabel(s))}</span></td><td class="c-sign sign-space"></td></tr>`).join("")}</tbody>
+        <tbody>${p.students.map((s,i)=>`<tr><td class="c-num">${studentNumbers.get(s)||i+1}</td><td class="c-mat">${esc(s.matricule||"")}</td><td class="c-name"><div class="student-name">${esc(s.name||"")}</div><div class="student-level">${esc(classLevelName(s)&&!sameText(classLevelName(s),section.program)?classLevelName(s):section.program)}</div></td><td class="c-sex">${esc(s.sex||"")}</td><td class="c-phone">${esc(s.phone||"—")}</td><td class="c-aff"><span class="aff-badge">${esc(studentAssignmentLabel(s))}</span></td><td class="c-sign sign-space"></td></tr>`).join("")}</tbody>
       </table>
       <div class="page-foot"><div>Généré le ${esc(generatedAt)} • Niveau séparé : ${esc(section.title)} • Filière : ${esc(p.track)}</div><div class="signatures"><div class="signature-box">Responsable pédagogique</div><div class="signature-box">Administration / Cachet</div></div></div>
     </section>`;
