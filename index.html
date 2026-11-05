@@ -6352,7 +6352,8 @@ function doPrintClassList(){
       #classListPrint .print-page{display:block!important;position:relative!important;float:none!important;clear:both!important;width:100%!important;min-height:0!important;height:auto!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important;page-break-before:auto!important;page-break-after:always!important;break-after:page!important;page-break-inside:auto!important;break-inside:auto!important}
       #classListPrint .print-page:last-child{page-break-after:auto!important;break-after:auto!important}
       #classListPrint table{page-break-inside:auto!important;break-inside:auto!important}
-      #classListPrint thead{display:table-header-group!important}
+      /* L'en-tête du tableau apparaît une seule fois, sur la première page. */
+      #classListPrint thead{display:table-row-group!important}
       #classListPrint tbody{display:table-row-group!important}
       #classListPrint tr{page-break-inside:avoid!important;break-inside:avoid!important}
       #classListPrint .page-head,#classListPrint .global-total,#classListPrint .group-stats,#classListPrint .page-foot{page-break-inside:avoid!important;break-inside:avoid!important}
