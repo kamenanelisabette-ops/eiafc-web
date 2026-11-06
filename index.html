@@ -6299,7 +6299,6 @@ function printClassList(){
     const unspecified=trackStudents.filter(s=>studentAdmissionStatus(s)==="À préciser").length;
     const girls=trackStudents.filter(s=>s.sex==="F").length;
     const boys=trackStudents.filter(s=>s.sex==="M").length;
-    const startIndex=(p.part-1)*ROWS_PER_PAGE;
     return `<section class="print-page ${p.firstPageOfLevel?"level-start":""}">
       <div class="level-banner">
         <div><div class="label">Niveau / Classe</div><div class="name">${esc(section.title)}</div></div>
