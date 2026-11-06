@@ -1,10 +1,18 @@
 const fs = require('fs');
 const path = require('path');
 
+// Cache the fully rendered, static HTML shell per host type for the lifetime
+// of each warm serverless instance. This avoids rereading and rewriting the
+// 1 MB+ page on every request. The shell contains no user-specific data.
+const renderedHtmlCache = Object.create(null);
+
 module.exports = function handler(req, res) {
   try {
-    const indexPath = path.join(process.cwd(), 'index.html');
-    let html = fs.readFileSync(indexPath, 'utf8');
+    const cacheKey = String(req.headers.host || '').endsWith('.vercel.app') ? 'vercel' : 'custom';
+    let html = renderedHtmlCache[cacheKey];
+    if (!html) {
+      const indexPath = path.join(process.cwd(), 'index.html');
+      html = fs.readFileSync(indexPath, 'utf8');
 
     if (!/<html\b/i.test(html) || !/const APP_VERSION=["']\d+\.\d+\.\d+["']/.test(html)) {
       throw new Error('Index EIAFC invalide ou version absente');
@@ -188,10 +196,13 @@ module.exports = function handler(req, res) {
         : html + '\n' + marker;
     }
 
+      renderedHtmlCache[cacheKey] = html;
+    }
+
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
+    // The page shell is identical for all visitors; application data is loaded
+    // after authentication from the private EIAFC Cloud workspace.
+    res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=120');
     res.statusCode = 200;
     res.end(html);
   } catch (error) {
