@@ -6262,7 +6262,7 @@ function printClassList(){
     @media print{
       @page{size:A4 landscape;margin:8mm}
       #classListPrint{background:#fff}
-      #classListPrint .print-summary{box-shadow:none;page-break-after:always;break-after:page}
+      #classListPrint .print-summary{box-shadow:none;page-break-after:auto;break-after:auto}
       #classListPrint .print-page{box-shadow:none;margin:0;border-radius:0;border:none;min-height:185mm;padding:0;overflow:hidden}
       #classListPrint .print-page.level-start{border-top:0}
       #classListPrint .print-page:last-child{page-break-after:auto;break-after:auto}
@@ -6351,8 +6351,8 @@ function doPrintClassList(){
       #classListPrint .print-summary{page-break-after:always!important;break-after:page!important;margin:0!important;box-shadow:none!important}
       #classListPrint .print-page{display:block!important;position:relative!important;float:none!important;clear:both!important;width:100%!important;min-height:0!important;height:auto!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important;page-break-before:auto!important;page-break-after:always!important;break-after:page!important;page-break-inside:auto!important;break-inside:auto!important}
       #classListPrint .print-page:last-child{page-break-after:auto!important;break-after:auto!important}
-      #classListPrint table{page-break-inside:auto!important;break-inside:auto!important}
-      /* L'en-tête du tableau apparaît une seule fois, sur la première page. */
+      #classListPrint table{overflow:visible!important;page-break-inside:auto!important;break-inside:auto!important}
+      /* L'en-tête reste sur la première page du tableau ; les lignes continuent sans être rognées. */
       #classListPrint thead{display:table-row-group!important}
       #classListPrint tbody{display:table-row-group!important}
       #classListPrint tr{page-break-inside:avoid!important;break-inside:avoid!important}
