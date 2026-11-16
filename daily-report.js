@@ -254,9 +254,12 @@
 
   function printDailyDetailed(){
     const area=document.getElementById('dailyDetailedReportPrintArea');if(!area)return;
-    const w=window.open('','_blank','noopener,noreferrer,width=1200,height=850');if(!w)return alert('Autorisez les fenêtres pop-up pour imprimer le bilan journalier.');
+    const w=window.open('','_blank','width=1200,height=850');if(!w)return alert('Autorisez les fenêtres pop-up pour imprimer le bilan journalier.');
+    // Keep the window reference so we can write the document, then sever its opener for security.
+    w.opener=null;
+    w.document.open();
     const css=`body{font-family:Arial,sans-serif;color:#17212b;margin:18px}h2,h3{color:#12304a}h2{margin:3px 0}.card{border:1px solid #d9e1e8;border-radius:8px;padding:12px;margin:10px 0}.grid{display:grid;gap:8px}.kpis{grid-template-columns:repeat(4,1fr)}.kpi .label{font-size:10px;text-transform:uppercase;color:#667085}.kpi .value{font-size:17px;font-weight:800;color:#12304a}.small,.sub{font-size:10px;color:#667085}.djr-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.table-wrap{overflow:visible}table{width:100%;border-collapse:collapse;font-size:9px}th,td{border:1px solid #d9e1e8;padding:5px;text-align:left}th{background:#edf3f7}.money{text-align:right}.status{font-weight:700}.djr-head{display:flex;justify-content:space-between}.djr-state{font-weight:800}.djr-check{padding:5px;margin:4px 0;border:1px solid #ddd}.djr-foot{text-align:center;font-size:9px;margin-top:15px}@media print{.card{break-inside:avoid}.djr-section{break-inside:auto}table{break-inside:auto}tr{break-inside:avoid}.djr-two{break-inside:avoid}}`;
-    w.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Bilan journalier EIAFC</title><style>${css}</style></head><body>${area.outerHTML}<script>window.onload=()=>{window.print();setTimeout(()=>window.close(),500)}<\/script></body></html>`);w.document.close();
+    w.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Bilan journalier EIAFC</title><style>${css}</style></head><body>${area.outerHTML}<script>window.addEventListener('load',()=>{window.focus();window.print()},{once:true});window.addEventListener('afterprint',()=>window.close(),{once:true})<\/script></body></html>`);w.document.close();
   }
 
   function setDateAndRender(date){const input=document.getElementById('dailyDetailedReportDate');if(input)input.value=date;renderDailyDetailedReport()}
