@@ -2,6 +2,7 @@ name: EIAFC - Surveillance et contrôles de santé
 
 on:
   push:
+    branches: [main]
   workflow_dispatch:
   schedule:
     - cron: "*/15 * * * *"
@@ -31,10 +32,17 @@ jobs:
           EXPECTED="$(jq -r '.version // empty' /tmp/eiafc-version.json)"
           [[ -n "$EXPECTED" ]] || { echo "::error::version.json invalide"; exit 1; }
           echo "Version publique attendue : $EXPECTED"
-          curl --silent --show-error --fail --max-time 30 "https://opypgilifxnrwqmpsnzp.supabase.co/functions/v1/eiafc-app" -o /tmp/eiafc-release.json
-          RELEASE="$(jq -r '.version // empty' /tmp/eiafc-release.json)"
+          RELEASE=""
+          for ATTEMPT in $(seq 1 18); do
+            if curl --silent --show-error --fail --max-time 30 "https://opypgilifxnrwqmpsnzp.supabase.co/functions/v1/eiafc-app" -o /tmp/eiafc-release.json; then
+              RELEASE="$(jq -r '.version // empty' /tmp/eiafc-release.json)"
+            fi
+            if [[ "$RELEASE" == "$EXPECTED" ]]; then break; fi
+            echo "Déploiement en cours : version publique=$EXPECTED, version Cloud=$RELEASE (tentative $ATTEMPT/18)"
+            sleep 10
+          done
           [[ "$RELEASE" == "$EXPECTED" ]] || {
-            echo "::error::Version d'installation ($RELEASE) différente de version.json ($EXPECTED)"
+            echo "::error::Version d'installation ($RELEASE) différente de version.json ($EXPECTED) après attente du déploiement"
             exit 1
           }
           echo "Version d'installation : $RELEASE"
