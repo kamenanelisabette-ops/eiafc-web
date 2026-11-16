@@ -1,5 +1,5 @@
 {
-  "version": "11.26.6",
-  "build": "2026-10-23-v11-26-6-global-redesign",
-  "notes": "Global page redesign, improved responsive layout, updated version labels, and refined navigation, dashboard cards, forms, and tables."
+  "version": "11.26.7",
+  "build": "2026-11-16-v11-26-7-stability-fixes",
+  "notes": "Align public release metadata with APP_VERSION 11.26.7 and the active EIAFC Cloud release."
 }
