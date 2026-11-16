@@ -4975,7 +4975,8 @@ function refreshActiveViewFast(view){
    eiafcDeferRender(payrollSettingsLoad);eiafcDeferRender(renderDataQuality);eiafcDeferRender(populateRemoteKeySchools);
    eiafcDeferRender(populateCopyAppSchools);eiafcDeferRender(renderBackupTimeline);
    break;
-  default: setTimeout(()=>refreshAll(),0);
+  case "dailyDetailedReport": eiafcSafeRender(window.eiafcRenderDailyDetailedReport); break;
+  default: break;
  }
  eiafcSafeRender(updateOfflineQueueUI);
  if(currentUser){if(payAgent)payAgent.value=currentUserLabel();if(otherAgent)otherAgent.value=currentUserLabel();if(expAgent)expAgent.value=currentUserLabel();if(closingAgent)closingAgent.value=currentUserLabel();if(attendanceAgent)attendanceAgent.value=currentUserLabel()}
