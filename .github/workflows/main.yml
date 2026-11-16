@@ -2,6 +2,9 @@ name: EIAFC - Surveillance et contrôles de santé
 
 on:
   push:
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
   schedule:
     - cron: "*/15 * * * *"
@@ -11,6 +14,7 @@ permissions:
 
 jobs:
   surveillance:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -31,10 +35,17 @@ jobs:
           EXPECTED="$(jq -r '.version // empty' /tmp/eiafc-version.json)"
           [[ -n "$EXPECTED" ]] || { echo "::error::version.json invalide"; exit 1; }
           echo "Version publique attendue : $EXPECTED"
-          curl --silent --show-error --fail --max-time 30 "https://opypgilifxnrwqmpsnzp.supabase.co/functions/v1/eiafc-app" -o /tmp/eiafc-release.json
-          RELEASE="$(jq -r '.version // empty' /tmp/eiafc-release.json)"
+          RELEASE=""
+          for ATTEMPT in $(seq 1 18); do
+            if curl --silent --show-error --fail --max-time 30 "https://opypgilifxnrwqmpsnzp.supabase.co/functions/v1/eiafc-app" -o /tmp/eiafc-release.json; then
+              RELEASE="$(jq -r '.version // empty' /tmp/eiafc-release.json)"
+            fi
+            if [[ "$RELEASE" == "$EXPECTED" ]]; then break; fi
+            echo "Déploiement en cours : version publique=$EXPECTED, version Cloud=$RELEASE (tentative $ATTEMPT/18)"
+            sleep 10
+          done
           [[ "$RELEASE" == "$EXPECTED" ]] || {
-            echo "::error::Version d'installation ($RELEASE) différente de version.json ($EXPECTED)"
+            echo "::error::Version d'installation ($RELEASE) différente de version.json ($EXPECTED) après attente du déploiement"
             exit 1
           }
           echo "Version d'installation : $RELEASE"
@@ -60,3 +71,27 @@ jobs:
             -o /tmp/eiafc-notify-health.json
           jq -e '.ok == true' /tmp/eiafc-notify-health.json >/dev/null
           echo "Service de notifications : OK"
+
+  static-checks:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Vérifier les fichiers JavaScript
+        run: |
+          node --check api/app.js
+          node --check daily-report.js
+      - name: Vérifier le fichier de version
+        run: |
+          python -m json.tool version.json > /dev/null
+          test "$(jq -r '.version' version.json)" = "11.26.7"
+      - name: Vérifier les espaces et conflits de patch
+        run: git diff --check origin/main...HEAD
