@@ -3,6 +3,8 @@ name: EIAFC - Surveillance et contrôles de santé
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
   schedule:
     - cron: "*/15 * * * *"
@@ -12,6 +14,7 @@ permissions:
 
 jobs:
   surveillance:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -68,3 +71,25 @@ jobs:
             -o /tmp/eiafc-notify-health.json
           jq -e '.ok == true' /tmp/eiafc-notify-health.json >/dev/null
           echo "Service de notifications : OK"
+
+  static-checks:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Vérifier les fichiers JavaScript
+        run: |
+          node --check api/app.js
+          node --check daily-report.js
+      - name: Vérifier le fichier de version
+        run: |
+          python -m json.tool version.json > /dev/null
+          test "$(jq -r '.version' version.json)" = "11.26.7"
+      - name: Vérifier les espaces et conflits de patch
+        run: git diff --check origin/main...HEAD
