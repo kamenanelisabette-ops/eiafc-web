@@ -4975,7 +4975,8 @@ function refreshActiveViewFast(view){
    eiafcDeferRender(payrollSettingsLoad);eiafcDeferRender(renderDataQuality);eiafcDeferRender(populateRemoteKeySchools);
    eiafcDeferRender(populateCopyAppSchools);eiafcDeferRender(renderBackupTimeline);
    break;
-  default: setTimeout(()=>refreshAll(),0);
+  case "dailyDetailedReport": eiafcSafeRender(window.eiafcRenderDailyDetailedReport); break;
+  default: break;
  }
  eiafcSafeRender(updateOfflineQueueUI);
  if(currentUser){if(payAgent)payAgent.value=currentUserLabel();if(otherAgent)otherAgent.value=currentUserLabel();if(expAgent)expAgent.value=currentUserLabel();if(closingAgent)closingAgent.value=currentUserLabel();if(attendanceAgent)attendanceAgent.value=currentUserLabel()}
@@ -5136,16 +5137,15 @@ function runEiafcMaintenanceMonitor(){
  }catch(e){console.warn("Contrôle automatique de maintenance",e)}
 }
 function refreshAll(){
- try{updatePremiumContext();renderHomeModuleBlocks();setTimeout(decoratePremiumKpis,0)}catch(_e){}
- refreshSchoolSelectors();refreshYearSelector();refreshTrainingWaveUI();yearBadge.textContent="Année "+activeYear();renderRoleDashboardHeader();const sch=activeSchool();schoolSubtitle.textContent=schoolLabel(sch)+" — accès "+roleName();
- clearRestrictedViews();applyRoleSensitiveVisibility();
- if(can("dashboard")){renderDashboard();renderEnrollmentMonitor();renderDirectionPriorityCenter();}
- if(isOwner()||roleName()==="Comptable")renderManagementCenter();else{if(managementAlerts)managementAlerts.innerHTML="";if(agentActivity)agentActivity.innerHTML="";if(!["Caissier","Secrétariat & Caisse"].includes(roleName())&&topArrearsTable)topArrearsTable.innerHTML=""}
- if(can("students")){renderStudents();renderStudentSettlementLists();renderSupplies();renderUndatedSupplyRepair();renderTodaySupplyReceipts();renderDailySupplyTracking();renderClasses();renderEnrollmentMonitor();updateStudentAdministrativeDocumentCenter();showStudentArea(window.eiafcStudentArea||"overview")}
- if(can("attendance"))renderAttendance();if(can("academic"))renderAcademic();if(can("timetable"))renderTimetable();if(can("discipline"))renderDiscipline();if(can("purchases"))renderPurchases();if(can("inventory"))renderInventory();if(can("staff")){renderStaff();renderStaffAttendance();renderStaffLoans();renderPayroll()}
- if(can("payments")){updateStudentSelect();renderPayments()}if(can("schedule")){renderSchedule();renderReminderCenter();}if(can("other"))renderOther();if(can("expenses"))renderExpenses();if(can("cash")){renderCash();renderTransfers()}if(can("closing")){renderClosings();updateClosingPreview();if(isOwner()){renderEndDayDepositControl();renderFounderCashReceipts()}showClosingArea(window.eiafcClosingArea||"close")}if(can("journal"))renderJournal();if(can("accounting")){updateAccountingTrackOptions();renderAccounting()}if(can("reconciliation"))renderReconciliation();if(can("reports")){updateReportAssignmentControls();updateAnnualAssignmentControls();renderReports();renderAnnualBalance()}if(can("direction"))renderDirectionNetwork();if(can("audit"))renderAudit();
- if(isOwner()){renderUsers();renderSchools();loadSettings();loadNotificationSettings();renderTrackCatalog();payrollSettingsLoad();renderDataQuality();populateRemoteKeySchools();populateCopyAppSchools();renderBackupTimeline()}else{if(usersTable)usersTable.innerHTML="";if(schoolsTable)schoolsTable.innerHTML="";if(trackCatalogTable)trackCatalogTable.innerHTML="";if(dataQualityBox)dataQualityBox.innerHTML=""}
- updateOfflineQueueUI();if(isOwner())runEiafcMaintenanceMonitor();forceAllowedView();if(currentUser){if(payAgent)payAgent.value=currentUserLabel();if(otherAgent)otherAgent.value=currentUserLabel();if(expAgent)expAgent.value=currentUserLabel();if(closingAgent)closingAgent.value=currentUserLabel();if(attendanceAgent)attendanceAgent.value=currentUserLabel()}
+ // Préparer seulement le contexte global; le rendu détaillé est limité à la rubrique affichée.
+ try{
+  updatePremiumContext();renderHomeModuleBlocks();setTimeout(decoratePremiumKpis,0);
+  refreshSchoolSelectors();refreshYearSelector();refreshTrainingWaveUI();
+ }catch(e){console.warn("EIAFC contexte global",e)}
+ forceAllowedView();
+ const activeNav=document.querySelector(".nav-btn.active");
+ const activeView=activeNav?.dataset.view||"dashboard";
+ refreshActiveViewFast(activeView);
 }
 function treasuryChannel(mode){if(mode==="Chèque"||mode==="Autre")return "Banque";return mode}
 function balances(){
