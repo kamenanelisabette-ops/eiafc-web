@@ -1,5 +1,5 @@
 {
-  "version": "11.26.7",
-  "build": "2026-11-16-v11-26-7-stability-fixes",
-  "notes": "Align public release metadata with APP_VERSION 11.26.7 and the active EIAFC Cloud release."
+  "version": "11.26.8",
+  "build": "2026-11-19-v11-26-8-management-period-reconciliation",
+  "notes": "Le rapport annuel inclut désormais les opérations de pré-rentrée rattachées à l'exercice, pour s'aligner sur le bilan annuel."
 }
