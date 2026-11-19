@@ -92,6 +92,6 @@ jobs:
       - name: Vérifier le fichier de version
         run: |
           python -m json.tool version.json > /dev/null
-          test "$(jq -r '.version' version.json)" = "11.26.7"
+          test "$(jq -r '.version' version.json)" = "11.26.8"
       - name: Vérifier les espaces et conflits de patch
         run: git diff --check origin/main...HEAD
