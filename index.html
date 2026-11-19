@@ -9348,6 +9348,16 @@ setTimeout(()=>{try{sepRenderClosingPreview();if(typeof renderDashboardPoleSepar
     if(m)return{start:`${m[1]}-09-01`,end:`${m[2]}-08-31`};
     const cy=new Date().getFullYear();return{start:`${cy}-09-01`,end:`${cy+1}-08-31`};
   }
+  // L'exercice de gestion inclut aussi les opérations de pré-rentrée rattachées
+  // à l'année académique active (janvier à août).
+  function managementRange(){
+    if(typeof managementBounds==='function'){
+      const b=safe(()=>managementBounds(),null);
+      if(b?.start&&b?.end)return{start:b.start,end:b.end};
+    }
+    const a=academicRange(),m=String(yearLabel()).match(/^(\d{4})-(\d{4})$/);
+    return{start:m?`${m[1]}-01-01`:a.start,end:a.end};
+  }
   function academicMonths(){
     const r=academicRange(),out=[];let d=new Date(r.start+'T00:00:00'),end=new Date(r.end+'T00:00:00');
     while(d<=end){out.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);d=new Date(d.getFullYear(),d.getMonth()+1,1)}
@@ -9383,8 +9393,8 @@ setTimeout(()=>{try{sepRenderClosingPreview();if(typeof renderDashboardPoleSepar
     const mode=document.getElementById('detailReportMode')?.value||'month';
     const month=document.getElementById('detailReportMonth')?.value||defaultMonth();
     const pole=document.getElementById('detailReportPole')?.value||'';
-    const range=academicRange();
-    return{mode,month,pole,start:mode==='month'?month+'-01':range.start,end:mode==='month'?month+'-31':range.end,label:mode==='month'?monthFR(month):`Année académique ${yearLabel()}`};
+    const range=mode==='year'?managementRange():academicRange();
+    return{mode,month,pole,start:mode==='month'?month+'-01':range.start,end:mode==='month'?month+'-31':range.end,label:mode==='month'?monthFR(month):`Année de gestion ${yearLabel()} (pré-rentrée + année académique)`};
   }
   function inPeriod(date,p){const d=normDate(date);if(!d)return false;return p.mode==='month'?d.slice(0,7)===p.month:(d>=p.start&&d<=p.end)}
   function poleMatch(pole,p){return !p.pole||String(pole)===String(p.pole)}
@@ -9457,10 +9467,20 @@ setTimeout(()=>{try{sepRenderClosingPreview();if(typeof renderDashboardPoleSepar
     });
   }
   function buildMonthRows(p){
-    return academicMonths().map(month=>{
+    const rows=[];
+    const academic=academicRange(),management=managementRange();
+    if(management.start<academic.start){
+      const endDate=new Date(academic.start+'T00:00:00');endDate.setDate(endDate.getDate()-1);
+      const end=[endDate.getFullYear(),String(endDate.getMonth()+1).padStart(2,'0'),String(endDate.getDate()).padStart(2,'0')].join('-');
+      const pre={...p,mode:'year',start:management.start,end};
+      const d=collect(pre),m=metrics(d,pre);
+      rows.push({month:'PRE',newStudents:d.students.length,payments:d.payments.length,...m,closings:d.closings.length});
+    }
+    academicMonths().forEach(month=>{
       const mp={...p,mode:'month',month,start:month+'-01',end:month+'-31'};const d=collect(mp),m=metrics(d,mp);
-      return{month,newStudents:d.students.length,payments:d.payments.length,...m,closings:d.closings.length};
+      rows.push({month,newStudents:d.students.length,payments:d.payments.length,...m,closings:d.closings.length});
     });
+    return rows;
   }
   function poleRows(p){
     const poles=p.pole?[p.pole]:POLES;
@@ -9489,7 +9509,7 @@ setTimeout(()=>{try{sepRenderClosingPreview();if(typeof renderDashboardPoleSepar
     const titlePole=p.pole?` • ${p.pole}`:'';
 
     const dailyBody=daily.map(x=>`<tr><td><b>${dateFR(x.date)}</b></td><td>${x.students}</td><td>${x.payments}</td><td class="money">${fmtR(x.studentIn)}</td><td class="money">${fmtR(x.otherIn)}</td><td class="money">${fmtR(x.out)}</td><td class="money"><b>${fmtR(x.studentIn+x.otherIn-x.out)}</b></td><td class="money">${fmtR(x.founder)}</td><td class="money">${fmtR(x.bank)}</td><td>${x.closings}</td><td class="money"><b>${fmtR(x.difference)}</b></td><td class="money">${fmtR(x.postCloseAdjustments)}</td></tr>`).join('');
-    const monthBody=months.map(x=>`<tr><td><b>${escR(monthFR(x.month))}</b></td><td>${x.newStudents}</td><td>${x.payments}</td><td class="money">${fmtR(x.studentIn)}</td><td class="money">${fmtR(x.otherIn)}</td><td class="money">${fmtR(x.out)}</td><td class="money"><b>${fmtR(x.net)}</b></td><td class="money">${fmtR(x.founder)}</td><td class="money">${fmtR(x.bank)}</td><td>${x.closings}</td><td class="money"><b>${fmtR(x.closeDiff)}</b></td><td class="money">${fmtR(x.postCloseAdjustments)}</td></tr>`).join('');
+    const monthBody=months.map(x=>`<tr><td><b>${x.month==='PRE'?'Pré-rentrée (janv. – août)':escR(monthFR(x.month))}</b></td><td>${x.newStudents}</td><td>${x.payments}</td><td class="money">${fmtR(x.studentIn)}</td><td class="money">${fmtR(x.otherIn)}</td><td class="money">${fmtR(x.out)}</td><td class="money"><b>${fmtR(x.net)}</b></td><td class="money">${fmtR(x.founder)}</td><td class="money">${fmtR(x.bank)}</td><td>${x.closings}</td><td class="money"><b>${fmtR(x.closeDiff)}</b></td><td class="money">${fmtR(x.postCloseAdjustments)}</td></tr>`).join('');
     const poleBody=poles.map(x=>`<tr><td><b>${escR(x.pole)}</b></td><td>${x.newStudents}</td><td>${x.payments}</td><td class="money">${fmtR(x.studentIn)}</td><td class="money">${fmtR(x.otherIn)}</td><td class="money">${fmtR(x.out)}</td><td class="money"><b>${fmtR(x.net)}</b></td><td class="money">${fmtR(x.founder)}</td><td class="money">${fmtR(x.bank)}</td><td>${x.closings}</td><td class="money"><b>${fmtR(x.closeDiff)}</b></td><td class="money">${fmtR(x.postCloseAdjustments)}</td></tr>`).join('');
     const channelBody=channels.map(x=>`<tr><td><b>${escR(x.channel)}</b></td><td class="money">${fmtR(x.inflow)}</td><td class="money">${fmtR(x.outflow)}</td><td class="money">${fmtR(x.transferIn)}</td><td class="money">${fmtR(x.transferOut)}</td><td class="money"><b>${fmtR(x.balance)}</b></td></tr>`).join('');
     const agentBody=agents.map(x=>`<tr><td><b>${escR(x.agent)}</b></td><td>${x.students}</td><td>${x.payments}</td><td class="money">${fmtR(x.amount)}</td></tr>`).join('');
@@ -9518,7 +9538,7 @@ setTimeout(()=>{try{sepRenderClosingPreview();if(typeof renderDashboardPoleSepar
         ${kpi('Marqueurs reçus',markers,'sur la période')}
       </div>
       ${m.postCloseAdjustments>0?`<div class="card dr-adjust-note"><b>ℹ️ Ajustements après clôture : ${fmtR(m.postCloseAdjustments)}</b><br><span class="small">Ces montants correspondent à des corrections administratives enregistrées après une clôture (par exemple reclassification ou paiement antidaté). Ils ne sont pas présentés comme un manque de caisse.</span></div>`:''}
-      ${p.mode==='year'?table('📆 Synthèse mois par mois','Lecture complète de l’année académique','<tr><th>Mois</th><th>Inscriptions</th><th>Paiements</th><th class="money">Versements</th><th class="money">Autres recettes</th><th class="money">Sorties</th><th class="money">Flux net</th><th class="money">Fondateur</th><th class="money">Banque</th><th>Clôtures</th><th class="money">Écart réel</th><th class="money">Ajustements après clôture</th></tr>',monthBody,12):table('📅 Détail jour par jour','Toutes les journées avec activité dans le mois','<tr><th>Date</th><th>Inscriptions</th><th>Paiements</th><th class="money">Versements</th><th class="money">Autres recettes</th><th class="money">Sorties</th><th class="money">Flux net</th><th class="money">Fondateur</th><th class="money">Banque</th><th>Clôtures</th><th class="money">Écart réel</th><th class="money">Ajustements après clôture</th></tr>',dailyBody,12)}
+      ${p.mode==='year'?table('📆 Synthèse mois par mois','Pré-rentrée et année académique — rapprochement avec le bilan annuel','<tr><th>Mois</th><th>Inscriptions</th><th>Paiements</th><th class="money">Versements</th><th class="money">Autres recettes</th><th class="money">Sorties</th><th class="money">Flux net</th><th class="money">Fondateur</th><th class="money">Banque</th><th>Clôtures</th><th class="money">Écart réel</th><th class="money">Ajustements après clôture</th></tr>',monthBody,12):table('📅 Détail jour par jour','Toutes les journées avec activité dans le mois','<tr><th>Date</th><th>Inscriptions</th><th>Paiements</th><th class="money">Versements</th><th class="money">Autres recettes</th><th class="money">Sorties</th><th class="money">Flux net</th><th class="money">Fondateur</th><th class="money">Banque</th><th>Clôtures</th><th class="money">Écart réel</th><th class="money">Ajustements après clôture</th></tr>',dailyBody,12)}
       ${table('🎯 Répartition par pôle','BTS, Formation qualifiante, Licence, Master et Administration générale','<tr><th>Pôle</th><th>Inscriptions</th><th>Paiements</th><th class="money">Versements</th><th class="money">Autres recettes</th><th class="money">Sorties</th><th class="money">Flux net</th><th class="money">Fondateur</th><th class="money">Banque</th><th>Clôtures</th><th class="money">Écart réel</th><th class="money">Ajustements après clôture</th></tr>',poleBody,12)}
       <div class="dr-two">${table('💰 Répartition par canal','Mouvements de trésorerie sans double comptage','<tr><th>Canal</th><th class="money">Entrées</th><th class="money">Sorties</th><th class="money">Transferts reçus</th><th class="money">Transferts envoyés</th><th class="money">Solde période</th></tr>',channelBody,6)}${table('👤 Activité par agent','Versements étudiants saisis/validés','<tr><th>Agent</th><th>Étudiants</th><th>Paiements</th><th class="money">Montant</th></tr>',agentBody,4)}</div>
       ${table('🎓 Inscriptions de la période',`${d.students.length} dossier(s) daté(s) de la période`,'<tr><th>Date</th><th>Matricule</th><th>Étudiant</th><th>Programme</th><th>Filière</th><th>Niveau</th><th>Agent</th></tr>',studentBody,7)}
