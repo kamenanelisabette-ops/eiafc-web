@@ -14,7 +14,7 @@
  const dueW=s=>typeof studentDue==='function'?studentDue(s):Math.max(0,Number(s.tuition||0)-Number(s.discount||0));
  const paidW=s=>typeof studentDebtPaid==='function'?studentDebtPaid(s.matricule):0;
  const restW=s=>typeof studentRest==='function'?studentRest(s):Math.max(0,dueW(s)-paidW(s));
- const dateIn=(v,a,b)=>{const d=String(v||'').slice(0,10);return /^\\d{4}-\\d{2}-\\d{2}$/.test(d)&&d>=a&&d<=b};
+ const dateIn=(v,a,b)=>{const d=String(v||'').slice(0,10);return /^\d{4}-\d{2}-\d{2}$/.test(d)&&d>=a&&d<=b};
  function defaultWeek(){const d=new Date(dateW()+'T12:00:00');const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);const a=d.toISOString().slice(0,10);const e=new Date(d);e.setDate(e.getDate()+6);return[a,e.toISOString().slice(0,10)]}
  function createView(){
   if($(VIEW))return;
@@ -103,7 +103,7 @@
   const rows=allRows(),due=rows.reduce((n,s)=>n+dueW(s),0),paid=rows.reduce((n,s)=>n+paidW(s),0),rest=rows.reduce((n,s)=>n+restW(s),0);
   $('wfrAllKpis').innerHTML=[['Étudiants',rows.length],['Net à payer',moneyW(due)],['Déjà payé',moneyW(paid)],['Reste à payer',moneyW(rest)]].map(x=>'<div class="card kpi"><div class="label">'+x[0]+'</div><div class="value">'+x[1]+'</div></div>').join('');
   $('wfrStudents').innerHTML='<thead><tr><th>N° d’ordre</th><th>Matricule</th><th>Nom et prénoms</th><th>Programme / Filière</th><th class="money">Scolarité</th><th class="money">Réduction</th><th class="money">Net à payer</th><th class="money">Déjà payé</th><th class="money">Reste à payer</th></tr></thead><tbody>'+
-   (rows.length?rows.map((s,i)=>'<tr><td>'+(i+1)+'</td><td>'+escW(s.matricule||'—')+'</td><td><b>'+escW(s.name||'—')+'</b></td><td>'+escW(s.program||'—')+' / '+escW(typeof studentTrackValue==='function'?studentTrackValue(s):s.track||'—')+'</td><td class="money">'+moneyW(Number(s.regFee||0)+Number(s.tuition||0))+'</td><td class="money">'+moneyW(s.discount)+'</td><td class="money"><b>'+moneyW(dueW(s))+'</b></td><td class="money">'+moneyW(paidW(s))+'</td><td class="money"><b>'+moneyW(restW(s))+'</b></td></tr>').join(''):'<tr><td colspan="9" class="empty">Aucun étudiant pour ces filtres.</td></tr>')+'</tbody>';
+   (rows.length?rows.map((s,i)=>'<tr><td>'+(i+1)+'</td><td>'+escW(s.matricule||'—')+'</td><td><b>'+escW(s.name||'—')+'</b></td><td>'+escW(s.program||'—')+' / '+escW(typeof studentTrackValue==='function'?studentTrackValue(s):s.track||'—')+'</td><td class="money">'+moneyW(Number(s.tuition||0))+'</td><td class="money">'+moneyW(s.discount)+'</td><td class="money"><b>'+moneyW(dueW(s))+'</b></td><td class="money">'+moneyW(paidW(s))+'</td><td class="money"><b>'+moneyW(restW(s))+'</b></td></tr>').join(''):'<tr><td colspan="9" class="empty">Aucun étudiant pour ces filtres.</td></tr>')+'</tbody>';
  }
  function csvDownload(name,headers,rows){
   const quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
@@ -111,7 +111,7 @@
   const blob=new Blob([content],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
  }
  function exportWeekly(){const rows=weeklyRows();csvDownload('EIAFC_point_hebdomadaire.csv',['N°','Date','Étudiant','Matricule','Programme','Mode','Référence','Montant encaissé'],rows.map((x,i)=>[i+1,x.p.date,x.s?.name||'Étudiant introuvable',x.p.student,x.s?.program,x.p.mode,x.p.ref,x.p.amount]));}
- function exportAll(){const rows=allRows();csvDownload('EIAFC_situation_financiere_etudiants.csv',['N° ordre','Matricule','Nom','Programme','Filière','Scolarité','Réduction','Net à payer','Déjà payé','Reste à payer'],rows.map((s,i)=>[i+1,s.matricule,s.name,s.program,typeof studentTrackValue==='function'?studentTrackValue(s):s.track,Number(s.regFee||0)+Number(s.tuition||0),s.discount,dueW(s),paidW(s),restW(s)]));}
+ function exportAll(){const rows=allRows();csvDownload('EIAFC_situation_financiere_etudiants.csv',['N° ordre','Matricule','Nom','Programme','Filière','Scolarité','Réduction','Net à payer','Déjà payé','Reste à payer'],rows.map((s,i)=>[i+1,s.matricule,s.name,s.program,typeof studentTrackValue==='function'?studentTrackValue(s):s.track,Number(s.tuition||0),s.discount,dueW(s),paidW(s),restW(s)]));}
  function printTable(title,tableId,kpiId){const table=$(tableId);if(!table)return;const w=window.open('','_blank');if(!w)return alert('Autorisez les fenêtres contextuelles pour imprimer le rapport.');w.document.write('<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>'+escW(title)+'</title><style>@page{size:A4 landscape;margin:10mm}body{font:12px Arial;color:#17212b}h2{color:#12304a}table{width:100%;border-collapse:collapse;font-size:10px}th,td{border:1px solid #cbd5e1;padding:6px;text-align:left}th{background:#edf2f7}.money{text-align:right}.kpis{margin:12px 0}</style></head><body><h2>EIAFC — '+escW(title)+'</h2><p>Année scolaire : '+escW(typeof activeYear==='function'?activeYear():'')+' | Édité le '+dateW()+'</p><div class="kpis">'+$(kpiId).innerHTML+'</div>'+table.outerHTML+'</body></html>');w.document.close();w.focus();setTimeout(()=>w.print(),300);}
  function renderAll(){if(!allowedW())return;fillPrograms();renderWeekly();renderAllStudents();}
  function init(){
