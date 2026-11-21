@@ -9,9 +9,9 @@
  const recordsW=()=>typeof currentRecords==='function'?currentRecords(db.payments):[];
  const studentsW=()=>typeof currentStudents==='function'?currentStudents():[];
  const allowedW=()=>typeof canSeeStudentFinance==='function'&&canSeeStudentFinance();
- const validW=p=>p&&p.deleted!==true&&p.status==='Validé'&&(!window.DEBT_PAYMENT_TYPES||DEBT_PAYMENT_TYPES.has(p.type));
+ const validW=p=>p&&p.deleted!==true&&p.status==='Validé'&&(typeof DEBT_PAYMENT_TYPES==='undefined'||DEBT_PAYMENT_TYPES.has(p.type));
  const studentForW=p=>studentsW().find(s=>String(s.matricule)===String(p.student));
- const dueW=s=>typeof studentDue==='function'?studentDue(s):Math.max(0,Number(s.regFee||0)+Number(s.tuition||0)-Number(s.discount||0));
+ const dueW=s=>typeof studentDue==='function'?studentDue(s):Math.max(0,Number(s.tuition||0)-Number(s.discount||0));
  const paidW=s=>typeof studentDebtPaid==='function'?studentDebtPaid(s.matricule):0;
  const restW=s=>typeof studentRest==='function'?studentRest(s):Math.max(0,dueW(s)-paidW(s));
  const dateIn=(v,a,b)=>{const d=String(v||'').slice(0,10);return /^\\d{4}-\\d{2}-\\d{2}$/.test(d)&&d>=a&&d<=b};
