@@ -29,7 +29,7 @@ module.exports = function handler(req, res) {
       // Remove it on hosted deployments so it cannot hide the secure login or trap all app controls behind the overlay.
       html = html.replace(/<script\b[^>]*id=["']eiafc-production-auth-screen-guard["'][^>]*>[\s\S]*?<\/script>/i, '');
       html = html.replace(/(<div\s+id=["']loginBox["'])\s+class=["']hidden["']/, '$1');
-      const hostedLoginCss = '<style id="eiafc-hosted-login-css">#loginOverlay{display:flex!important}#loginOverlay #loginBox{display:block!important}#loginOverlay #loginBox.hidden{display:block!important}#loginOverlay #authChoiceBox.hidden,#loginOverlay #signupBox.hidden,#loginOverlay #studentPortalLoginBox.hidden{display:none!important}</style>';
+      const hostedLoginCss = '<style id="eiafc-hosted-login-css">#loginOverlay{display:flex!important}#loginOverlay #loginBox{display:block!important}#loginOverlay #loginBox.hidden{display:block!important}#loginOverlay #authChoiceBox.hidden,#loginOverlay #signupBox.hidden,#loginOverlay #studentPortalLoginBox.hidden{display:none!important}#loginOverlay #lanLoginDetails{display:none!important}</style>';
       if (!html.includes('id="eiafc-hosted-login-css"')) html = html.includes('</head>') ? html.replace('</head>', hostedLoginCss + '\\n</head>') : hostedLoginCss + html;
     }
 
