@@ -8595,11 +8595,15 @@ setInterval(()=>runEiafcMaintenanceMonitor(),15*60*1000);window.addEventListener
       const j=await webApi('login',{workspace:WEB_WORKSPACE,username,password,deviceId:getDeviceId(),deviceName:`Web ${getDeviceId()}`,appVersion:APP_VERSION,userAgent:navigator.userAgent||''});
       if(!j?.session||!j?.user)throw new Error('Connexion acceptée mais session EIAFC incomplète.');
       if(btn)btn.textContent='Chargement des données…';
-      const full=await webApi('get_state',{},j.session);
-      if(!full?.state)throw new Error('La base centrale EIAFC n’a pas été reçue. Aucune base vide ne sera ouverte.');
-      const remote=normalizeDB(sanitizeRemoteStateForRole(deepClone(full.state),j.user));
+      // L'action login renvoie déjà l'état central filtré par rôle. On le réutilise
+      // pour éviter un second aller-retour réseau ; get_state reste un fallback
+      // compatible avec les anciennes versions de l'API.
+      let loaded=j?.state?{state:j.state,revision:j.revision}:null;
+      if(!loaded?.state)loaded=await webApi('get_state',{},j.session);
+      if(!loaded?.state)throw new Error('La base centrale EIAFC n’a pas été reçue. Aucune base vide ne sera ouverte.');
+      const remote=normalizeDB(sanitizeRemoteStateForRole(deepClone(loaded.state),j.user));
       sessionStorage.setItem(WEB_TOKEN_KEY,j.session);sessionStorage.setItem(WEB_USER_KEY,JSON.stringify(j.user));sessionStorage.setItem(SESSION_KEY,j.user.username);
-      webRevision=Number(full.revision||j.revision||0);webBase=deepClone(remote);
+      webRevision=Number(loaded.revision||j.revision||0);webBase=deepClone(remote);
       currentUser={...j.user,active:true,deleted:false};
       const pendingAtLogin=loadWebPending(currentUser);
       db=patchHasChanges(pendingAtLogin)?applyCloudPatchJS(remote,pendingAtLogin):deepClone(remote);persist();
