@@ -189,7 +189,7 @@ module.exports = function handler(req, res) {
     }
 
     // Keep the report script available.
-    const marker = '<script src="/daily-report.js?v=11.26.7"></script>';
+    const marker = '<script src="/daily-report.js?v=11.26.8"></script>';
     if (!html.includes(marker)) {
       html = html.includes('</body>')
         ? html.replace('</body>', marker + '\n</body>')
